@@ -9,10 +9,10 @@ git clone git@github.com:LarsEckart/dotfiles.git ~/.dotfiles
 mv ~/.bash_profile ~/.dotfiles/backups/
 mv ~/.bashrc ~/.dotfiles/backups/
 mv ~/.gitconfig ~/.dotfiles/backups/
-ln -s ~/.bash_profile ~/.dotfiles/.bash_profile 
-ln -s ~/.bashrc ~/.dotfiles/.bashrc 
-ln -s ~/.gitconfig ~/.dotfiles/.gitconfig 
-ln -s ~/.hushlogin ~/.dotfiles/.hushlogin 
-ln -s ~/.dotfiles/z.sh ~/.z.sh
+ln -s ~/.dotfiles/.bash_profile ~/.bash_profile
+ln -s ~/.dotfiles/.bashrc ~/.bashrc
+ln -s ~/.dotfiles/.gitconfig ~/.gitconfig  
+ln -s ~/.dotfiles/.gitignore ~/.gitignore  
+ln -s ~/.dotfiles/.hushlogin ~/.hushlogin 
 ```
 
