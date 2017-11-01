@@ -40,3 +40,6 @@ export JAVA_HOME="$(/usr/libexec/java_home -v 1.8)"
 # gradle
 export GRADLE_HOME="/usr/local/Cellar/gradle/4.2.1"
 
+# brew
+export PATH="/usr/local/sbin:$PATH"
+
