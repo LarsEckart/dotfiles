@@ -47,6 +47,7 @@ brew install git
 brew install jq
 brew install tree
 brew install zopfli
+brew install gradle
 
 # Remove outdated versions from the cellar.
 brew cleanup
