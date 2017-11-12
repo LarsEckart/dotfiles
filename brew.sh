@@ -49,6 +49,7 @@ brew install tree
 brew install zopfli
 brew install gradle
 brew install maven
+brew install unrar
 
 # Remove outdated versions from the cellar.
 brew cleanup
