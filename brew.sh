@@ -50,6 +50,7 @@ brew install zopfli
 brew install gradle
 brew install maven
 brew install unrar
+brew install p7zip
 
 # Remove outdated versions from the cellar.
 brew cleanup
