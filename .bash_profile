@@ -35,6 +35,9 @@ fi;
 
 ### Misc
 
+# case insensitive bash completion
+bind "set completion-ignore-case on"
+bind "set show-all-if-ambiguous on"
+
 # Only show the current directory's name in the tab
 export PROMPT_COMMAND='echo -ne "\033]0;${PWD##*/}\007"'
-
