@@ -51,6 +51,8 @@ brew install gradle
 brew install maven
 brew install unrar
 brew install p7zip
+brew install kubectl
+brew install tmux
 
 # Remove outdated versions from the cellar.
 brew cleanup
