@@ -49,6 +49,7 @@ brew install tree
 brew install zopfli
 brew install gradle
 brew install maven
+brew install ant
 brew install unrar
 brew install p7zip
 brew install kubectl
