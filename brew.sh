@@ -53,6 +53,8 @@ brew install ant
 brew install unrar
 brew install p7zip
 brew install kubectl
+brew install terraform
+brew install cfssl
 brew install tmux
 
 # Remove outdated versions from the cellar.
