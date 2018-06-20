@@ -53,9 +53,12 @@ brew install ant
 brew install unrar
 brew install p7zip
 brew install kubectl
+brew install kops
 brew install terraform
 brew install cfssl
 brew install tmux
+brew install awscli
+brew install stern
 
 # Remove outdated versions from the cellar.
 brew cleanup
