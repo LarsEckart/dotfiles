@@ -59,6 +59,9 @@ brew install cfssl
 brew install tmux
 brew install awscli
 brew install stern
+brew install htop
+brew install ngrep
+brew install hostess
 
 # Remove outdated versions from the cellar.
 brew cleanup

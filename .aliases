@@ -13,10 +13,9 @@ alias ~="cd ~" # `cd` is probably faster to type though
 alias -- -="cd -"
 
 # Shortcuts
-#alias d="cd ~/Dropbox"
-#alias g="cd ~/github"
-#alias dl="cd ~/Downloads"
-#alias dt="cd ~/Desktop"
+alias dl="cd ~/Downloads"
+alias g="git"
+alias h="history"
 
 # Detect which `ls` flavor is in use
 if ls --color > /dev/null 2>&1; then # GNU `ls`
@@ -151,3 +150,12 @@ alias path='echo -e ${PATH//:/\\n}'
 
 # Full Recursive Directory Listing
 alias lr='ls -R | grep ":$" | sed -e '\''s/:$//'\'' -e '\''s/[^-][^\/]*\//--/g'\'' -e '\''s/^/   /'\'' -e '\''s/-/|/'\'' | less'
+
+# vhosts
+alias hosts='sudo vim /etc/hosts'
+
+# copy file interactive
+alias cp='cp -i'
+
+# move file interactive
+alias mv='mv -i'
