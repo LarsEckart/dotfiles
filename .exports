@@ -39,10 +39,11 @@ export GPG_TTY=$(tty);
 export JAVA_HOME="$(/usr/libexec/java_home -v 10)"
 
 # android
-export export ANDROID_HOME=$HOME/Library/Android/sdk
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export ANDROID_SDK_HOME=$HOME/Library/Android/sdk
 
 # gradle
-export GRADLE_HOME="/usr/local/Cellar/gradle/4.6.0"
+export GRADLE_HOME="/usr/local/Cellar/gradle/4.9.0"
 
 # brew and android tools
 export PATH="/usr/local/sbin:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
