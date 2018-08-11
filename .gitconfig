@@ -21,6 +21,8 @@
 	added = yellow
 	changed = green
 	untracked = cyan
-[user]
-	name = Lars Eckart
-	email = lars.eckart@gmail.com
+[includeIf "gitdir:~/proekspert/"]
+    path = ~/proekspert/.gitconfig
+
+[includeIf "gitdir:~/github/"]
+    path = ~/github/.gitconfig
