@@ -15,5 +15,3 @@ ln -s ~/.dotfiles/.gitconfig ~/.gitconfig
 ln -s ~/.dotfiles/.gitignore ~/.gitignore  
 ln -s ~/.dotfiles/.hushlogin ~/.hushlogin 
 ```
-
-gitconfig requires work&personal folders with .gitconfig file that declares name&email!

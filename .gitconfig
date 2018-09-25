@@ -21,8 +21,12 @@
 	added = yellow
 	changed = green
 	untracked = cyan
-[includeIf "gitdir:~/proekspert/"]
-    path = .gitconfig-work
+	
+[includeIf "gitdir:~/.dotfiles/"]
+    path = .gitconfig-personal
 
 [includeIf "gitdir:~/github/"]
     path = .gitconfig-personal
+
+[includeIf "gitdir:~/proekspert/"]
+    path = .gitconfig-work
