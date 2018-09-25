@@ -22,7 +22,7 @@
 	changed = green
 	untracked = cyan
 [includeIf "gitdir:~/proekspert/"]
-    path = ~/proekspert/.gitconfig
+    path = .gitconfig-work
 
 [includeIf "gitdir:~/github/"]
-    path = ~/github/.gitconfig
+    path = .gitconfig-personal
