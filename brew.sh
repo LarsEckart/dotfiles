@@ -62,6 +62,7 @@ brew install stern
 brew install htop
 brew install ngrep
 brew install hostess
+brew install hadolint
 
 # Remove outdated versions from the cellar.
 brew cleanup
