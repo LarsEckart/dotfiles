@@ -30,6 +30,8 @@ if ! fgrep -q '/usr/local/bin/bash' /etc/shells; then
   chsh -s /usr/local/bin/bash;
 fi;
 
+brew install heroku/brew/heroku
+
 # Install `wget` with IRI support.
 brew install wget --with-iri
 
@@ -63,6 +65,7 @@ brew install htop
 brew install ngrep
 brew install hostess
 brew install hadolint
+brew install telnet
 
 # Remove outdated versions from the cellar.
 brew cleanup
