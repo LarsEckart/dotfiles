@@ -66,6 +66,9 @@ brew install ngrep
 brew install hostess
 brew install hadolint
 brew install telnet
+brew install rbenv
+brew install ruby-build
+brew install hugo
 
 # Remove outdated versions from the cellar.
 brew cleanup

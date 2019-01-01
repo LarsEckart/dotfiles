@@ -47,3 +47,5 @@ export GRADLE_HOME="/usr/local/Cellar/gradle/5.0"
 
 # brew and android tools
 export PATH="/usr/local/sbin:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
+
+if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
