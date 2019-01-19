@@ -69,6 +69,9 @@ brew install telnet
 brew install rbenv
 brew install ruby-build
 brew install hugo
+brew install fswatch
+brew install bat
+brew install exa
 
 # Remove outdated versions from the cellar.
 brew cleanup
