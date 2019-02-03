@@ -43,7 +43,11 @@ export ANDROID_HOME=$HOME/Library/Android/sdk
 export ANDROID_SDK_HOME=$HOME/Library/Android/sdk
 
 # gradle
-export GRADLE_HOME="/usr/local/Cellar/gradle/5.0"
+export GRADLE_HOME="/usr/local/Cellar/gradle/5.1.1"
+
+# micronaut
+export MICRONAUT_HOME=~/github/micronaut-core
+export PATH="$PATH:$MICRONAUT_HOME/cli/build/bin"
 
 # brew and android tools
 export PATH="/usr/local/sbin:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
