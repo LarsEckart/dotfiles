@@ -22,15 +22,10 @@
 	added = yellow
 	changed = green
 	untracked = cyan
-	
-[includeIf "gitdir/i:~/.dotfiles/"]
-    path = .gitconfig-personal
 
-[includeIf "gitdir/i:~/github/"]
-    path = .gitconfig-personal
+[include]
+	path = ~/.dotfiles/.gitconfig-personal
 
 [includeIf "gitdir/i:~/proekspert/"]
-    path = .gitconfig-work
-[user]
-	name = Lars Eckart
-	email = lars.eckart@gmail.com
+    path = ~/.dotfiles/.gitconfig-work
+

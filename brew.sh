@@ -73,5 +73,8 @@ brew install fswatch
 brew install bat
 brew install exa
 
+brew tap wagoodman/dive
+brew install dive
+
 # Remove outdated versions from the cellar.
 brew cleanup
