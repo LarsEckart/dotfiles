@@ -147,3 +147,6 @@ alias cp='cp -i'
 
 # move file interactive
 alias mv='mv -i'
+
+# do not index npm_modules foler with spotlight, https://github.com/yarnpkg/yarn/issues/6453
+alias fix-spotlight='find . -type d -name "node_modules" -exec touch "{}/.metadata_never_index" \;'
