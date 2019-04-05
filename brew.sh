@@ -50,6 +50,7 @@ brew install jq
 brew install tree
 brew install zopfli
 brew install gradle
+brew install gdub
 brew install maven
 brew install ant
 brew install unrar
