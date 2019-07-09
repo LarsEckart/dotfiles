@@ -77,5 +77,8 @@ brew install exa
 brew tap wagoodman/dive
 brew install dive
 
+brew tap jesseduffield/lazydocker
+brew install lazydocker
+
 # Remove outdated versions from the cellar.
 brew cleanup
