@@ -2,7 +2,7 @@
 
 alias j8="export JAVA_HOME=`/usr/libexec/java_home -v 1.8`; java -version"
 alias j11="export JAVA_HOME=`/usr/libexec/java_home -v 11`; java -version"
-alias j12="export JAVA_HOME=`/usr/libexec/java_home -v 12`; java -version"
+alias j13="export JAVA_HOME=`/usr/libexec/java_home -v 13`; java -version"
 
 # Easier navigation:
 alias ..="cd .."
@@ -150,3 +150,6 @@ alias mv='mv -i'
 
 # do not index npm_modules foler with spotlight, https://github.com/yarnpkg/yarn/issues/6453
 alias fix-spotlight='find . -type d -name "node_modules" -exec touch "{}/.metadata_never_index" \;'
+
+# delete local branches (unless master/develop) that were merged
+alias gcl='git branch --merged | egrep -v "(^\*|master|dev)" | xargs git branch -d'
