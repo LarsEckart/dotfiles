@@ -46,6 +46,8 @@ export ANDROID_SDK_HOME=$HOME/Library/Android/sdk
 # gradle
 export GRADLE_HOME="/usr/local/Cellar/gradle/5.6.3"
 
+export GROOVY_HOME=/usr/local/opt/groovy/libexec
+
 # micronaut
 export MICRONAUT_HOME=~/github/micronaut-core
 export PATH="$PATH:$MICRONAUT_HOME/cli/build/bin"
