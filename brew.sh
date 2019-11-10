@@ -12,8 +12,6 @@ brew upgrade
 # Don’t forget to add `$(brew --prefix coreutils)/libexec/gnubin` to `$PATH`.
 brew install coreutils
 
-# Install some other useful utilities like `sponge`.
-brew install moreutils
 # Install GNU `find`, `locate`, `updatedb`, and `xargs`, `g`-prefixed.
 brew install findutils
 # Install GNU `sed`, overwriting the built-in `sed`.
@@ -55,13 +53,9 @@ brew install maven
 brew install ant
 brew install unrar
 brew install p7zip
-brew install kubectl
-brew install kops
 brew install terraform
 brew install cfssl
 brew install tmux
-brew install awscli
-brew install stern
 brew install htop
 brew install ngrep
 brew install hostess
