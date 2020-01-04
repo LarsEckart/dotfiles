@@ -64,6 +64,7 @@ brew install telnet
 brew install rbenv
 brew install ruby-build
 brew install node
+brew install n
 brew install hugo
 brew install fswatch
 brew install bat
