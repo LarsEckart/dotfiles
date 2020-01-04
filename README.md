@@ -12,6 +12,6 @@ mv ~/.gitconfig ~/.dotfiles/backups/
 ln -s ~/.dotfiles/.bash_profile ~/.bash_profile
 ln -s ~/.dotfiles/.bashrc ~/.bashrc
 ln -s ~/.dotfiles/.gitconfig ~/.gitconfig  
-ln -s ~/.dotfiles/.gitignore ~/.gitignore  
+ln -s ~/.dotfiles/.gitignore_global ~/.gitignore_global 
 ln -s ~/.dotfiles/.hushlogin ~/.hushlogin 
 ```
