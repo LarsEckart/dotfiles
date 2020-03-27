@@ -35,7 +35,8 @@ export GPG_TTY=$(tty);
 
 # java
 #export JAVA_HOME="$(/usr/libexec/java_home -v 1.8)"
-export JAVA_HOME="$(/usr/libexec/java_home -v 11)"
+#export JAVA_HOME="$(/usr/libexec/java_home -v 11)"
+export JAVA_HOME="$(/usr/libexec/java_home -v 14)"
 
 export PATH=${PATH}:${JAVA_HOME}/bin
 
@@ -44,7 +45,7 @@ export ANDROID_HOME=$HOME/Library/Android/sdk
 export ANDROID_SDK_HOME=$HOME/Library/Android/sdk
 
 # gradle
-export GRADLE_HOME="/usr/local/Cellar/gradle/6.1"
+export GRADLE_HOME="/usr/local/Cellar/gradle/6.3"
 
 export GROOVY_HOME=/usr/local/opt/groovy/libexec
 
