@@ -69,6 +69,7 @@ brew install hugo
 brew install fswatch
 brew install bat
 brew install exa
+brew install nmap  # nmap -F 192.168.1.1
 
 brew tap wagoodman/dive
 brew install dive
