@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
 
+# -d for recursive removing untracked files -f force, delete directories
+red() {
+	git reset --hard HEAD
+	git clean -df
+}
+
+# $ green "hello world"
+green() {
+	git add .
+	git commit -m "$@"
+}
+
+
 # Create a new directory and enter it
 function mkd() {
 	mkdir -p "$@" && cd "$_";
