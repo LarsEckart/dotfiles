@@ -18,6 +18,29 @@ function mkd() {
 	mkdir -p "$@" && cd "$_";
 }
 
+# 5 most used commands
+function top5() {
+	history | awk '$1=" "' | cut -d ' ' -f 3 | sort | uniq -c | sort -n -r | head -5
+}
+
+#  git log is the git command to get logs data
+#        --format=format: to remove all fancy formatting
+#        --name-only because we only care about file names
+#        --since=12.month is quite explicit
+#    egrep -v '^$' removes all empty lines from the output
+#    sort to sort file names alphabetically
+#    uniq -c to count individual file names occurrences
+#    sort -r to sort the result in descending order
+#    head -50 to keep the 50 most changed files only
+function churn() {
+	git log --format=format: --name-only --since=12.month \
+ | egrep -v '^$' \
+ | sort \
+ | uniq -c \
+ | sort -r \
+ | head -50
+}
+
 # Change working directory to the top-most Finder window location
 function cdf() { # short for `cdfinder`
 	cd "$(osascript -e 'tell app "Finder" to POSIX path of (insertion location as alias)')";
