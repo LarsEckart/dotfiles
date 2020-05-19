@@ -49,6 +49,10 @@ export GRADLE_HOME="/usr/local/Cellar/gradle/6.4"
 
 export GROOVY_HOME=/usr/local/opt/groovy/libexec
 
+# so that mob.sh stays on working branch and does not jump back to master
+export MOB_NEXT_STAY=true
+
+
 # micronaut
 export MICRONAUT_HOME=~/github/micronaut-core
 export PATH="$PATH:$MICRONAUT_HOME/cli/build/bin"
