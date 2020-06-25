@@ -38,6 +38,8 @@
 	# But if, say, you want Git to use one email address for your open source projects and a different one for your work projects, you’ve undoubtedly made the mistake of committing to a new Git repository without having first set your email address in that repository. In this situation, Git emits a warning, but it creates the commit anyway, using an email address that it guesses from the local system hostname. If you’re trying to do something as complicated as different addresses for different projects, this is almost certainly not what you want.
 	# Now you can tell Git not to guess, but rather to insist that you set user.name and user.email explicitly before it will let you commit:
 	useConfigOnly = true
+	name = Lars Eckart
+	email = lars.eckart@gmail.com
 [diff]
 	# https://git-scm.com/docs/git-config#git-config-diffrenames
 	# Whether and how Git detects renames. If set to "false", rename detection is disabled. If set to "true", basic rename detection is enabled. If set to "copies" or "copy", Git will detect copies, as well.
@@ -46,3 +48,8 @@
 	# A POSIX Extended Regular Expression used to determine what is a "word" when performing word-by-word difference calculations. Character sequences that match the regular expression are "words", all other characters are ignorable whitespace.
 	# https://medium.com/@porteneuve/30-git-cli-options-you-should-know-about-15423e8771df
 	wordRegex = .
+[filter "lfs"]
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
