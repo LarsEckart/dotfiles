@@ -12,6 +12,13 @@ green() {
 	git commit -m "$@"
 }
 
+ups() {
+	git remote add upstream $@
+	git fetch upstream
+	git pull upstream/master
+	git push
+}
+
 # curl every second with timeout for downtime checks during deploy
 down() {
 	while true ; do time curl --connect-timeout 1 https://micronaut.herokuapp.com/health ; sleep 1 ; done
