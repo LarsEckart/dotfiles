@@ -73,6 +73,7 @@ brew install nmap  # nmap -F 192.168.1.1
 brew install golang
 brew install python
 brew install yamllint
+brew install vale
 
 brew tap wagoodman/dive
 brew install dive
