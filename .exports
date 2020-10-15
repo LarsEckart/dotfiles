@@ -45,7 +45,7 @@ export ANDROID_HOME=$HOME/Library/Android/sdk
 export ANDROID_SDK_HOME=$HOME/Library/Android/sdk
 
 # gradle
-export GRADLE_HOME="/usr/local/Cellar/gradle/6.6"
+export GRADLE_HOME="/usr/local/Cellar/gradle/6.7"
 
 export GROOVY_HOME=/usr/local/opt/groovy/libexec
 
