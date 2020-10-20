@@ -11,6 +11,7 @@
 *.css   diff=css
 *.html  diff=html
 *.xhtml diff=html
+*.jsp   diff=html
 *.ex    diff=elixir
 *.exs   diff=elixir
 *.go    diff=golang
@@ -23,3 +24,5 @@
 *.rs    diff=rust
 *.lisp  diff=lisp
 *.el    diff=lisp
+*.js    diff=javascript
+*.ts    diff=javascript
