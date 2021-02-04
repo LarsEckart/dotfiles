@@ -16,3 +16,23 @@ ln -s ~/.dotfiles/.gitattributes ~/.gitattributes
 ln -s ~/.dotfiles/.gitignore_global ~/.gitignore_global 
 ln -s ~/.dotfiles/.hushlogin ~/.hushlogin 
 ```
+
+### install
+* Jetbrains Toolboxangle
+* [Rectangle](https://github.com/rxhanson/Rectangle)
+
+### System Preferences
+
+#### Dock
+
+Position on screen: right
+- [x] Automatically hide and show the dock
+
+#### Keyboard
+
+- [x] Use F1, F2, etc keys as standard function keys
+
+#### Trackpad
+
+- [x] Tap to click
+- [ ] Scroll direction: Natural
