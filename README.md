@@ -18,10 +18,6 @@ ln -s ~/.dotfiles/.hushlogin ~/.hushlogin
 ln -s ~/.dotfiles/.vimrc ~/.vimrc
 ```
 
-### install
-* Jetbrains Toolboxangle
-* [Rectangle](https://github.com/rxhanson/Rectangle)
-
 ### System Preferences
 
 #### Dock
@@ -37,3 +33,17 @@ Position on screen: right
 
 - [x] Tap to click
 - [ ] Scroll direction: Natural
+
+
+### Applications
+* brew
+* Jetbrains Toolbox
+* [Rectangle](https://github.com/rxhanson/Rectangle)
+* [iTerm2](https://iterm2.com/)
+* [Fork](https://git-fork.com/)
+* Flycut ?
+
+
+### Fonts
+
+* Jetbrains Mono
