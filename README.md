@@ -41,7 +41,7 @@ Position on screen: right
 * [Rectangle](https://github.com/rxhanson/Rectangle)
 * [iTerm2](https://iterm2.com/)
 * [Fork](https://git-fork.com/)
-* Flycut ?
+* Flycut ? or [maccy](https://maccy.app/)
 
 
 ### Fonts
