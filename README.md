@@ -47,3 +47,7 @@ Position on screen: right
 ### Fonts
 
 * Jetbrains Mono
+
+### Others
+
+* [Generate a ssh key](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
