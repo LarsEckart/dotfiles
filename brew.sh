@@ -35,6 +35,7 @@ brew install wget --with-iri
 
 # Install GnuPG to enable PGP-signing commits.
 brew install gnupg
+brew install pinentry-mac
 
 # Install more recent versions of some macOS tools.
 brew install vim --with-override-system-vi
@@ -53,25 +54,15 @@ brew install maven
 brew install ant
 brew install unrar
 brew install p7zip
-brew install terraform
-brew install cfssl
-brew install tmux
 brew install htop
 brew install ngrep
 brew install hostess
 brew install hadolint
 brew install telnet
-brew install rbenv
-brew install ruby-build
-brew install node
-brew install n
 brew install hugo
-brew install fswatch
 brew install bat
 brew install exa
 brew install nmap  # nmap -F 192.168.1.1
-brew install golang
-brew install python
 brew install yamllint
 brew install vale
 
