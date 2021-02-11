@@ -19,6 +19,10 @@ ups() {
 	git push
 }
 
+pk() {
+	lsof -i :"$1" -s TCP:LISTEN -t | xargs kill
+}
+
 # curl every second with timeout for downtime checks during deploy
 down() {
 	while true ; do time curl --connect-timeout 1 https://micronaut.herokuapp.com/health ; sleep 1 ; done
