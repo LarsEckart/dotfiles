@@ -6,6 +6,9 @@ alias j11="export JAVA_HOME=`/usr/libexec/java_home -v 11`; java -version"
 alias j15="export JAVA_HOME=`/usr/libexec/java_home -v 15`; java -version"
 alias j16="export JAVA_HOME=`/usr/libexec/java_home -v 16`; java -version"
 
+# bat instead of cat
+alias cat='bat --style=plain'
+
 # Easier navigation:
 alias ..="cd .."
 
@@ -18,17 +21,11 @@ else # macOS `ls`
 	export LSCOLORS='BxBxhxDxfxhxhxhxhxcxcx'
 fi
 
-# List all files colorized in long format
-alias l="ls -lF ${colorflag}"
+alias l='exa'
+alias ll='exa -laFh'
+alias ls='exa -lah --color=auto'
+alias la='exa -laFh'
 
-# List all files colorized in long format, including dot files
-alias la="ls -laF ${colorflag}"
-
-# List only directories
-alias lsd="ls -lF ${colorflag} | grep --color=never '^d'"
-
-# Always use color output for `ls`
-alias ls="command ls ${colorflag}"
 
 # Always enable colored `grep` output
 # Note: `GREP_OPTIONS="--color=auto"` is deprecated, hence the alias usage.
