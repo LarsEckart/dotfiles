@@ -13,9 +13,9 @@ brew upgrade
 brew install coreutils
 
 # Install GNU `find`, `locate`, `updatedb`, and `xargs`, `g`-prefixed.
-brew install findutils
+#brew install findutils
 # Install GNU `sed`, overwriting the built-in `sed`.
-brew install gnu-sed --with-default-names
+brew install gnu-sed
 # Install Bash 4.
 # Note: don’t forget to add `/usr/local/bin/bash` to `/etc/shells` before
 # running `chsh`.
@@ -38,7 +38,7 @@ brew install gnupg
 brew install pinentry-mac
 
 # Install more recent versions of some macOS tools.
-brew install vim --with-override-system-vi
+brew install vim
 brew install grep
 brew install openssh
 
@@ -46,8 +46,7 @@ brew install openssh
 brew install ack
 brew install git
 brew install jq
-brew install tree
-brew install zopfli
+#brew install zopfli
 brew install gradle
 brew install gdub
 brew install maven
@@ -55,13 +54,12 @@ brew install ant
 brew install unrar
 brew install p7zip
 brew install htop
-brew install ngrep
-brew install hostess
-brew install hadolint
+#brew install ngrep
+brew install hadolint   # Haskell Dockerfile Linter
 brew install telnet
 brew install hugo
-brew install bat
-brew install exa
+brew install bat # better cat
+brew install exa # better ls
 brew install nmap  # nmap -F 192.168.1.1
 brew install yamllint
 brew install vale
