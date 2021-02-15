@@ -18,25 +18,6 @@ ln -s ~/.dotfiles/.hushlogin ~/.hushlogin
 ln -s ~/.dotfiles/.vimrc ~/.vimrc
 ```
 
-### System Preferences
-
-#### Dock
-
-Position on screen: right
-- [x] Automatically hide and show the dock
-
-
-
-
-
-### Applications
-* brew
-* Jetbrains Toolbox
-* [Rectangle](https://github.com/rxhanson/Rectangle)
-* [iTerm2](https://iterm2.com/)
-* [Fork](https://git-fork.com/)
-* Flycut ? or [maccy](https://maccy.app/)
-
 
 ### Fonts
 
