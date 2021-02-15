@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Install Homebrew if not installed - brew.sh
+if ! hash brew 2>/dev/null; then
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+fi
+
 # Install command-line tools using Homebrew.
 
 # Make sure we’re using the latest Homebrew.
@@ -8,12 +13,6 @@ brew update
 # Upgrade any already-installed formulae.
 brew upgrade
 
-# Install GNU core utilities (those that come with macOS are outdated).
-# Don’t forget to add `$(brew --prefix coreutils)/libexec/gnubin` to `$PATH`.
-brew install coreutils
-
-# Install GNU `find`, `locate`, `updatedb`, and `xargs`, `g`-prefixed.
-#brew install findutils
 # Install GNU `sed`, overwriting the built-in `sed`.
 brew install gnu-sed
 # Install Bash 4.
@@ -21,6 +20,13 @@ brew install gnu-sed
 # running `chsh`.
 brew install bash
 brew install bash-completion2
+
+brew install less
+brew install make
+brew install nano
+brew install perl
+brew install rsync
+brew install unzip
 
 # Switch to using brew-installed bash as default shell
 if ! fgrep -q '/usr/local/bin/bash' /etc/shells; then
@@ -41,20 +47,16 @@ brew install pinentry-mac
 brew install vim
 brew install grep
 brew install openssh
+brew install openssl
 
 # Install other useful binaries.
 brew install ack
 brew install git
 brew install jq
-#brew install zopfli
 brew install gradle
 brew install gdub
 brew install maven
-brew install ant
-brew install unrar
-brew install p7zip
 brew install htop
-#brew install ngrep
 brew install hadolint   # Haskell Dockerfile Linter
 brew install telnet
 brew install hugo
@@ -70,5 +72,23 @@ brew install dive
 brew tap jesseduffield/lazydocker
 brew install lazydocker
 
-# Remove outdated versions from the cellar.
-brew cleanup
+#brew install ffmpeg --with-libvpx
+
+
+# Apps
+
+brew install --cask rectangle
+brew install --cask iterm2
+brew install --cask fork
+brew install --cask maccy
+brew install --cask jetbrains-toolbox
+brew install --cask visual-studio-code
+brew install --cask the-unarchiver
+brew install --cask gitup
+brew install --cask firefox
+brew install --cask gpg-suite
+brew install --cask jdiskreport
+
+
+# Remove outdated versions from the cellar including casks
+brew cleanup && brew prune

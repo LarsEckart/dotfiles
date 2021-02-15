@@ -25,14 +25,8 @@ ln -s ~/.dotfiles/.vimrc ~/.vimrc
 Position on screen: right
 - [x] Automatically hide and show the dock
 
-#### Keyboard
 
-- [x] Use F1, F2, etc keys as standard function keys
 
-#### Trackpad
-
-- [x] Tap to click
-- [ ] Scroll direction: Natural
 
 
 ### Applications
