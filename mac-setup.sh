@@ -95,9 +95,6 @@ defaults write NSGlobalDomain AppleWindowTabbingMode -string 'always'
 # Dock pinning: 'start', 'middle', 'end'
 # defaults write com.apple.dock pinning -string 'middle'
 
-# Lock the Dock position
-# defaults write com.apple.dock position-immutable -bool true
-
 # Double-click a window's title bar to:
 # None
 # Mimimize
