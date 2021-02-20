@@ -159,14 +159,6 @@ defaults write NSGlobalDomain KeyRepeat -int 6
 # default 25
 defaults write NSGlobalDomain InitialKeyRepeat -int 25
 
-# Adjust keyboard brightness in low light
-defaults write com.apple.BezelServices kDim -bool true
-sudo defaults write /Library/Preferences/com.apple.iokit.AmbientLightSensor "Automatic Keyboard Enabled" -bool true
-
-# Dim keyboard after idle time (in seconds)
-defaults write com.apple.BezelServices kDimTime -int 60
-sudo defaults write /Library/Preferences/com.apple.iokit.AmbientLightSensor "Keyboard Dim Time" -int 60
-
 # Full Keyboard Access
 # In windows and dialogs, press Tab to move keyboard focus between:
 # 1 : Text boxes and lists only
@@ -235,7 +227,7 @@ sudo defaults delete /Library/Preferences/com.apple.loginwindow autoLoginUser &>
 defaults write com.apple.LaunchServices LSQuarantine -bool false
 
 # Allow applications downloaded from anywhere
-sudo spctl --master-disable
+#sudo spctl --master-disable
 
 # Turn on Firewall
 sudo defaults write /Library/Preferences/com.apple.alf globalstate -int 1
@@ -316,8 +308,6 @@ defaults write com.apple.dock wvous-br-modifier -int 0
 # Display login window as: Name and password
 sudo defaults write /Library/Preferences/com.apple.loginwindow "SHOWFULLNAME" -bool true
 
-# Disable automatic login
-sudo defaults delete /Library/Preferences/com.apple.loginwindow autoLoginUser 2>/dev/null
 # Automatic login as current user or "Guest" for guest login
 #sudo defaults write /Library/Preferences/com.apple.loginwindow autoLoginUser -string `whoami`
 
