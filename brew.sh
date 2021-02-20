@@ -87,8 +87,14 @@ brew install --cask the-unarchiver
 brew install --cask gitup
 brew install --cask firefox
 brew install --cask gpg-suite
-brew install --cask jdiskreport
+#brew install --cask jdiskreport
+brew install --cask cakebrew
+brew install --cask anydesk
+brew install --cask obs
+brew install --cask zoom
+brew install --cask techsmith-capture
+brew install --cask boop
 
 
 # Remove outdated versions from the cellar including casks
-brew cleanup && brew prune
+brew cleanup
