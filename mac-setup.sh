@@ -326,36 +326,6 @@ killall SystemUIServer
 defaults write com.apple.screencapture type -string "png"
 
 ###############################################################################
-# Finder                                                                      #
-###############################################################################
-
-# Finder: show all filename extensions
-defaults write NSGlobalDomain AppleShowAllExtensions -bool true
-
-# Expand the following File Info panes:
-# “General”, “Open with”, and “Sharing & Permissions”
-defaults write com.apple.finder FXInfoPanesExpanded -dict \
-	General -bool true \
-	OpenWith -bool true \
-	Privileges -bool true
-
-# Finder: allow text selection in Quick Look
-defaults write com.apple.finder QLEnableTextSelection -bool true
-
-# When performing a search, search the current folder by default
-# This Mac       : `SCev`
-# Current Folder : `SCcf`
-# Previous Scope : `SCsp`
-defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
-
-# Disable the warning when changing a file extension
-defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
-
-
-# Add iOS Simulator to Launchpad
-#sudo ln -sf "/Applications/Xcode.app/Contents/Developer/Applications/iOS Simulator.app" "/Applications/iOS Simulator.app"
-
-###############################################################################
 # iTunes
 ###############################################################################
 
