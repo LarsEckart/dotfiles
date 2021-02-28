@@ -52,12 +52,7 @@ export GROOVY_HOME=/usr/local/opt/groovy/libexec
 # so that mob.sh stays on working branch and does not jump back to master
 export MOB_NEXT_STAY=true
 
-
-# micronaut
-export MICRONAUT_HOME=~/github/micronaut-core
-export PATH="$PATH:$MICRONAUT_HOME/cli/build/bin"
-
 # brew and android tools
 export PATH="/usr/local/sbin:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
 
-if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
+export PATH=/opt/homebrew/bin:$PATH
