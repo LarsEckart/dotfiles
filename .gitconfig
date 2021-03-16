@@ -33,7 +33,7 @@
 [include]
 	path = ~/.dotfiles/.gitconfig-personal
 
-[includeIf "gitdir/i:~/proekspert/"]
+[includeIf "gitdir/i:~/ml/"]
     path = ~/.dotfiles/.gitconfig-work
 
 [user]
@@ -44,7 +44,9 @@
 	email = lars.eckart@hey.com
 [diff]
 	# https://git-scm.com/docs/git-config#git-config-diffrenames
-	# Whether and how Git detects renames. If set to "false", rename detection is disabled. If set to "true", basic rename detection is enabled. If set to "copies" or "copy", Git will detect copies, as well.
+	# Whether and how Git detects renames. If set to "false", rename detection is disabled. 
+	# If set to "true", basic rename detection is enabled. 
+	# If set to "copies" or "copy", Git will detect copies, as well.
 	renames = copies
 	# https://git-scm.com/docs/git-config#git-config-diffwordRegex
 	# A POSIX Extended Regular Expression used to determine what is a "word" when performing word-by-word difference calculations. Character sequences that match the regular expression are "words", all other characters are ignorable whitespace.
