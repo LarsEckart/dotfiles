@@ -239,3 +239,7 @@ dcleanup(){
 	mapfile -t images < <(docker images --filter dangling=true -q 2>/dev/null)
 	docker rmi "${images[@]}" 2>/dev/null
 }
+
+rename_last_commit(){
+	git commit --amend -m "$1"
+}
