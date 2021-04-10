@@ -36,7 +36,8 @@ export GPG_TTY=$(tty);
 # java
 #export JAVA_HOME="$(/usr/libexec/java_home -v 1.8)"
 #export JAVA_HOME="$(/usr/libexec/java_home -v 11)"
-export JAVA_HOME="$(/usr/libexec/java_home -v 15)"
+export JAVA_HOME="$(/usr/libexec/java_home -v 16)"
+export GRAALVM_HOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-21.0.0.2/Contents/Home
 
 export PATH=${PATH}:${JAVA_HOME}/bin
 
