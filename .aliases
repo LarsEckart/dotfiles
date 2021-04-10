@@ -78,4 +78,5 @@ alias gcl='git branch --merged | egrep -v "(^\*|master|dev)" | xargs git branch 
 # git aliases
 
 alias gss='git status -s'
-alias gc="git clone"
+alias gc='git clone'
+alias gcr=rename_last_commit
