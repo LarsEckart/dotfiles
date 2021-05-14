@@ -72,7 +72,7 @@ alias mv='mv -i'
 alias fix-spotlight='find . -type d -name "node_modules" -exec touch "{}/.metadata_never_index" \;'
 
 # delete local branches (unless master/develop) that were merged
-alias gcl='git branch --merged | egrep -v "(^\*|master|dev)" | xargs git branch -d'
+alias gcl='git branch --merged | egrep -v "(^\*|master|main|develop)" | xargs git branch -d'
 
 # git aliases
 
