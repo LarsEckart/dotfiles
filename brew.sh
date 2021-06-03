@@ -47,6 +47,7 @@ brew install openssl
 # Install other useful binaries.
 brew install ack
 brew install git
+brew install curl
 brew install jq
 brew install gradle
 brew install gdub

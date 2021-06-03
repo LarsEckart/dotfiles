@@ -59,6 +59,16 @@ function churn() {
  | head -50
 }
 
+# git-churn --since='3 months ago' <core_of_the_app> | tail -10
+function git-churn() {
+	git log --all -M -C --name-only --format='format:' "$@" \
+  | sort \
+  | grep -v '^$' \
+  | uniq -c \
+  | sort -n \
+  | awk 'BEGIN {print "count\tfile"} {print $1 "\t" $2}'
+}
+
 function godClasses() {
     find . -name "*.java" | xargs wc -l | sort -rn | head
 }

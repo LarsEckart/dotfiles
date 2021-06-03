@@ -24,7 +24,7 @@ for option in autocd globstar; do
 done;
 
 # Add tab completion for many Bash commands
-[[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && . "/usr/local/etc/profile.d/bash_completion.sh"
+[[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh"
 
 # Add tab completion for SSH hostnames based on ~/.ssh/config, ignoring wildcards
 [ -e "$HOME/.ssh/config" ] && complete -o "default" -o "nospace" -W "$(grep "^Host" ~/.ssh/config | grep -v "[?*]" | cut -d " " -f2- | tr ' ' '\n')" scp sftp ssh;
@@ -36,4 +36,7 @@ bind "set completion-ignore-case on"
 bind "set show-all-if-ambiguous on"
 
 # Only show the current directory's name in the tab
-export PROMPT_COMMAND='echo -ne "\033]0;${PWD##*/}\007"'
+#export PROMPT_COMMAND='echo -ne "\033]0;${PWD##*/}\007"'
+
+# so that I use brew installed curl and not the system one
+export PATH="/opt/homebrew/opt/curl/bin:$PATH"

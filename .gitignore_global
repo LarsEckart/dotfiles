@@ -1,3 +1,5 @@
 # Some sensible files to ignore
 .DS_Store
 .idea/
+run_solo.sh
+*.iml
