@@ -78,21 +78,20 @@ brew install remotemobprogramming/brew/mob
 # Apps
 
 brew install --cask rectangle
+brew install --cask maccy
 brew install --cask iterm2
 brew install --cask fork
-brew install --cask maccy
 brew install --cask jetbrains-toolbox
 brew install --cask visual-studio-code
 brew install --cask the-unarchiver
-brew install --cask gitup
 brew install --cask firefox
-brew install --cask gpg-suite
-#brew install --cask jdiskreport
-brew install --cask cakebrew
 brew install --cask anydesk
-brew install --cask obs
-brew install --cask techsmith-capture
-brew install --cask boop
+brew install --cask cakebrew
+# brew install --cask gpg-suite
+#brew install --cask jdiskreport
+# brew install --cask obs
+# brew install --cask techsmith-capture
+# brew install --cask boop
 
 
 # Remove outdated versions from the cellar including casks
