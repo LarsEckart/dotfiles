@@ -70,6 +70,8 @@ brew install dive
 brew tap jesseduffield/lazydocker
 brew install lazydocker
 
+brew install remotemobprogramming/brew/mob
+
 #brew install ffmpeg --with-libvpx
 
 
