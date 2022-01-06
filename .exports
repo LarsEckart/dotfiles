@@ -57,5 +57,5 @@ export PATH="/usr/local/sbin:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$P
 
 export PATH=/opt/homebrew/bin:$PATH
 
-The .NET tools collect usage data. You can opt-out of telemetry by setting the 
+# The .NET tools collect usage data. You can opt-out of telemetry by setting the 
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
