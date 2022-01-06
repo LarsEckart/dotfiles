@@ -48,7 +48,8 @@ brew install git
 brew install curl
 brew install jq
 brew install gradle
-brew install gdub
+brew tap gdubw/gng
+brew install gng
 brew install maven
 brew install htop
 brew install hadolint   # Haskell Dockerfile Linter
