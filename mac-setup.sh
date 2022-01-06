@@ -61,9 +61,6 @@ defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
 # Automatically quit printer app once the print jobs complete
 defaults write com.apple.print.PrintingPrefs "Quit When Finished" -bool true
 
-# Disable the “Are you sure you want to open this application?” dialog
-defaults write com.apple.LaunchServices LSQuarantine -bool false
-
 # don't write DS_Store files on usb
 defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 
@@ -168,17 +165,12 @@ defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 # Use F1, F2, etc. keys as standard function keys
 defaults write NSGlobalDomain com.apple.keyboard.fnState -bool true
 
-# Use smart quotes
-defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
-
 # Set Double and Single quotes
 defaults write NSGlobalDomain NSUserQuotesArray -array '"\""' '"\""' '"'\''"' '"'\''"'
 
-# Use smart dashes
-defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
 
 # Prevent accidental Power button presses from sleeping system
-defaults write com.apple.loginwindow PowerButtonSleepsSystem -bool false
+defaults write com.apple.loginwindow PowerButtonSleepsSystem -bool no
 
 ###############################################################################
 # Notifications
@@ -219,9 +211,6 @@ defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
 # Require password immediately after sleep or screen saver begins
 defaults write com.apple.screensaver askForPassword -bool true
 defaults write com.apple.screensaver askForPasswordDelay -int 0
-
-# Disable automatic login
-sudo defaults delete /Library/Preferences/com.apple.loginwindow autoLoginUser &> /dev/null
 
 # Disable the “Are you sure you want to open this application?” dialog
 defaults write com.apple.LaunchServices LSQuarantine -bool false
@@ -429,7 +418,7 @@ sudo defaults write /Library/Preferences/com.apple.timezone.auto.plist Active -b
 # "HH"   Use a 24-hour clock
 # "a"    Show AM/PM
 # "ss"   Display the time with seconds
-defaults write com.apple.menuextra.clock DateFormat -string "HH:mm"
+defaults write com.apple.menuextra.clock DateFormat -string "HH"
 
 # Flash the time separators
 defaults write com.apple.menuextra.clock FlashDateSeparators -bool false
@@ -475,7 +464,7 @@ defaults write com.apple.terminal StringEncodings -array 4
 defaults write com.apple.ActivityMonitor OpenMainWindow -bool true
 
 # Visualize CPU usage in the Activity Monitor Dock icon
-defaults write com.apple.ActivityMonitor IconType -int 5
+# defaults write com.apple.ActivityMonitor IconType -int 5
 
 # Show processes in Activity Monitor
 # 100: All Processes

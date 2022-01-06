@@ -6,12 +6,6 @@ red() {
 	git clean -df
 }
 
-# $ green "hello world"
-green() {
-	git add .
-	git commit -m "$@"
-}
-
 ups() {
 	git remote add upstream $@
 	git fetch upstream
@@ -27,8 +21,6 @@ pk() {
 down() {
 	while true ; do time curl --connect-timeout 1 https://micronaut.herokuapp.com/health ; sleep 1 ; done
 }
-
-# while true ; do time curl --connect-timeout 1 --max-time 1.5 https://micronaut.herokuapp.com/health ; sleep 1 ; done
 
 
 # Create a new directory and enter it

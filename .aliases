@@ -5,7 +5,6 @@ alias j11="export JAVA_HOME=`/usr/libexec/java_home -v 11`; java -version"
 alias j15="export JAVA_HOME=`/usr/libexec/java_home -v 15`; java -version"
 alias j16="export JAVA_HOME=`/usr/libexec/java_home -v 16`; java -version"
 alias j17="export JAVA_HOME=`/usr/libexec/java_home -v 17`; java -version"
-alias jgraal="export JAVA_HOME=/Library/Java/JavaVirtualMachines/graalvm-ce-java11-21.1.0/Contents/Home/; java -version"
 
 # bat instead of cat
 alias cat='bat --style=plain'
@@ -18,13 +17,13 @@ alias ll='exa -laFh'
 alias ls='exa -lah --color=auto'
 alias la='exa -laFh'
 
-alias grep='ack'
+# alias grep='ack'
 
 # Enable aliases to be sudo’ed
 alias sudo='sudo '
 
 # Get macOS Software Updates, and update installed Ruby gems, Homebrew, npm, and their installed packages
-alias update='sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; npm install npm -g; npm update -g; sudo gem update --system; sudo gem update; sudo gem cleanup'
+# alias update='sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; npm install npm -g; npm update -g; sudo gem update --system; sudo gem update; sudo gem cleanup'
 
 # IP addresses
 alias localip="ipconfig getifaddr en0"

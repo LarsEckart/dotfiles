@@ -33,7 +33,7 @@
 [include]
 	path = ~/.dotfiles/.gitconfig-personal
 
-[includeIf "gitdir/i:~/ml/"]
+[includeIf "gitdir/i:~/work/"]
     path = ~/.dotfiles/.gitconfig-work
 
 [user]

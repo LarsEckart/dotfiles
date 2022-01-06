@@ -16,23 +16,15 @@ brew install gnu-sed
 brew install bash
 brew install bash-completion2
 
-brew install less
-brew install make
-brew install nano
-brew install perl
-brew install rsync
-brew install unzip
-
 # Switch to using brew-installed bash as default shell
-if ! fgrep -q '/usr/local/bin/bash' /etc/shells; then
-  echo '/usr/local/bin/bash' | sudo tee -a /etc/shells;
-  chsh -s /usr/local/bin/bash;
-fi;
+# if ! fgrep -q '/usr/local/bin/bash' /etc/shells; then
+#   echo '/usr/local/bin/bash' | sudo tee -a /etc/shells;
+#   chsh -s /usr/local/bin/bash;
+# fi;
 
 brew install heroku/brew/heroku
 
-# Install `wget` with IRI support.
-brew install wget --with-iri
+brew install wget
 
 # Install GnuPG to enable PGP-signing commits.
 brew install gnupg
@@ -45,6 +37,12 @@ brew install openssh
 brew install openssl
 
 # Install other useful binaries.
+brew install less
+brew install make
+brew install nano
+brew install perl
+brew install rsync
+brew install unzip
 brew install ack
 brew install git
 brew install curl
@@ -77,16 +75,16 @@ brew install remotemobprogramming/brew/mob
 
 # Apps
 
-brew install --cask rectangle
-brew install --cask maccy
-brew install --cask iterm2
-brew install --cask fork
-brew install --cask jetbrains-toolbox
-brew install --cask visual-studio-code
-brew install --cask the-unarchiver
-brew install --cask firefox
-brew install --cask anydesk
-brew install --cask cakebrew
+# brew install --cask rectangle
+# brew install --cask maccy
+# brew install --cask iterm2
+# brew install --cask fork
+# brew install --cask jetbrains-toolbox
+# brew install --cask visual-studio-code
+# brew install --cask the-unarchiver
+# brew install --cask firefox
+# brew install --cask anydesk
+# brew install --cask cakebrew
 # brew install --cask gpg-suite
 #brew install --cask jdiskreport
 # brew install --cask obs
