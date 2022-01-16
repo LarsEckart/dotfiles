@@ -198,11 +198,11 @@ defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
 ###############################################################################
 
 # Set computer name (as done via System Preferences → Sharing)
-#sudo scutil --set ComputerName "macbookpro13"
-#sudo scutil --set HostName "macbookpro13"
-#sudo scutil --set LocalHostName "macbookpro13"
-#sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server \
-#    NetBIOSName -string "macbookpro13"
+sudo scutil --set ComputerName "lars-mbp-14"
+sudo scutil --set HostName "lars-mbp-14"
+sudo scutil --set LocalHostName "lars-mbp-14"
+sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server \
+   NetBIOSName -string "lars-mbp-14"
 
 ###############################################################################
 # Security & Privacy
