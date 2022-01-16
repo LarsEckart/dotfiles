@@ -38,5 +38,10 @@ bind "set show-all-if-ambiguous on"
 # Only show the current directory's name in the tab
 #export PROMPT_COMMAND='echo -ne "\033]0;${PWD##*/}\007"'
 
+# source nvm
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
 # so that I use brew installed curl and not the system one
 export PATH="/opt/homebrew/opt/curl/bin:$PATH"
