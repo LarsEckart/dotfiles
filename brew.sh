@@ -63,6 +63,7 @@ brew install yamllint
 brew install vale
 brew install tree
 brew install gping
+brew install scc
 
 brew tap wagoodman/dive
 brew install dive
