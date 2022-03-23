@@ -29,13 +29,10 @@
 	added = yellow
 	changed = green
 	untracked = cyan
-
 [include]
 	path = ~/.dotfiles/.gitconfig-personal
-
 [includeIf "gitdir/i:~/work/"]
     path = ~/.dotfiles/.gitconfig-work
-
 [user]
 	# But if, say, you want Git to use one email address for your open source projects and a different one for your work projects, you’ve undoubtedly 
 	# made the mistake of committing to a new Git repository without having first set your email address in that repository. 
@@ -43,7 +40,6 @@
 	# If you’re trying to do something as complicated as different addresses for different projects, this is almost certainly not what you want.
 	# Now you can tell Git not to guess, but rather to insist that you set user.name and user.email explicitly before it will let you commit:
 	useConfigOnly = true
-
 [diff]
 	# https://git-scm.com/docs/git-config#git-config-diffrenames
 	# Whether and how Git detects renames. If set to "false", rename detection is disabled. 
