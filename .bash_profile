@@ -45,3 +45,5 @@ export NVM_DIR="$HOME/.nvm"
 
 # so that I use brew installed curl and not the system one
 export PATH="/opt/homebrew/opt/curl/bin:$PATH"
+
+export PATH="/Applications/Sublime Text.app/Contents/SharedSupport/bin:$PATH"
