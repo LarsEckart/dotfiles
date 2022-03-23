@@ -10,6 +10,7 @@ mv ~/.bash_profile ~/.dotfiles/backups/
 mv ~/.bashrc ~/.dotfiles/backups/
 mv ~/.gitconfig ~/.dotfiles/backups/
 ln -s ~/.dotfiles/.bash_profile ~/.bash_profile
+ln -s ~/.dotfiles/.bash_logout ~/.bash_logout
 ln -s ~/.dotfiles/.bashrc ~/.bashrc
 ln -s ~/.dotfiles/.gitconfig ~/.gitconfig
 ln -s ~/.dotfiles/.gitattributes ~/.gitattributes
