@@ -250,6 +250,18 @@ howManyJava(){
 	gw -q javaToolChains
 }
 
+# https://sqlformat.org/api/
+sqlformat(){
+	curl -s --location --request POST 'https://sqlformat.org/api/v1/format' \
+	--header 'Content-Type: application/x-www-form-urlencoded' \
+	--data-urlencode 'reindent=1' \
+	--data-urlencode 'indent_width=3' \
+	--data-urlencode 'keyword_case=upper' \
+	--data-urlencode 'strip_comments=1' \
+	--data-urlencode "sql=$1" | jq -r '.result'
+
+}
+
 #
 # The bumbailiff allows the team to take up a small amount of technical debt
 # (TODOs in the code) for a limited period. After that period the script fails.
