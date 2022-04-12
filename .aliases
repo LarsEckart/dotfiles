@@ -18,7 +18,7 @@ alias ll='exa -laFh'
 alias ls='exa -lah --color=auto'
 alias la='exa -laFh'
 
-# alias grep='ack'
+# alias grep='rg'
 
 # Enable aliases to be sudo’ed
 alias sudo='sudo '

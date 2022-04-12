@@ -44,7 +44,7 @@ brew install nano
 brew install perl
 brew install rsync
 brew install unzip
-brew install ack
+brew install ripgrep
 brew install git
 brew install curl
 brew install jq
