@@ -6,7 +6,8 @@ alias j17="export JAVA_HOME=`/usr/libexec/java_home -v 17`; java -version"
 alias j19="export JAVA_HOME=`/usr/libexec/java_home -v 19`; java -version"
 
 # bat instead of cat
-alias cat='bat --style=plain'
+#alias cat='bat --style=plain'
+alias cat='bat'
 
 # Easier navigation:
 alias ..="cd .."
