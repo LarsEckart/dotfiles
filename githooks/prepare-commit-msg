@@ -2,9 +2,18 @@
 FILE=$1
 MESSAGE=$(cat $FILE)
 TICKET=$(git rev-parse --abbrev-ref HEAD | grep -Eo '^(\w+/)?\w+[-_][0-9]+' | grep -Eo '\w+[-][0-9]+' | tr "[:lower:]" "[:upper:]")
-if [[ $TICKET == "" || $MESSAGE == "Merge"* || "$MESSAGE" == "$TICKET"* ]];then
+if [[ $TICKET == "" ]];then
   echo 'Branch name without ticket information, keeping git message as is.'
   exit 0;
 fi
+if [[ $MESSAGE == "Merge"* ]];then
+  echo 'Merge commit, keeping git message as is.'
+  exit 0;
+fi
+if [[ "$MESSAGE" == "$TICKET"* ]];then
+  echo 'ticket information already present, keeping git message as is.'
+  exit 0;
+fi
+
 
 echo "$TICKET $MESSAGE" > $FILE
