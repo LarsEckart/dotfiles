@@ -78,6 +78,9 @@ brew install ykman
 
 #brew install ffmpeg --with-libvpx
 
+brew tap anchore/grype
+brew install grype
+
 
 # Apps
 
