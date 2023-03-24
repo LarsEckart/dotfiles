@@ -1,3 +1,12 @@
 [user]
-    name = Lars Eckart
-    email = lars.eckart@hey.com
+  name = Lars Eckart
+  email = lars.eckart@hey.com
+
+[gpg]
+  format = ssh
+
+[gpg "ssh"]
+  program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+
+[commit]
+  gpgsign = true
