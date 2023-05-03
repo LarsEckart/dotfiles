@@ -64,6 +64,7 @@ brew install vale
 brew install tree
 brew install gping
 brew install scc
+brew install gh  # github cli
 
 brew tap wagoodman/dive
 brew install dive
