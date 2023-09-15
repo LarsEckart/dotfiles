@@ -120,3 +120,6 @@ export PS1;
 
 PS2="\[${yellow}\]→ \[${reset}\]";
 export PS2;
+
+# from https://spin.atomicobject.com/2016/05/28/log-bash-history/
+export PROMPT_COMMAND='if [ "$(id -u)" -ne 0 ]; then echo "$(date "+%Y-%m-%d.%H:%M:%S") $(pwd) $(history 1)" >> ~/.dotfiles/logs/bash-history-$(date "+%Y-%m-%d").log; fi'
