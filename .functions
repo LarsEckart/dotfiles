@@ -6,6 +6,10 @@ red() {
 	git clean -df
 }
 
+jd() {
+	open "https://docs.oracle.com/en/java/javase/21/docs/api/search.html?q=$*"
+}
+
 ups() {
 	git remote add upstream $@
 	git fetch upstream
