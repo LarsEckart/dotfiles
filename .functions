@@ -13,7 +13,7 @@ jd() {
 ups() {
 	git remote add upstream $@
 	git fetch upstream
-	git pull upstream/master
+	git pull upstream/main
 	git push
 }
 
