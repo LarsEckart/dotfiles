@@ -19,6 +19,7 @@ ln -s ~/.dotfiles/.hushlogin ~/.hushlogin
 ln -s ~/.dotfiles/.vimrc ~/.vimrc
 ```
 
+Setup for multiple git identities is also described [here](https://garrit.xyz/posts/2023-10-13-organizing-multiple-git-identities).
 
 ### Fonts
 

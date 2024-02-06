@@ -6,6 +6,17 @@ red() {
 	git clean -df
 }
 
+search() {
+	if [ "$#" -ne 1 ]; then
+        echo "Error: Please provide exactly one argument enclosed in quotes."
+        return 1
+    fi
+	
+	local pattern="$1"
+    grep -Rnw . -e "$pattern"
+}
+
+
 jd() {
 	open "https://docs.oracle.com/en/java/javase/21/docs/api/search.html?q=$*"
 }
