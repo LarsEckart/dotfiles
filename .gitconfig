@@ -6,6 +6,7 @@
 	undo-commit = reset --soft HEAD~1
 	# Reset and sync local repository with remote branch
 	resetupstream = !git fetch upstream && git reset --hard upstream/master && git clean -f -d
+	fpush = push
 [core]
 	# Use custom `.gitignore`
 	excludesFile = ~/.gitignore_global
