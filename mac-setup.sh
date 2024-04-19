@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# go through https://registerspill.thorstenball.com/p/new-year-new-job-new-machine and update this script
+
 # Ask for the administrator password upfront
 sudo -v
 
@@ -132,7 +134,7 @@ defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
 defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
 # Disables automatic period substitutions
 defaults write NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled -bool false
-# Disables smart quotes 
+# Disables smart quotes
 defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
 
 
@@ -503,4 +505,3 @@ defaults write com.apple.ActivityMonitor NetworkGraphType -int 1
 # defaults write com.apple.ActivityMonitor IconType -int 0
 
 echo "Done. Note that some of these changes require a logout/restart to take effect."
-  
