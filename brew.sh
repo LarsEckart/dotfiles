@@ -83,6 +83,8 @@ brew install ykman
 brew tap anchore/grype
 brew install grype
 
+brew install rbenv
+
 
 # Apps
 

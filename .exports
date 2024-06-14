@@ -55,6 +55,9 @@ export MOB_NEXT_STAY=true
 # brew and android tools
 export PATH="/usr/local/sbin:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
 
+# C#
+export PATH="/usr/local/share/dotnet:$PATH"
+
 export PATH=/opt/homebrew/bin:$PATH
 
 # The .NET tools collect usage data. You can opt-out of telemetry by setting the 
