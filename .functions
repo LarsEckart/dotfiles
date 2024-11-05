@@ -6,12 +6,18 @@ red() {
 	git clean -df
 }
 
+# "check out a given PR for review"
+revpr() {
+  gh co $1
+  git reset --mixed master
+}
+
 search() {
 	if [ "$#" -ne 1 ]; then
         echo "Error: Please provide exactly one argument enclosed in quotes."
         return 1
     fi
-	
+
 	local pattern="$1"
     grep -Rnw . -e "$pattern"
 }
@@ -280,7 +286,7 @@ sqlformat(){
 #
 # The bumbailiff allows the team to take up a small amount of technical debt
 # (TODOs in the code) for a limited period. After that period the script fails.
-# 
+#
 # It will find // TODO in .js or .jsx files, and # TODO in .feature files.
 #
 # For example, if the allowed period for all the TODOs is 14 days.

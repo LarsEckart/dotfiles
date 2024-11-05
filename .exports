@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+export CI=false
+
 # Make vim the default editor.
 export EDITOR='vim';
 
@@ -36,7 +38,9 @@ export GPG_TTY=$(tty);
 # java
 #export JAVA_HOME="$(/usr/libexec/java_home -v 1.8)"
 #export JAVA_HOME="$(/usr/libexec/java_home -v 11)"
-export JAVA_HOME="$(/usr/libexec/java_home -v 21)"
+#export JAVA_HOME="$(/usr/libexec/java_home -v 17)"
+#export JAVA_HOME="$(/usr/libexec/java_home -v 21)"
+export JAVA_HOME="$(/usr/libexec/java_home -v 23)"
 
 export PATH=${PATH}:${JAVA_HOME}/bin
 
@@ -45,7 +49,7 @@ export ANDROID_HOME=$HOME/Library/Android/sdk
 
 
 # gradle
-export GRADLE_HOME="/usr/local/Cellar/gradle/8.5"
+export GRADLE_HOME="/usr/local/Cellar/gradle/8.10.1"
 
 export GROOVY_HOME=/usr/local/opt/groovy/libexec
 
@@ -60,5 +64,5 @@ export PATH="/usr/local/share/dotnet:$PATH"
 
 export PATH=/opt/homebrew/bin:$PATH
 
-# The .NET tools collect usage data. You can opt-out of telemetry by setting the 
+# The .NET tools collect usage data. You can opt-out of telemetry by setting the
 export DOTNET_CLI_TELEMETRY_OPTOUT=1

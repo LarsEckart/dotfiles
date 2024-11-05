@@ -57,7 +57,7 @@ brew install hadolint   # Haskell Dockerfile Linter
 brew install telnet
 brew install hugo
 brew install bat # better cat
-brew install exa # better ls
+brew install eza # better ls
 brew install nmap  # nmap -F 192.168.1.1
 brew install yamllint
 brew install vale
@@ -85,6 +85,10 @@ brew install grype
 
 brew install rbenv
 
+# https://github.com/chadgeary/cloudblock/blob/master/oci/README.md
+brew install terraform git oci-cli
+
+brew install derailed/k9s/k9s
 
 # Apps
 
