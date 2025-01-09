@@ -1,3 +1,4 @@
+* -text diff
 *.java  diff=java
 *.c     diff=cpp
 *.h     diff=cpp
