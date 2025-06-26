@@ -1,3 +1,6 @@
+# Mark that .bash_profile has been loaded to prevent double-loading
+export BASH_PROFILE_LOADED=1
+
 # Add `~/bin` to the `$PATH`
 export PATH="$HOME/bin:$PATH";
 
@@ -24,16 +27,16 @@ for option in autocd globstar; do
 done;
 
 # Add tab completion for many Bash commands
-[[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh"
+# Only load if in interactive shell and not already loaded
+if [[ $- == *i* ]] && [[ -z "$BASH_COMPLETION_LOADED" ]] && [[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]]; then
+	. "/opt/homebrew/etc/profile.d/bash_completion.sh"
+	export BASH_COMPLETION_LOADED=1
+fi
 
 # Add tab completion for SSH hostnames based on ~/.ssh/config, ignoring wildcards
 [ -e "$HOME/.ssh/config" ] && complete -o "default" -o "nospace" -W "$(grep "^Host" ~/.ssh/config | grep -v "[?*]" | cut -d " " -f2- | tr ' ' '\n')" scp sftp ssh;
 
 ### Misc
-
-# case insensitive bash completion
-bind "set completion-ignore-case on"
-bind "set show-all-if-ambiguous on"
 
 # Only show the current directory's name in the tab
 #export PROMPT_COMMAND='echo -ne "\033]0;${PWD##*/}\007"'
@@ -52,3 +55,11 @@ eval "$(rbenv init - bash)"
 export PATH="/opt/homebrew/opt/curl/bin:$PATH"
 
 export PATH="/Applications/Sublime Text.app/Contents/SharedSupport/bin:$PATH"
+
+# Setting PATH for Python 3.13
+# The original version is saved in .bash_profile.pysave
+PATH="/Library/Frameworks/Python.framework/Versions/3.13/bin:${PATH}"
+export PATH
+
+# Added by Windsurf
+export PATH="/Users/lars/.codeium/windsurf/bin:$PATH"

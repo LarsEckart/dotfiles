@@ -20,6 +20,12 @@ ln -s ~/.dotfiles/.gitattributes ~/.gitattributes
 ln -s ~/.dotfiles/.gitignore_global ~/.gitignore_global
 ln -s ~/.dotfiles/.hushlogin ~/.hushlogin
 ln -s ~/.dotfiles/.vimrc ~/.vimrc
+
+# For zsh users
+ln -s ~/.dotfiles/.zshrc ~/.zshrc
+ln -s ~/.dotfiles/.zsh_exports ~/.zsh_exports
+ln -s ~/.dotfiles/.zsh_functions ~/.zsh_functions
+ln -s ~/.dotfiles/.zsh_prompt ~/.zsh_prompt
 ```
 
 Setup for multiple git identities is also described [here](https://garrit.xyz/posts/2023-10-13-organizing-multiple-git-identities).

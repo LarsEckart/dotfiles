@@ -5,9 +5,14 @@
 # Heavily inspired by @necolas’s prompt: https://github.com/necolas/dotfiles
 # iTerm → Profiles → Text → use 13pt Monaco with 1.1 vertical spacing.
 
-if [[ $COLORTERM = gnome-* && $TERM = xterm ]] && infocmp gnome-256color >/dev/null 2>&1; then
-	export TERM='gnome-256color';
-elif infocmp xterm-256color >/dev/null 2>&1; then
+# Set proper terminal type for color support, but preserve existing TERM if it's already good
+if [[ -z "$TERM" || "$TERM" == "dumb" ]]; then
+	if [[ $COLORTERM = gnome-* && $TERM = xterm ]] && infocmp gnome-256color >/dev/null 2>&1; then
+		export TERM='gnome-256color';
+	elif infocmp xterm-256color >/dev/null 2>&1; then
+		export TERM='xterm-256color';
+	fi;
+elif [[ "$TERM" != *"256color"* ]] && infocmp xterm-256color >/dev/null 2>&1; then
 	export TERM='xterm-256color';
 fi;
 
@@ -65,17 +70,17 @@ if tput setaf 1 &> /dev/null; then
 	tput sgr0; # reset colors
 	bold=$(tput bold);
 	reset=$(tput sgr0);
-	# Solarized colors, taken from http://git.io/solarized-colors.
+	# Solarized Light colors - adjusted for better contrast on light backgrounds
 	black=$(tput setaf 0);
-	blue=$(tput setaf 33);
-	cyan=$(tput setaf 37);
-	green=$(tput setaf 64);
-	orange=$(tput setaf 166);
-	purple=$(tput setaf 125);
-	red=$(tput setaf 124);
-	violet=$(tput setaf 61);
-	white=$(tput setaf 15);
-	yellow=$(tput setaf 136);
+	blue=$(tput setaf 4);
+	cyan=$(tput setaf 6);
+	green=$(tput setaf 2);
+	orange=$(tput setaf 3);
+	purple=$(tput setaf 5);
+	red=$(tput setaf 1);
+	violet=$(tput setaf 5);
+	white=$(tput setaf 0);
+	yellow=$(tput setaf 3);
 else
 	bold='';
 	reset="\e[0m";
@@ -122,4 +127,7 @@ PS2="\[${yellow}\]→ \[${reset}\]";
 export PS2;
 
 # from https://spin.atomicobject.com/2016/05/28/log-bash-history/
-export PROMPT_COMMAND='if [ "$(id -u)" -ne 0 ]; then echo "$(date "+%Y-%m-%d.%H:%M:%S") $(pwd) $(history 1)" >> ~/.dotfiles/logs/bash-history-$(date "+%Y-%m-%d").log; fi'
+# Only enable history logging in non-interactive shells to avoid interfering with tools like Claude Code
+if [[ ! "$-" =~ i ]] && [[ -z "$CLAUDE_CODE" ]] && [[ -z "$VSCODE_INJECTION" ]]; then
+	export PROMPT_COMMAND='if [ "$(id -u)" -ne 0 ]; then echo "$(date "+%Y-%m-%d.%H:%M:%S") $(pwd) $(history 1)" >> ~/.dotfiles/logs/bash-history-$(date "+%Y-%m-%d").log; fi'
+fi

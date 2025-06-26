@@ -1,4 +1,6 @@
 #!/bin/bash
+
+# Global hook logic
 FILE=$1
 MESSAGE=$(cat $FILE)
 TICKET=$(git rev-parse --abbrev-ref HEAD | grep -Eo '^(\w+/)?\w+[-_][0-9]+' | grep -Eo '\w+[-][0-9]+' | tr "[:lower:]" "[:upper:]")
@@ -23,3 +25,9 @@ fi
 echo "$CO_AUTHOR" >> $FILE
 
 echo 'Co-author information added.'
+
+# Execute local hook if it exists
+LOCAL_HOOK="$(git rev-parse --git-dir)/hooks/prepare-commit-msg"
+if [[ -x "$LOCAL_HOOK" ]]; then
+  exec "$LOCAL_HOOK" "$@"
+fi
