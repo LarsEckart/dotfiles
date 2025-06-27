@@ -66,6 +66,7 @@ brew install gping
 brew install scc
 brew install gh  # github cli
 brew install cloc
+brew install ast-grep
 
 brew tap wagoodman/dive
 brew install dive
