@@ -25,6 +25,10 @@ ln -s ~/.dotfiles/git/.gitconfig ~/.gitconfig
 ln -s ~/.dotfiles/git/.gitattributes ~/.gitattributes
 ln -s ~/.dotfiles/git/.gitignore_global ~/.gitignore_global
 
+# Zed configuration
+ln -s ~/.dotfiles/zed/settings.json ~/.config/zed/settings.json
+ln -s ~/.dotfiles/zed/theme.json ~/.config/zed/themes/Casablanca.json
+
 # Other dotfiles
 ln -s ~/.dotfiles/.hushlogin ~/.hushlogin
 ln -s ~/.dotfiles/.vimrc ~/.vimrc

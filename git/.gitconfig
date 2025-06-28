@@ -1,7 +1,7 @@
 [include]
-	path = ~/.dotfiles/.gitconfig-personal
+	path = ~/.dotfiles/git/.gitconfig-personal
 [includeIf "gitdir/i:~/work/"]
-    path = ~/.dotfiles/.gitconfig-work
+    path = ~/.dotfiles/git/.gitconfig-work
 [user]
     # https://markentier.tech/posts/2021/02/github-with-multiple-profiles-gpg-ssh-keys/
 	# But if, say, you want Git to use one email address for your open source projects and a different one for your work projects, you’ve undoubtedly
@@ -25,7 +25,7 @@
 	# Treat spaces before tabs, lines that are indented with 8 or more spaces, and all kinds of trailing whitespace as an error
 	whitespace = space-before-tab,indent-with-non-tab,trailing-space
 	autocrlf = input
-	attributesfile = ~/.dotfiles/.gitattributes
+	attributesfile = ~/.dotfiles/git/.gitattributes
 	hooksPath = ~/.dotfiles/githooks
 [color]
 	# Use colors in Git commands that are capable of colored output when outputting to the terminal
