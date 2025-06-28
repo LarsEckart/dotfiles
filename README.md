@@ -6,26 +6,28 @@ Quick installation guide, backs up original dot files and stores them out of the
 
 ```bash
 git clone git@github.com:LarsEckart/dotfiles.git ~/.dotfiles
+mkdir -p ~/.dotfiles/backups
 
-mv ~/.bash_profile ~/.dotfiles/backups/
-ln -s ~/.dotfiles/.bash_profile ~/.bash_profile
+# Backup existing files
+mv ~/.gitconfig ~/.dotfiles/backups/ 2>/dev/null || true
 
-mv ~/.bashrc ~/.dotfiles/backups/
-mv ~/.gitconfig ~/.dotfiles/backups/
+# Shell configuration (ZSH)
+ln -s ~/.dotfiles/shell/.zshrc ~/.zshrc
+ln -s ~/.dotfiles/shell/.zsh_exports ~/.zsh_exports
+ln -s ~/.dotfiles/shell/.zsh_functions ~/.zsh_functions
+ln -s ~/.dotfiles/shell/.zsh_prompt ~/.zsh_prompt
+ln -s ~/.dotfiles/shell/.aliases ~/.aliases
+ln -s ~/.dotfiles/shell/.exports ~/.exports
+ln -s ~/.dotfiles/shell/.functions ~/.functions
 
-ln -s ~/.dotfiles/.bash_logout ~/.bash_logout
-ln -s ~/.dotfiles/.bashrc ~/.bashrc
-ln -s ~/.dotfiles/.gitconfig ~/.gitconfig
-ln -s ~/.dotfiles/.gitattributes ~/.gitattributes
-ln -s ~/.dotfiles/.gitignore_global ~/.gitignore_global
+# Git configuration
+ln -s ~/.dotfiles/git/.gitconfig ~/.gitconfig
+ln -s ~/.dotfiles/git/.gitattributes ~/.gitattributes
+ln -s ~/.dotfiles/git/.gitignore_global ~/.gitignore_global
+
+# Other dotfiles
 ln -s ~/.dotfiles/.hushlogin ~/.hushlogin
 ln -s ~/.dotfiles/.vimrc ~/.vimrc
-
-# For zsh users
-ln -s ~/.dotfiles/.zshrc ~/.zshrc
-ln -s ~/.dotfiles/.zsh_exports ~/.zsh_exports
-ln -s ~/.dotfiles/.zsh_functions ~/.zsh_functions
-ln -s ~/.dotfiles/.zsh_prompt ~/.zsh_prompt
 ```
 
 Setup for multiple git identities is also described [here](https://garrit.xyz/posts/2023-10-13-organizing-multiple-git-identities).

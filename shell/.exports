@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 export CI=false
 
 # Make vim the default editor.
@@ -26,7 +24,7 @@ export LANG='en_US.UTF-8';
 export LC_ALL='en_US.UTF-8';
 
 # Highlight section titles in manual pages.
-export LESS_TERMCAP_md="${yellow}";
+# export LESS_TERMCAP_md="${yellow}"; # Disabled to avoid color interference
 
 # Don’t clear the screen after quitting a manual page.
 export MANPAGER='less -X';
@@ -40,7 +38,7 @@ export GPG_TTY=$(tty);
 #export JAVA_HOME="$(/usr/libexec/java_home -v 11)"
 #export JAVA_HOME="$(/usr/libexec/java_home -v 17)"
 #export JAVA_HOME="$(/usr/libexec/java_home -v 21)"
-export JAVA_HOME="$(/usr/libexec/java_home -v 23)"
+export JAVA_HOME="$(/usr/libexec/java_home -v 21)"
 
 export PATH=${PATH}:${JAVA_HOME}/bin
 
@@ -49,7 +47,7 @@ export ANDROID_HOME=$HOME/Library/Android/sdk
 
 
 # gradle
-export GRADLE_HOME="/usr/local/Cellar/gradle/8.10.1"
+export GRADLE_HOME="/usr/local/Cellar/gradle/8.13"
 
 export GROOVY_HOME=/usr/local/opt/groovy/libexec
 
@@ -66,3 +64,16 @@ export PATH=/opt/homebrew/bin:$PATH
 
 # The .NET tools collect usage data. You can opt-out of telemetry by setting the
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
+
+export CLAUDE_CODE_ENABLE_TELEMETRY=1
+
+# 2. Choose exporters (both are optional - configure only what you need)
+export OTEL_METRICS_EXPORTER=otlp       # Options: otlp, prometheus, console
+export OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+export OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io
+
+# Honeycomb API key moved to .secrets file
+export OTEL_SERVICE_NAME="claude-code"
+
+export OTEL_METRIC_EXPORT_INTERVAL=60000  # 60 seconds (default: 60000ms)
+export OTEL_LOGS_EXPORT_INTERVAL=5000     # 5 seconds (default: 5000ms)

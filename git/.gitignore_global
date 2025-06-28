@@ -5,4 +5,4 @@ run_solo.sh
 *.iml
 
 # Claude Code local settings
-.claude/settings.local.json
+.claude/
