@@ -315,7 +315,7 @@ while IFS= read -r line; do
     commit_seconds_since_epoch=${match[1]}
     days_old=$(( (${now_seconds_since_epoch} - ${commit_seconds_since_epoch}) / 86400 ))
     total_days=$((${total_days} + ${days_old}))
-    
+
     location="${line%// TODO*}"
     location="${location%%*( )}"
     todo="${line##*// }"
@@ -349,4 +349,59 @@ fi
 
 print -P "💵  ${color}${total_days} TODO-days accumulated. Max allowance is ${MAX_AGE}${NC}"
 # exit ${status}
+}
+
+# Create a Procfile and copy shoreman.sh for process management
+proc() {
+    # Create Procfile with example entries
+    cat > Procfile << 'EOF'
+web: ./gradlew :server:bootRun
+api: cd ../keijo-skyjo && npm start
+
+EOF
+
+    # Create sample .env file
+    cat > .env << 'EOF'
+# Environment variables for your processes
+PORT=5000
+NODE_ENV=development
+DEBUG=true
+EOF
+
+    # Create Makefile with dev target
+    cat > Makefile << 'EOF'
+.PHONY: dev dev-bg stop logs status
+
+dev:
+	@./shoreman.sh
+
+dev-bg:
+	@nohup ./shoreman.sh > /dev/null 2>&1 &
+	@echo "Services started in background. Use 'make logs' to view output."
+
+stop:
+	@if [ -f .shoreman.pid ]; then \
+		kill $$(cat .shoreman.pid) 2>/dev/null || true; \
+		rm -f .shoreman.pid; \
+		echo "Services stopped"; \
+	else \
+		echo "No services running"; \
+	fi
+
+logs:
+	@tail -100 ./dev.log | perl -pe 's/\e\[[0-9;]*m(?:\e\[K)?//g'
+
+status:
+	@if [ -f .shoreman.pid ] && kill -0 $$(cat .shoreman.pid) 2>/dev/null; then \
+		echo "Services running (PID: $$(cat .shoreman.pid))"; \
+	else \
+		echo "Services not running"; \
+	fi
+EOF
+
+    # Copy shoreman.sh from scripts directory
+    cp ~/.dotfiles/scripts/shoreman.sh .
+
+    echo "Created Procfile, .env, Makefile, and copied shoreman.sh"
+    echo "Run 'make dev' to start services, 'make stop' to stop, 'make logs' to view logs"
 }

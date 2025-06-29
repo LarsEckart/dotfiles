@@ -29,6 +29,13 @@ ln -s ~/.dotfiles/git/.gitignore_global ~/.gitignore_global
 ln -s ~/.dotfiles/zed/settings.json ~/.config/zed/settings.json
 ln -s ~/.dotfiles/zed/theme.json ~/.config/zed/themes/Casablanca.json
 
+# Claude Code configuration
+mkdir -p ~/.claude
+ln -s ~/.dotfiles/claude-code/settings.json ~/.claude/settings.json
+ln -s ~/.dotfiles/claude-code/settings.local.json ~/.claude/settings.local.json
+ln -s ~/.dotfiles/claude-code/mcp_servers.json ~/.claude/mcp_servers.json
+ln -s ~/.dotfiles/claude-code/CLAUDE.md ~/.claude/CLAUDE.md
+
 # Other dotfiles
 ln -s ~/.dotfiles/.hushlogin ~/.hushlogin
 ln -s ~/.dotfiles/.vimrc ~/.vimrc
