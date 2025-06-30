@@ -21,7 +21,10 @@ install-zed:
 	@echo "Installing Zed configuration..."
 	@mkdir -p ~/.config/zed/themes
 	@ln -sf ~/.dotfiles/zed/settings.json ~/.config/zed/settings.json
-	@ln -sf ~/.dotfiles/zed/theme.json ~/.config/zed/themes/Casablanca.json
+	@ln -sf ~/.dotfiles/zed/themes/Casablanca.json ~/.config/zed/themes/Casablanca.json
+	@ln -sf ~/.dotfiles/zed/themes/NeoSolarized.json ~/.config/zed/themes/NeoSolarized.json
+	@ln -sf ~/.dotfiles/zed/themes/Github\ Theme.json ~/.config/zed/themes/Github\ Theme.json
+	@ln -sf ~/.dotfiles/zed/themes/macOS\ Classic.json ~/.config/zed/themes/macOS\ Classic.json
 
 install-githooks:
 	@echo "Installing global git hooks..."
@@ -44,7 +47,7 @@ clean:
 	@echo "Removing symlinks..."
 	@rm -f ~/.zshrc ~/.zsh_exports ~/.zsh_functions ~/.zsh_prompt ~/.aliases
 	@rm -f ~/.vimrc ~/.hushlogin
-	@rm -f ~/.config/zed/settings.json ~/.config/zed/themes/Casablanca.json
+	@rm -f ~/.config/zed/settings.json ~/.config/zed/themes/Casablanca.json ~/.config/zed/themes/NeoSolarized.json ~/.config/zed/themes/Github\ Theme.json ~/.config/zed/themes/macOS\ Classic.json
 	@rm -f ~/bin/curltime
 	@echo "Use 'make restore-backup' to restore original files"
 

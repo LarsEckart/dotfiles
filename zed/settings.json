@@ -92,8 +92,8 @@
   "ui_font_family": "JetBrains Mono",
   "theme": {
     "mode": "dark",
-    "light": "One Light",
-    "dark": "Casablanca"
+    "light": "NeoSolarized Light",
+    "dark": "NeoSolarized Dark"
   },
 
   // LSPs
