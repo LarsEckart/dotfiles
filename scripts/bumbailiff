@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+#
+# The bumbailiff allows the team to take up a small amount of technical debt
+# (TODOs in the code) for a limited period. After that period the script fails.
+#
+#
+# For example, if the allowed period for all the TODOs is 14 days.
+#   * It's OK to have 1 TODO that is 13 days old
+#   * It's OK to have 3 TODOs that are 4 days old
+#   * It's NOT OK to have 3 TODOs that are 5 days old
+#   * It's NOT OK to have 1 TODO that is 14 days old
+#
+if [ -n "$BUMBAILIFF_IGNORE_LA_LA_LA" ]; then exit 0; fi
+set -uf -o pipefail
+
+: "${BUMBAILIFF_EXTENSIONS:="*.js *.rb *.java *.ex *.exs"}"
+IFS=' ' read -r -a extensions <<<"$BUMBAILIFF_EXTENSIONS"
+
+ICON_OK="🌱 "
+ICON_WARNING="⚠️  "
+ICON_KO="⛔️ "
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+ORANGE='\033[0;33m'
+BLUE='\033[0;34m'
+BOLD='\033[1m'
+NC='\033[0m'
+LIGHT_GRAY='\033[0;37m'
+MAX_AGE=${1:-14}
+OK_AGE=$((MAX_AGE / 2))
+
+if ! git status >/dev/null 2>&1; then
+  echo "TODOs could not be scanned, make sure you're running bumbailiff on a Git repository."
+  exit 1
+fi
+
+if "$(git rev-parse --is-shallow-repository)"; then
+  echo "TODOs could not be scanned: this appears to be a shallow clone of your git repository. Make sure you clone with full depth."
+  exit 1
+fi
+
+function locations() {
+  git grep --line-number "TODO: " -- "${extensions[@]}" 2>/dev/null | grep -v bumbailiff | while read -r output; do
+    [[ $output == "" ]] && echo "No TODOs found." && exit 0
+    location="$(echo "$output" | cut -d ':' -f1,2)"
+    echo "$location"
+  done
+}
+
+now=$(date +%s)
+total_days=0
+
+while read -r location; do
+  echo -e "${BOLD}${location}${NC}"
+  file=$(echo "${location}" | cut -d ':' -f1)
+  line_number=$(echo "${location}" | cut -d ':' -f2)
+  commit=$(git blame -L "$line_number,$line_number" "$file" | cut -d ' ' -f1)
+  if [[ "$commit" != "00000000" ]]; then
+    timestamp=$(git show --format=%ct -s "${commit}")
+    age=$(((now - timestamp) / 86400))
+    total_days=$((total_days + age))
+    location="$file:$line_number"
+    todo=$(git show "HEAD:$file" | sed -n "${line_number},${line_number}p" | grep -o "TODO:.*")
+    author=$(git show --format='%an' -s "${commit}")
+
+    if (("$age" <= "$OK_AGE")); then
+      color="$GREEN"
+      icon=${ICON_OK}
+    elif (("$age" <= "$MAX_AGE")); then
+      color="$ORANGE"
+      icon=${ICON_WARNING}
+    else
+      color="$RED"
+      icon=${ICON_KO}
+    fi
+  else
+    color="$GREEN"
+    age=0
+    commit="Not committed yet"
+    author="$(git config user.name)"
+    todo=$(sed -n "${line_number},${line_number}p" "$file" | grep -o "TODO:.*")
+  fi
+  echo -e "${color}${age} days old${LIGHT_GRAY} ${commit} (${author})${NC}\n${todo}\n"
+done < <(locations)
+
+status=0
+if ((total_days <= OK_AGE)); then
+  color="${GREEN}"
+  icon=${ICON_OK}
+elif ((total_days <= MAX_AGE)); then
+  color="${ORANGE}"
+  icon=${ICON_WARNING}
+else
+  color="${RED}"
+  status=1
+  icon=${ICON_KO}
+fi
+
+echo -e "${icon}${color}${total_days} TODO-days accumulated (max allowance: ${MAX_AGE} 💵).${NC}"
+exit ${status}
