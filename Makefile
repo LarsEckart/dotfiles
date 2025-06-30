@@ -23,12 +23,6 @@ install-zed:
 	@ln -sf ~/.dotfiles/zed/settings.json ~/.config/zed/settings.json
 	@ln -sf ~/.dotfiles/zed/theme.json ~/.config/zed/themes/Casablanca.json
 
-install-scripts:
-	@echo "Installing scripts..."
-	@chmod +x ~/.dotfiles/scripts/*.sh
-	@mkdir -p ~/bin
-	@ln -sf ~/.dotfiles/scripts/curltime.sh ~/bin/curltime
-
 install-githooks:
 	@echo "Installing global git hooks..."
 	@chmod +x ~/.dotfiles/githooks/*
