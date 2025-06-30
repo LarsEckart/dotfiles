@@ -51,7 +51,7 @@ export GPG_TTY=$(tty);
 #export JAVA_HOME="$(/usr/libexec/java_home -v 11)"
 #export JAVA_HOME="$(/usr/libexec/java_home -v 17)"
 #export JAVA_HOME="$(/usr/libexec/java_home -v 21)"
-export JAVA_HOME="$(/usr/libexec/java_home -v 24)"
+export JAVA_HOME="$(/usr/libexec/java_home -v 21)"
 
 export PATH=${PATH}:${JAVA_HOME}/bin
 
