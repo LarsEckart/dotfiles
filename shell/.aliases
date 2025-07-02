@@ -86,3 +86,6 @@ alias gcr=rename_last_commit
 
 # Claude Code in dangerous mode
 alias ccd='claude --dangerously-skip-permissions'
+
+# Use Zoe voice for text-to-speech by default
+alias say='say -v Zoe'
