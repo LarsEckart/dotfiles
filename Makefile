@@ -58,7 +58,12 @@ setup-macos:
 	@chmod +x ~/.dotfiles/scripts/mac-setup.sh
 	@~/.dotfiles/scripts/mac-setup.sh
 
-install-brew:
+brew-install:
 	@echo "Installing Homebrew packages..."
-	@chmod +x ~/.dotfiles/scripts/brew.sh
-	@~/.dotfiles/scripts/brew.sh
+	@chmod +x ~/.dotfiles/scripts/brew-install.sh
+	@~/.dotfiles/scripts/brew-install.sh
+
+brew-update:
+	@echo "Updating Homebrew packages..."
+	@chmod +x ~/.dotfiles/scripts/brew-update.sh
+	@~/.dotfiles/scripts/brew-update.sh
