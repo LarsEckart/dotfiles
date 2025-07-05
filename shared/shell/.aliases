@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+# bat instead of cat
+alias cat='bat'
+
+# Easier navigation:
+alias ..="cd .."
+
+# Enable aliases to be sudo'ed
+alias sudo='sudo '
+
+# Print each PATH entry on a separate line
+alias path='echo -e ${PATH//:/\\n}'
+
+# copy file interactive
+alias cp='cp -i'
+
+# move file interactive
+alias mv='mv -i'
+
+# delete local branches (unless master/develop) that were merged
+alias gcl='git branch --merged | egrep -v "(^\*|master|main|develop)" | xargs git branch -d'
+
+# git aliases
+alias gss='git status -s'
+alias gc='git clone'
+alias gcr=rename_last_commit
+
+# Claude Code in dangerous mode
+alias ccd='claude --dangerously-skip-permissions'
+
+# vhosts
+alias hosts='sudo vim /etc/hosts'

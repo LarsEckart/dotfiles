@@ -1,0 +1,224 @@
+#!/usr/bin/env zsh
+
+# macOS-specific functions
+
+# 5 most used commands (zsh specific)
+top5() {
+	fc -l 1 | awk '{CMD[$2]++;count++;}END { for (a in CMD)print CMD[a] " " CMD[a]/count*100 "% " a;}' | grep -v "./" | column -c3 -s " " -t | sort -nr | nl |  head -n5
+}
+
+# Java version switching (macOS specific)
+j8() { export JAVA_HOME=`/usr/libexec/java_home -v 1.8`; java -version; }
+j11() { export JAVA_HOME=`/usr/libexec/java_home -v 11`; java -version; }
+j17() { export JAVA_HOME=`/usr/libexec/java_home -v 17`; java -version; }
+j21() { export JAVA_HOME=`/usr/libexec/java_home -v 21`; java -version; }
+j22() { export JAVA_HOME=`/usr/libexec/java_home -v 22`; java -version; }
+j23() { export JAVA_HOME=`/usr/libexec/java_home -v 23`; java -version; }
+j24() { export JAVA_HOME=`/usr/libexec/java_home -v 24`; java -version; }
+graal() { export JAVA_HOME=/Library/Java/JavaVirtualMachines/graalvm-jdk-21.0.2+13.1/Contents/Home; }
+
+# Java documentation search (macOS specific)
+jd() {
+	open "https://docs.oracle.com/en/java/javase/21/docs/api/search.html?q=$*"
+}
+
+# Git log churn analysis
+churn() {
+	git log --format=format: --name-only --since=12.month \
+ | egrep -v '^$' \
+ | sort \
+ | uniq -c \
+ | sort -r \
+ | head -50
+}
+
+# git-churn --since='3 months ago' <core_of_the_app> | tail -10
+git-churn() {
+	git log --all -M -C --name-only --format='format:' "$@" \
+  | sort \
+  | grep -v '^$' \
+  | uniq -c \
+  | sort -n \
+  | awk 'BEGIN {print "count\tfile"} {print $1 "\t" $2}'
+}
+
+# Find largest Java files
+godClasses() {
+    find . -name "*.java" | xargs wc -l | sort -rn | head
+}
+
+# Change working directory to the top-most Finder window location
+cdf() {
+	cd "$(osascript -e 'tell app "Finder" to POSIX path of (insertion location as alias)')";
+}
+
+# Create a .tar.gz archive, using `zopfli`, `pigz` or `gzip` for compression
+targz() {
+	local tmpFile="${@%/}.tar";
+	tar -cvf "${tmpFile}" --exclude=".DS_Store" "${@}" || return 1;
+
+	local size=$(
+		stat -f"%z" "${tmpFile}" 2> /dev/null; # macOS `stat`
+		stat -c"%s" "${tmpFile}" 2> /dev/null;  # GNU `stat`
+	);
+
+	local cmd="";
+	if (( size < 52428800 )) && hash zopfli 2> /dev/null; then
+		# the .tar file is smaller than 50 MB and Zopfli is available; use it
+		cmd="zopfli";
+	else
+		if hash pigz 2> /dev/null; then
+			cmd="pigz";
+		else
+			cmd="gzip";
+		fi;
+	fi;
+
+	echo "Compressing .tar ($((size / 1000)) kB) using \`${cmd}\`…";
+	"${cmd}" -v "${tmpFile}" || return 1;
+	[[ -f "${tmpFile}" ]] && rm "${tmpFile}";
+
+	local zippedSize=$(
+		stat -f"%z" "${tmpFile}.gz" 2> /dev/null; # macOS `stat`
+		stat -c"%s" "${tmpFile}.gz" 2> /dev/null; # GNU `stat`
+	);
+
+	echo "${tmpFile}.gz ($((zippedSize / 1000)) kB) created successfully.";
+}
+
+# `o` with no arguments opens the current directory, otherwise opens the given
+# location (macOS specific)
+o() {
+	if [[ $# -eq 0 ]]; then
+		open .;
+	else
+		open "$@";
+	fi;
+}
+
+# `tre` is a shorthand for `tree` with hidden files and color enabled, ignoring
+# the `.git` directory, listing directories first. The output gets piped into
+# `less` with options to preserve color and line numbers, unless the output is
+# small enough for one screen.
+tre() {
+	tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX;
+}
+
+# Check how many Java toolchains are available
+howManyJava(){
+	gw -q javaToolChains
+}
+
+# The bumbailiff - TODO checker (zsh specific)
+todo (){
+	if [[ -n "$BUMBAILIFF_IGNORE_LA_LA_LA" ]] ; then exit 0 ; fi
+setopt LOCAL_OPTIONS BASH_REMATCH
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+ORANGE='\033[0;33m'
+BLUE='\033[0;34m'
+BOLD='\033[1m'
+NC='\033[0m'
+LIGHT_GRAY='\033[0;37m'
+
+MAX_AGE=150
+OK_AGE=$(($MAX_AGE / 2))
+
+todos=$( (git grep --files-with-matches "\(\/\/\|\#\)\s*TODO" -- "*.java" "*.jsx" "*.feature" || echo "") | xargs -I % sh -c 'echo %; git blame --date=raw % | grep "\(\/\/\|\#\)\s*TODO"')
+now_seconds_since_epoch=$(date +%s)
+total_days=0
+while IFS= read -r line; do
+  if [[ "${line}" =~ ([0-9]{10}) ]]; then
+    commit_seconds_since_epoch=${match[1]}
+    days_old=$(( (${now_seconds_since_epoch} - ${commit_seconds_since_epoch}) / 86400 ))
+    total_days=$((${total_days} + ${days_old}))
+
+    location="${line%// TODO*}"
+    location="${location%%*( )}"
+    todo="${line##*// }"
+
+    if ((${days_old}<=${OK_AGE}))
+    then
+      color="${GREEN}"
+    elif ((${days_old}<=${MAX_AGE}))
+    then
+      color="${ORANGE}"
+    else
+      color="${RED}"
+    fi
+    print -P "${color}${days_old} days old${LIGHT_GRAY} ${location}${NC}\n${todo}\n"
+  else
+    print -P "${BOLD}${line}${NC}"
+  fi
+done <<< "${todos}"
+
+status=0
+if ((${total_days}<=${OK_AGE}))
+then
+  color="${GREEN}"
+elif ((${total_days}<=${MAX_AGE}))
+then
+  color="${ORANGE}"
+else
+  color="${RED}"
+  status=1
+fi
+
+print -P "💵  ${color}${total_days} TODO-days accumulated. Max allowance is ${MAX_AGE}${NC}"
+}
+
+# Create a Procfile and copy shoreman.sh for process management
+proc() {
+    # Create Procfile with example entries
+    cat > Procfile << 'EOF'
+web: ./gradlew :server:bootRun
+api: cd ../keijo-skyjo && npm start
+
+EOF
+
+    # Create sample .env file
+    cat > .env << 'EOF'
+# Environment variables for your processes
+PORT=5000
+NODE_ENV=development
+DEBUG=true
+EOF
+
+    # Create Makefile with dev target
+    cat > Makefile << 'EOF'
+.PHONY: dev dev-bg stop logs status
+
+dev:
+	@./shoreman.sh
+
+dev-bg:
+	@nohup ./shoreman.sh > /dev/null 2>&1 &
+	@echo "Services started in background. Use 'make logs' to view output."
+
+stop:
+	@if [ -f .shoreman.pid ]; then \
+		kill $$(cat .shoreman.pid) 2>/dev/null || true; \
+		rm -f .shoreman.pid; \
+		echo "Services stopped"; \
+	else \
+		echo "No services running"; \
+	fi
+
+logs:
+	@tail -100 ./dev.log | perl -pe 's/\e\[[0-9;]*m(?:\e\[K)?//g'
+
+status:
+	@if [ -f .shoreman.pid ] && kill -0 $$(cat .shoreman.pid) 2>/dev/null; then \
+		echo "Services running (PID: $$(cat .shoreman.pid))"; \
+	else \
+		echo "Services not running"; \
+	fi
+EOF
+
+    # Copy shoreman.sh from scripts directory
+    cp ~/.dotfiles/scripts/shoreman.sh .
+
+    echo "Created Procfile, .env, Makefile, and copied shoreman.sh"
+    echo "Run 'make dev' to start services, 'make stop' to stop, 'make logs' to view logs"
+}

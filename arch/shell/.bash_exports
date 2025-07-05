@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+# Arch Linux-specific exports
+
+# Go development
+export GOPATH="$HOME/go"
+export PATH="$GOPATH/bin:$PATH"
+
+# Rust/Cargo (if installed)
+[ -s "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
+# NVM (if installed)
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+# Pacman aliases for package management
+alias pacman='sudo pacman'
+alias pacsyu='sudo pacman -Syu'          # Update system
+alias pacsyuu='sudo pacman -Syuu'        # Update system (force refresh)
+alias pacsyy='sudo pacman -Syy'          # Force refresh package database
+alias pacss='pacman -Ss'                 # Search package
+alias pacsi='pacman -Si'                 # Show package info
+alias pacqs='pacman -Qs'                 # Search locally installed packages
+alias pacqi='pacman -Qi'                 # Show info about locally installed package
+alias pacqdt='pacman -Qdt'               # List orphaned packages
+alias pacrs='sudo pacman -Rs'            # Remove package and dependencies
+alias pacrns='sudo pacman -Rns'          # Remove package with dependencies and config files
+
+# AUR helper (if yay is installed)
+if command -v yay &> /dev/null; then
+    alias yaysyu='yay -Syu'               # Update system including AUR
+    alias yayss='yay -Ss'                 # Search packages including AUR
+    alias yaysi='yay -Si'                 # Show package info including AUR
+fi
+
+# Arch Linux specific paths
+export PATH="/usr/local/bin:$PATH"
+
+# Set default applications
+export BROWSER="firefox"
+export TERMINAL="alacritty"
+
+# Wayland-specific exports (if running Wayland)
+if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
+    export MOZ_ENABLE_WAYLAND=1
+    export QT_QPA_PLATFORM=wayland
+    export SDL_VIDEODRIVER=wayland
+    export _JAVA_AWT_WM_NONREPARENTING=1
+fi
+
+# Hyprland-specific exports (if running Hyprland)
+if [ "$XDG_CURRENT_DESKTOP" = "Hyprland" ]; then
+    export XDG_CURRENT_DESKTOP=Hyprland
+    export XDG_SESSION_DESKTOP=Hyprland
+fi

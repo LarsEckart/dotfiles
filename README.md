@@ -1,54 +1,110 @@
 # Dotfiles
 
-### Installation
+Cross-platform dotfiles supporting both macOS and Arch Linux with maximum code sharing.
 
-Quick installation guide, backs up original dot files and stores them out of the way in a git ignored directory.
+## Structure
+
+```
+~/.dotfiles/
+├── shared/          # Cross-platform configurations
+│   ├── shell/       # Common shell configs (aliases, functions, exports)
+│   ├── git/         # Git configuration
+│   └── claude-code/ # Claude Code settings
+├── macos/           # macOS-specific configurations
+│   ├── shell/       # ZSH configuration for macOS
+│   ├── scripts/     # macOS setup and Homebrew scripts
+│   ├── zed/         # Zed editor configuration
+│   ├── githooks/    # Git hooks
+│   └── tuple-triggers/ # Tuple collaboration tools
+├── arch/            # Arch Linux-specific configurations
+│   └── shell/       # Bash configuration (works with omarchy)
+└── install/         # Platform-specific installation scripts
+```
+
+## Installation
+
+### macOS
 
 ```bash
 git clone git@github.com:LarsEckart/dotfiles.git ~/.dotfiles
-mkdir -p ~/.dotfiles/backups
-
-# Backup existing files
-mv ~/.gitconfig ~/.dotfiles/backups/ 2>/dev/null || true
-
-# Shell configuration (ZSH)
-ln -s ~/.dotfiles/shell/.zshrc ~/.zshrc
-ln -s ~/.dotfiles/shell/.zsh_exports ~/.zsh_exports
-ln -s ~/.dotfiles/shell/.zsh_functions ~/.zsh_functions
-ln -s ~/.dotfiles/shell/.zsh_prompt ~/.zsh_prompt
-ln -s ~/.dotfiles/shell/.aliases ~/.aliases
-ln -s ~/.dotfiles/shell/.exports ~/.exports
-ln -s ~/.dotfiles/shell/.functions ~/.functions
-
-# Git configuration
-ln -s ~/.dotfiles/git/.gitconfig ~/.gitconfig
-ln -s ~/.dotfiles/git/.gitattributes ~/.gitattributes
-ln -s ~/.dotfiles/git/.gitignore_global ~/.gitignore_global
-
-# Zed configuration
-ln -s ~/.dotfiles/zed/settings.json ~/.config/zed/settings.json
-ln -s ~/.dotfiles/zed/theme.json ~/.config/zed/themes/Casablanca.json
-
-# Claude Code configuration
-mkdir -p ~/.claude
-ln -s ~/.dotfiles/claude-code/settings.json ~/.claude/settings.json
-ln -s ~/.dotfiles/claude-code/settings.local.json ~/.claude/settings.local.json
-ln -s ~/.dotfiles/claude-code/mcp_servers.json ~/.claude/mcp_servers.json
-ln -s ~/.dotfiles/claude-code/CLAUDE.md ~/.claude/CLAUDE.md
-
-# Other dotfiles
-ln -s ~/.dotfiles/.hushlogin ~/.hushlogin
-ln -s ~/.dotfiles/.vimrc ~/.vimrc
+cd ~/.dotfiles
+./install/install-macos.sh
 ```
 
-Setup for multiple git identities is also described [here](https://garrit.xyz/posts/2023-10-13-organizing-multiple-git-identities).
+### Arch Linux (with omarchy)
 
-### Fonts
+```bash
+git clone git@github.com:LarsEckart/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
+./install/install-arch.sh
+```
 
-* Jetbrains Mono
+The Arch installation is designed to work alongside [omarchy](https://github.com/your-omarchy-repo) and provides complementary configurations rather than replacing the base system setup.
 
-### Others
+### Shared Only
 
-* [Generate a ssh key](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
-* Generate gpg key (update gpg and install pinentry-mac through brew, [do after install](https://www.reddit.com/r/emacs/comments/fe165f/pinentry_problems_in_osx/fjlpkqv/?utm_source=reddit&utm_medium=web2x&context=3) do `gpgconf --kill gpg-agent` at the very end
-* Paste and match style: https://twitter.com/_overment/status/1627917465295507456
+To install just the cross-platform configurations:
+
+```bash
+git clone git@github.com:LarsEckart/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
+./install/install-shared.sh
+```
+
+## Key Features
+
+### Shared Configurations
+- **Git**: Multi-identity setup with personal/work configurations
+- **Vim**: Basic vim configuration
+- **Claude Code**: CLI settings and configurations
+- **Shell**: Common aliases, functions, and exports
+
+### macOS-Specific
+- **ZSH**: Comprehensive ZSH configuration with plugins
+- **Homebrew**: Package management and installation scripts
+- **macOS Defaults**: System preferences automation
+- **Zed Editor**: Custom settings and Casablanca theme
+- **Development Tools**: Java version switching, Android SDK, etc.
+
+### Arch Linux-Specific
+- **Bash**: Configuration that complements omarchy
+- **Package Management**: Pacman and AUR helper aliases
+- **System Management**: Service management shortcuts
+- **Wayland/Hyprland**: Environment-specific configurations
+
+## Git Configuration
+
+The git setup uses conditional includes for multiple identities:
+- `.gitconfig-personal`: Personal GitHub identity with GPG signing
+- `.gitconfig-work`: Work identity with custom SSH configuration
+- Global git hooks for commit message automation
+
+## Development Setup
+
+### macOS
+After installation, run:
+```bash
+~/.dotfiles/macos/scripts/mac-setup.sh    # System preferences
+~/.dotfiles/macos/scripts/brew-install.sh # Development tools
+```
+
+### Arch Linux
+The Arch setup assumes you're using omarchy for system configuration. The dotfiles provide additional development-focused configurations that work alongside omarchy's base setup.
+
+## Shell Unification
+
+Both platforms can optionally use bash for consistency. The macOS setup currently uses ZSH but can be adapted to use the shared bash configurations.
+
+## Fonts
+
+Install JetBrains Mono font for optimal terminal experience.
+
+## Additional Setup
+
+- [Generate SSH keys](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
+- Configure GPG keys for commit signing
+- Set up development environment specific to your needs
+
+## Migration from Original Structure
+
+The repository has been reorganized from a macOS-only structure to support multiple platforms. Original configurations have been split into shared and platform-specific components while maintaining full functionality.

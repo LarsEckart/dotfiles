@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+
+# Arch Linux-specific aliases
+
+# Modern CLI tools (install with pacman)
+alias ls='ls --color=auto'
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# If exa/eza is installed, use it instead
+if command -v eza &> /dev/null; then
+    alias ls='eza --color=auto'
+    alias ll='eza -alF'
+    alias la='eza -A'
+    alias l='eza -CF'
+fi
+
+# Grep with color
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
+# Directory navigation
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+# System shortcuts
+alias reboot='sudo systemctl reboot'
+alias shutdown='sudo systemctl poweroff'
+alias suspend='sudo systemctl suspend'
+alias hibernate='sudo systemctl hibernate'
+
+# Service management
+alias start='sudo systemctl start'
+alias stop='sudo systemctl stop'
+alias restart='sudo systemctl restart'
+alias status='systemctl status'
+alias enable='sudo systemctl enable'
+alias disable='sudo systemctl disable'
+
+# Journal logs
+alias logs='journalctl -f'
+alias syslog='journalctl -u'
+
+# Network management
+alias wifi='iwctl'
+alias netstat='ss'
+
+# Process management
+alias psg='ps aux | grep'
+alias top='htop'  # if htop is installed
+
+# Disk usage
+alias du='du -h'
+alias df='df -h'
+alias free='free -h'
+
+# Package management
+alias pac='sudo pacman'
+alias pacin='sudo pacman -S'        # Install package
+alias pacup='sudo pacman -Syu'      # Update system
+alias pacse='pacman -Ss'            # Search package
+alias pacrm='sudo pacman -R'        # Remove package
+alias pacinfo='pacman -Si'          # Package info
+alias paclist='pacman -Q'           # List installed packages
+alias pacown='pacman -Qo'           # Which package owns file
+
+# AUR helper shortcuts (if yay is installed)
+if command -v yay &> /dev/null; then
+    alias yayin='yay -S'             # Install from AUR
+    alias yayup='yay -Syu'           # Update including AUR
+    alias yayse='yay -Ss'            # Search AUR
+    alias yayinfo='yay -Si'          # AUR package info
+fi
+
+# Flatpak shortcuts (if flatpak is installed)
+if command -v flatpak &> /dev/null; then
+    alias flatup='flatpak update'
+    alias flatlist='flatpak list'
+    alias flatinfo='flatpak info'
+    alias flatrun='flatpak run'
+fi
+
+# Git shortcuts
+alias gst='git status'
+alias glog='git log --oneline --graph'
+alias gadd='git add'
+alias gcom='git commit'
+alias gpush='git push'
+alias gpull='git pull'
+alias gdiff='git diff'
+
+# Quick configuration edits
+alias bashrc='vim ~/.bashrc'
+alias hyprconf='vim ~/.config/hypr/hyprland.conf'
+alias waybar='vim ~/.config/waybar/config'
+alias alacritty='vim ~/.config/alacritty/alacritty.yml'
+
+# Safety aliases
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# Reload bash configuration
+alias reload='source ~/.bashrc'

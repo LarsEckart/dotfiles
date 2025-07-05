@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+# macOS-specific aliases
+
+# Modern replacements with homebrew-installed versions
+alias l='eza'
+alias ll='eza -lah'
+alias ls='eza -lah --color=auto'
+alias la='eza -lah'
+
+# Java version switching shortcuts
+alias j8="export JAVA_HOME=\`/usr/libexec/java_home -v 1.8\`; java -version"
+alias j11="export JAVA_HOME=\`/usr/libexec/java_home -v 11\`; java -version"
+alias j17="export JAVA_HOME=\`/usr/libexec/java_home -v 17\`; java -version"
+alias j21="export JAVA_HOME=\`/usr/libexec/java_home -v 21\`; java -version"
+alias j22="export JAVA_HOME=\`/usr/libexec/java_home -v 22\`; java -version"
+alias j23="export JAVA_HOME=\`/usr/libexec/java_home -v 23\`; java -version"
+alias j24="export JAVA_HOME=\`/usr/libexec/java_home -v 24\`; java -version"
+alias graal="export JAVA_HOME=/Library/Java/JavaVirtualMachines/graalvm-jdk-21.0.2+13.1/Contents/Home"
+
+# Get macOS Software Updates, and update installed Ruby gems, Homebrew, npm, and their installed packages
+# alias update='sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; npm install npm -g; npm update -g; sudo gem update --system; sudo gem update; sudo gem cleanup'
+
+# IP addresses (macOS specific)
+alias localip="ipconfig getifaddr en0"
+
+# Show active network interfaces (macOS specific)
+alias ifactive="ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*status: active'"
+
+# Recursively delete `.DS_Store` files
+alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
+
+# Empty the Trash on all mounted volumes and the main HDD.
+# Also, clear Apple's System Logs to improve shell startup speed.
+# Finally, clear download history from quarantine. https://mths.be/bum
+alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'"
+
+# Show/hide hidden files in Finder
+alias show="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
+alias hide="defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder"
+
+# URL-encode strings
+alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1]);"'
+
+# Volume control
+alias stfu="osascript -e 'set volume output muted true'"
+alias pumpitup="osascript -e 'set volume output volume 100'"
+
+# Reload the shell (i.e. invoke as a login shell)
+alias reload="exec zsh"
+
+# Full Recursive Directory Listing
+alias lr='ls -R | grep ":$" | sed -e '\''s/:$//'\'' -e '\''s/[^-][^\/]*\//--/g'\'' -e '\''s/^/   /'\'' -e '\''s/-/|/'\'' | less'
+
+# do not index npm_modules foler with spotlight, https://github.com/yarnpkg/yarn/issues/6453
+alias fix-spotlight='find . -type d -name "node_modules" -exec touch "{}/.metadata_never_index" \;'

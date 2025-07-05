@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+# Make vim the default editor.
+export EDITOR='vim';
+
+# Enable persistent REPL history for `node`.
+export NODE_REPL_HISTORY=~/.node_history;
+# Allow 32³ entries; the default is 1000.
+export NODE_REPL_HISTORY_SIZE='32768';
+# Use sloppy mode by default, matching web browsers.
+export NODE_REPL_MODE='sloppy';
+
+# Make Python use UTF-8 encoding for output to stdin, stdout, and stderr.
+export PYTHONIOENCODING='UTF-8';
+
+# History configuration
+export HISTSIZE=32768
+export HISTFILESIZE="${HISTSIZE}"
+export SAVEHIST="${HISTSIZE}"
+
+# Don't clear the screen after quitting a manual page.
+export MANPAGER='less -X';
+
+# Avoid issues with `gpg` as installed via package manager.
+export GPG_TTY=$(tty);
+
+# so that mob.sh stays on working branch and does not jump back to master
+export MOB_NEXT_STAY=true
+
+# Claude Code telemetry
+export CLAUDE_CODE_ENABLE_TELEMETRY=1
+export OTEL_METRICS_EXPORTER=otlp
+export OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+export OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io
+export OTEL_EXPORTER_OTLP_HEADERS="x-honeycomb-team=3JfMoOMfaKAy0QfNLIETJF,x-honeycomb-dataset=claude-code"
+export OTEL_SERVICE_NAME="claude-code"
+export OTEL_METRIC_EXPORT_INTERVAL=60000
+export OTEL_LOGS_EXPORT_INTERVAL=5000

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Global pre-commit hook logic
+# Add any global pre-commit checks here
+
+# Execute local hook if it exists
+LOCAL_HOOK="$(git rev-parse --git-dir)/hooks/pre-commit"
+if [[ -x "$LOCAL_HOOK" ]]; then
+  exec "$LOCAL_HOOK" "$@"
+fi

@@ -1,0 +1,16 @@
+[user]
+  name = Lars Eckart
+  email = eckart@rushstreetinteractive.com
+  signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILd0TQheZDiEfDsAfjJaZGi0q9eX8QonbPtMYE89+2Y1
+
+[gpg]
+  format = ssh
+
+[gpg "ssh"]
+  program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+
+[commit]
+  gpgsign = true
+
+[url "git@work"]
+  insteadOf = git@github.com

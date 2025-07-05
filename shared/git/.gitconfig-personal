@@ -1,0 +1,13 @@
+[user]
+  name = Lars Eckart
+  email = lars.eckart@hey.com
+  signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICrfCjdrR7v2xcoQGzUFE/JeK2FPoQgu8OWfyd/0NL/W
+
+[gpg]
+  format = ssh
+
+[gpg "ssh"]
+  program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+
+[commit]
+  gpgsign = true
