@@ -66,3 +66,7 @@ HEROKU_AC_ZSH_SETUP_PATH=/Users/lars/Library/Caches/heroku/autocomplete/zsh_setu
 
 # Cargo environment
 . "$HOME/.cargo/env"
+
+
+# Load Angular CLI autocompletion.
+source <(ng completion script)

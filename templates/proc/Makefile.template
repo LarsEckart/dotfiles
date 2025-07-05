@@ -1,0 +1,31 @@
+.PHONY: dev dev-bg stop logs status
+
+dev:
+	@./shoreman.sh
+
+dev-bg:
+	@nohup ./shoreman.sh > /dev/null 2>&1 &
+	@echo "Services started in background. Use 'make logs' to view last 100 log lines."
+
+stop:
+	@if [ -f .shoreman.pid ]; then \
+		kill $$(cat .shoreman.pid) 2>/dev/null || true; \
+		rm -f .shoreman.pid; \
+		echo "Services stopped"; \
+	else \
+		echo "No services running"; \
+	fi
+
+logs:
+	@if [ -n "$(SERVICE)" ]; then \
+		tail -100 ./dev.log | grep "\[$(SERVICE)\]" | perl -pe 's/\e\[[0-9;]*m(?:\e\[K)?//g'; \
+	else \
+		tail -100 ./dev.log | perl -pe 's/\e\[[0-9;]*m(?:\e\[K)?//g'; \
+	fi
+
+status:
+	@if [ -f .shoreman.pid ] && kill -0 $$(cat .shoreman.pid) 2>/dev/null; then \
+		echo "Services running (PID: $$(cat .shoreman.pid))"; \
+	else \
+		echo "Services not running"; \
+	fi

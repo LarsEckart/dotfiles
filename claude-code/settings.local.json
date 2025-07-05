@@ -3,5 +3,6 @@
   "permissions": {
     "allow": ["Bash(mkdir:*)", "Bash(git add:*)"],
     "deny": []
-  }
+  },
+  "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": true
 }

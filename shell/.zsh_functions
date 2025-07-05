@@ -353,52 +353,11 @@ print -P "💵  ${color}${total_days} TODO-days accumulated. Max allowance is ${
 
 # Create a Procfile and copy shoreman.sh for process management
 proc() {
-    # Create Procfile with example entries
-    cat > Procfile << 'EOF'
-web: ./gradlew :server:bootRun
-api: cd ../keijo-skyjo && npm start
-
-EOF
-
-    # Create sample .env file
-    cat > .env << 'EOF'
-# Environment variables for your processes
-PORT=5000
-NODE_ENV=development
-DEBUG=true
-EOF
-
-    # Create Makefile with dev target
-    cat > Makefile << 'EOF'
-.PHONY: dev dev-bg stop logs status
-
-dev:
-	@./shoreman.sh
-
-dev-bg:
-	@nohup ./shoreman.sh > /dev/null 2>&1 &
-	@echo "Services started in background. Use 'make logs' to view output."
-
-stop:
-	@if [ -f .shoreman.pid ]; then \
-		kill $$(cat .shoreman.pid) 2>/dev/null || true; \
-		rm -f .shoreman.pid; \
-		echo "Services stopped"; \
-	else \
-		echo "No services running"; \
-	fi
-
-logs:
-	@tail -100 ./dev.log | perl -pe 's/\e\[[0-9;]*m(?:\e\[K)?//g'
-
-status:
-	@if [ -f .shoreman.pid ] && kill -0 $$(cat .shoreman.pid) 2>/dev/null; then \
-		echo "Services running (PID: $$(cat .shoreman.pid))"; \
-	else \
-		echo "Services not running"; \
-	fi
-EOF
-
+    # Copy template files
+    cp ~/.dotfiles/templates/proc/Procfile.template ./Procfile
+    cp ~/.dotfiles/templates/proc/.env.template ./.env
+    cp ~/.dotfiles/templates/proc/Makefile.template ./Makefile
+    
     # Copy shoreman.sh from scripts directory
     cp ~/.dotfiles/scripts/shoreman.sh .
 

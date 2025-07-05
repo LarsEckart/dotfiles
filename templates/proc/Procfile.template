@@ -1,0 +1,2 @@
+web: cd backend && ./gradlew :server:bootRun
+frontend: cd .frontend && npm start
