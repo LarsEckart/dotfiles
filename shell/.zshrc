@@ -21,9 +21,13 @@ setopt CORRECT                # Autocorrect typos in path names when using cd
 setopt AUTO_CD                # Auto cd when entering just a path
 setopt EXTENDED_GLOB          # Extended globbing (equivalent to bash globstar)
 
-# Enable zsh completion system
+# Enable zsh completion system with caching
 autoload -Uz compinit
-compinit
+if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
+    compinit
+else
+    compinit -C
+fi
 
 # Case insensitive completion
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
@@ -39,14 +43,42 @@ PROMPT='%F{green}%*%f %F{blue}%~%f %F{red}${vcs_info_msg_0_}%f$ '
 # Add tab completion for SSH hostnames based on ~/.ssh/config, ignoring wildcards
 [ -e "$HOME/.ssh/config" ] && _ssh_config=($(cat ~/.ssh/config | sed -ne 's/Host[=\t ]//p' | grep -v '[?*]')) && zstyle ':completion:*:*:ssh:*:hosts' hosts $_ssh_config
 
-# source nvm
+# source nvm (lazy loaded)
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+nvm() {
+    unset -f nvm
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    nvm "$@"
+}
+node() {
+    unset -f node
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    node "$@"
+}
+npm() {
+    unset -f npm
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    npm "$@"
+}
 
-# Add rbenv to PATH
+# Add rbenv to PATH (lazy loaded)
 export PATH="$HOME/.rbenv/bin:$PATH"
-eval "$(rbenv init - zsh)"
+rbenv() {
+    unset -f rbenv
+    eval "$(rbenv init - zsh)"
+    rbenv "$@"
+}
+ruby() {
+    unset -f ruby
+    eval "$(rbenv init - zsh)"
+    ruby "$@"
+}
+gem() {
+    unset -f gem
+    eval "$(rbenv init - zsh)"
+    gem "$@"
+}
 
 # so that I use brew installed curl and not the system one
 export PATH="/opt/homebrew/opt/curl/bin:$PATH"
@@ -68,5 +100,9 @@ HEROKU_AC_ZSH_SETUP_PATH=/Users/lars/Library/Caches/heroku/autocomplete/zsh_setu
 . "$HOME/.cargo/env"
 
 
-# Load Angular CLI autocompletion.
-source <(ng completion script)
+# Load Angular CLI autocompletion (lazy loaded)
+ng() {
+    unset -f ng
+    source <(ng completion script)
+    ng "$@"
+}
