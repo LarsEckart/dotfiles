@@ -79,6 +79,11 @@ gem() {
     eval "$(rbenv init - zsh)"
     gem "$@"
 }
+bundle() {
+    unset -f bundle
+    eval "$(rbenv init - zsh)"
+    bundle "$@"
+}
 
 # so that I use brew installed curl and not the system one
 export PATH="/opt/homebrew/opt/curl/bin:$PATH"
