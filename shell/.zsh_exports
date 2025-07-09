@@ -71,6 +71,7 @@ export PATH="/usr/local/sbin:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$P
 
 # C#
 export PATH="/usr/local/share/dotnet:$PATH"
+export PATH="$PATH:/Users/lars/.dotnet/tools"
 
 export PATH=/opt/homebrew/bin:$PATH
 
