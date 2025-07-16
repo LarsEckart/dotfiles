@@ -1,4 +1,7 @@
 {
+  "features": {
+    "edit_prediction_provider": "none"
+  },
   "telemetry": {
     "diagnostics": false,
     "metrics": false
@@ -85,7 +88,7 @@
     "custom": 1.16 // Like I've used in terminal, but it's pretty dense
   },
   "ui_font_size": 15,
-  "buffer_font_size": 15.0,
+  "buffer_font_size": 20.0,
   "buffer_font_family": "JetBrains Mono",
   "buffer_font_weight": 300,
   "ui_font_weight": 400,

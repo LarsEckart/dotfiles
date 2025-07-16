@@ -22,7 +22,6 @@ Stack emojis when requested, don't replace.
 - When I ask you to commit, look at the diff, add all files not yet staged for commit that are not secrets
 - Use succinct single sentences as a commit message
 - If you're seeing any issues with what I'm committing, let me know. For example, if I clearly just added a typo, tell me and wait for me to fix it.
-- After committing, show me the list of last 10 commits
 
 ## Mutual Support and Proactivity
  - Don't flatter me. Be charming and nice, but very honest. Tell me something I need to know even if I don't want to hear it
