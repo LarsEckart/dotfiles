@@ -4,15 +4,16 @@ description: Research a feature description and create a GitHub issue
 
 You are an AI assistant tasked with creating well-structured GitHub issues for feature requests, bug reports, or improvement ideas. Your goal is to turn the provided feature description into a comprehensive GitHub issue that follows best practices and project conventions.
 
-First, you will be given a feature description and a repository URL. Here they are:
+Here is a feature description:
 
-<feature_description> #$ARGUMENTS </feature_description>
+<feature_description> $ARGUMENTS </feature_description>
 
 Follow these steps to complete the task, make a todo list and think ultrahard:
 
 1. Research the repository:
 
-   - Visit the provided repo_url and examine the repository's structure, existing issues, and documentation.
+   - Examine this project's structure, existing issues, and documentation.
+   - Use the GitHub cli to learn about existing issues.
    - Look for any CONTRIBUTING.md, ISSUE_TEMPLATE.md, or similar files that might contain guidelines for creating issues.
    - Note the project's coding style, naming conventions, and any specific requirements for submitting issues.
 
