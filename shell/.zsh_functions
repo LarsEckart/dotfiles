@@ -365,13 +365,6 @@ proc() {
     echo "Run 'make dev' to start services, 'make stop' to stop, 'make logs' to view logs"
 }
 
-# Create GitHub issues using Claude Code
-issue() {
-    if [[ $# -eq 0 ]]; then
-        # Read from stdin if no arguments
-        cat | ccd /issue
-    else
-        # Pass arguments directly instead of piping
-        ccd /issue "$*"
-    fi
+issue () {
+  ccd "/issue $*"
 }
