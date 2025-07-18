@@ -357,10 +357,21 @@ proc() {
     cp ~/.dotfiles/templates/proc/Procfile.template ./Procfile
     cp ~/.dotfiles/templates/proc/.env.template ./.env
     cp ~/.dotfiles/templates/proc/Makefile.template ./Makefile
-    
+
     # Copy shoreman.sh from scripts directory
     cp ~/.dotfiles/scripts/shoreman.sh .
 
     echo "Created Procfile, .env, Makefile, and copied shoreman.sh"
     echo "Run 'make dev' to start services, 'make stop' to stop, 'make logs' to view logs"
+}
+
+# Create GitHub issues using Claude Code
+issue() {
+    if [[ $# -eq 0 ]]; then
+        # Read from stdin if no arguments
+        cat | ccd /issue
+    else
+        # Pass arguments directly instead of piping
+        ccd /issue "$*"
+    fi
 }

@@ -58,3 +58,9 @@ The prepare-commit-msg hook automatically extracts ticket numbers from branch na
 - `zed/theme.json`: Custom Casablanca dark theme for Zed
 
 When modifying symlinks or file paths, ensure the git configuration paths in `.gitconfig` are updated to match the new structure.
+
+## Claude Code Integration
+
+- **Custom Slash Commands**: The `claude-code/commands/` directory contains custom slash commands
+- **Issue Function**: The `issue()` function in `shell/.zsh_functions` creates GitHub issues via Claude Code
+- **Known Issues**: Claude Code has a bug with piping input to slash commands - use direct arguments instead of pipes for reliable execution
