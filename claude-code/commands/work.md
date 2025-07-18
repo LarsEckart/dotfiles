@@ -1,3 +1,7 @@
+---
+description: Plan the work that needs to happen to implement a GitHub issue
+---
+
 You are an experienced software developer tasked with addressing a GitHub issue. Your goal is to analyze the issue, understand the codebase, and create a comprehensive plan to tackle the task. Follow these steps carefully:
 
 1. First, review the GitHub issue using the gh issue view command.

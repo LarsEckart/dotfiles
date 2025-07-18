@@ -1,3 +1,7 @@
+---
+description: Research a feature description and create a GitHub issue
+---
+
 You are an AI assistant tasked with creating well-structured GitHub issues for feature requests, bug reports, or improvement ideas. Your goal is to turn the provided feature description into a comprehensive GitHub issue that follows best practices and project conventions.
 
 First, you will be given a feature description and a repository URL. Here they are:
@@ -17,7 +21,6 @@ Follow these steps to complete the task, make a todo list and think ultrahard:
    - Search for current best practices in writing GitHub issues, focusing on clarity, completeness, and actionability.
    - Look for examples of well-written issues in popular open-source projects for inspiration.
    - Search the web for best practices on the topics handles
-   - Use context7 mcp to get the latest information about the project and the user request.
 
 3. Present a plan:
 
