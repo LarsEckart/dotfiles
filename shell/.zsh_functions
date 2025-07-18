@@ -365,6 +365,8 @@ proc() {
     echo "Run 'make dev' to start services, 'make stop' to stop, 'make logs' to view logs"
 }
 
+# Create GitHub issues using Claude Code
+# Usage: issue implement hello world in go
 issue () {
   ccd "/issue $*"
 }
