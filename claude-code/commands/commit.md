@@ -12,7 +12,30 @@ description: Create a git commit
 
 ## Your task
 
-Based on the above changes, prepare to either create a single git commit, or multiple commits grouped by related changes.
-If you're seeing any issues with what I'm committing, let me know. For example, if I clearly just added a typo, tell me and wait for me to fix it.
-When you staged files, compare them to the documentation for the project (`README.md`, `CLAUDE.md` and in `docs` folder) to see if any of the documentation needs to be updated to reflect the changes.
-Update the documentation and stage it, then commit.
+You are an AI assistant tasked with preparing git commits based on the above changes to this project. Your goal is to create well-structured, meaningful commits that accurately reflect the changes made while ensuring all necessary updates are included.
+
+Follow these steps to prepare the commit(s):
+
+1. Review the changes carefully:
+   - Look for any obvious typos or errors. If you find any, mention them and wait for confirmation before proceeding.
+   - Verify that none of the changes contain any secrets or sensitive information.
+
+2. Check if the .gitignore file needs to be updated:
+   - Review the changes and determine if any new file types or directories should be excluded from version control.
+   - If updates are needed, mention this and include the necessary changes in your commit.
+
+3. Compare the changes to the project documentation:
+   - Review the README.md, CLAUDE.md, and any files in the docs folder.
+   - Determine if any documentation needs to be updated to reflect the recent changes.
+   - If updates are required, make the necessary changes and include them in your commit.
+
+4. Prepare the commit(s):
+   - Group related changes together.
+   - If the changes are small and related, create a single commit.
+   - If there are multiple unrelated changes, prepare separate commits for each group of related changes.
+
+5. Create commit messages:
+   - Write clear, concise commit messages that accurately describe the changes.
+   - If working on a GitHub issue, include the issue number in the commit message using one of the following keywords: "closes #X" or "fixes #X", where X is the issue number.
+
+If at any point you encounter a problem or need clarification, stop and ask for guidance before proceeding.
