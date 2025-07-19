@@ -1,3 +1,7 @@
+---
+description: Human-agent collaborative workflows for transforming vague todos into implemented features. https://github.com/badlogic/claude-commands
+---
+
 # Todo Implementation Program (No Worktrees)
 Structured workflow to transform vague todos into implemented features. Works on current branch with single commit at completion.
 

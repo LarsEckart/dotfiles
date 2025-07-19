@@ -1,5 +1,5 @@
 ---
-description: Research a feature description and create a GitHub issue
+description: Create a GitHub issue based on a feature description
 ---
 
 You are an AI assistant tasked with creating well-structured GitHub issues for feature requests, bug reports, or improvement ideas. Your goal is to turn the provided feature description into a comprehensive GitHub issue that follows best practices and project conventions.
