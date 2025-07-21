@@ -5,44 +5,37 @@ description: Create a draft release on GitHub
 
 ## Context
 
-- Latest release tags: !`git describe --tags --abbrev=0`
+- Latest release tag: !`git describe --tags --abbrev=0`
 
 ## Your task
 
-You are an AI assistant tasked with helping create a new release for a library. Your job is to review the changes made since the last release, draft a release title and description, and then create the release using the GitHub CLI once confirmed by the user.
+Review the changes made since the last release and make notes of significant updates, new features, bug fixes, and breaking changes.
 
-Review the changes and make notes of significant updates, new features, bug fixes, and breaking changes.
-
-Next, draft a release title and description based on your review:
+Next, draft a release description based on your review:
 
 1. List all commits since the last release:
    <function_call>git log [LATEST_TAG]..HEAD --oneline</function_call>
 
-2. For the title, use the format: "v[NEW_VERSION_NUMBER]". Increment the version number based on semantic versioning rules:
-   - Major version for breaking changes
-   - Minor version for new features
-   - Patch version for bug fixes
-
-s. For the description, organize the changes into sections:
+2. For the description, organize the changes into sections:
    - 🚀 Features & Enhancements
    - 🐛 Bug Fixes
    - 📖 Documentation
    - 📦 Dependency updates
 
-   Include brief, clear descriptions of each change, referencing relevant commit hashes or pull request numbers if available. Point out breaking changes.
+   Include brief, clear descriptions of each change, referencing relevant commit hashes or pull request numbers if available. Point out breaking changes (which cause major version increase).
 
-Once you have drafted the release title and description, present them to the user for confirmation:
+To calculate the next release's version, run `next-version` script which is on PATH.
+
+Once you have drafted the release description, present it to the user for confirmation:
 
 <output>
-Proposed Release Title: [Your proposed title]
-
 Proposed Release Description:
 [Your proposed description]
 
 Do you want to create this release? (yes/no)
 </output>
 
-Wait for the user's response. If the user confirms (answers "yes"), proceed with creating the release using the GitHub CLI:
+Wait for the user's response. If the user confirms (answers "yes"), they will also tell you what version to use as release title (e.g. "v2.3.1") proceed with creating the release using the GitHub CLI:
 
 1. Create the release:
    <function_call>gh release create [NEW_TAG] -d -t "[RELEASE_TITLE]" -n "[RELEASE_DESCRIPTION]"</function_call>

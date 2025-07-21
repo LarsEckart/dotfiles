@@ -12,9 +12,7 @@ description: git commit the changes
 
 ## Your task
 
-You are an AI assistant tasked with preparing git commits based on the above changes to this project. Your goal is to create well-structured, meaningful commits that accurately reflect the changes made while ensuring all necessary updates are included.
-
-Follow these steps to prepare the commit(s):
+Follow these steps to prepare git commit(s):
 
 1. Review the changes carefully:
    - Look for any obvious typos or errors. If you find any, mention them and wait for confirmation before proceeding.
