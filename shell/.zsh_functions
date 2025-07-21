@@ -370,3 +370,7 @@ proc() {
 issue () {
   ccd "/issue $*"
 }
+
+google(){
+  gemini -p "Use google_web_search, search for <query>$1</query> and summarize  results"
+}

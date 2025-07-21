@@ -1,4 +1,4 @@
-.PHONY: install install-zsh install-zed install-claude-code install-scripts install-githooks install-misc backup-existing restore-backup clean
+.PHONY: install install-zsh install-zed install-claude-code install-scripts install-githooks install-misc install-scripts-bin backup-existing restore-backup clean
 
 install: install-zsh install-zed install-claude-code install-scripts install-githooks install-misc
 
@@ -73,3 +73,10 @@ brew-update:
 	@echo "Updating Homebrew packages..."
 	@chmod +x ~/.dotfiles/scripts/brew-update.sh
 	@~/.dotfiles/scripts/brew-update.sh
+
+install-scripts-bin:
+	@echo "Installing scripts to /usr/local/bin..."
+	@chmod +x ~/.dotfiles/scripts/*
+	@sudo ln -sf ~/.dotfiles/scripts/bumbailiff /usr/local/bin/bumbailiff
+	@sudo ln -sf ~/.dotfiles/scripts/curltime.sh /usr/local/bin/curltime
+	@sudo ln -sf ~/.dotfiles/scripts/next-version.sh /usr/local/bin/next-version

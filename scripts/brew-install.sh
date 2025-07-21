@@ -85,6 +85,11 @@ brew install terraform git oci-cli
 
 brew install derailed/k9s/k9s
 
+brew install tmux
+
+brew tap "rhysd/actionlint" "https://github.com/rhysd/actionlint"
+brew install actionlint
+
 # Apps
 
 # brew install --cask rectangle
