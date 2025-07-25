@@ -97,3 +97,6 @@ ng() {
     source <(ng completion script)
     ng "$@"
 }
+
+# opencode
+export PATH=/Users/lars/.opencode/bin:$PATH
