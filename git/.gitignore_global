@@ -6,3 +6,4 @@ run_solo.sh
 
 # Claude Code local settings
 .claude/
+copilot-instructions.md
