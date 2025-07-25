@@ -30,6 +30,9 @@ install-claude-code:
 	@echo "Installing Claude Code commands..."
 	@mkdir -p ~/.claude/commands
 	@ln -sf ~/.dotfiles/claude-code/commands/* ~/.claude/commands/
+	@echo "Installing Claude Code agents..."
+	@mkdir -p ~/.claude/agents
+	@ln -sf ~/.dotfiles/claude-code/agents/* ~/.claude/agents/
 
 install-githooks:
 	@echo "Installing global git hooks..."
@@ -54,6 +57,7 @@ clean:
 	@rm -f ~/.vimrc ~/.hushlogin
 	@rm -f ~/.config/zed/settings.json ~/.config/zed/themes/Casablanca.json ~/.config/zed/themes/NeoSolarized.json ~/.config/zed/themes/Github\ Theme.json ~/.config/zed/themes/macOS\ Classic.json
 	@rm -f ~/.claude/commands/*
+	@rm -f ~/.claude/agents/*
 	@rm -f ~/bin/curltime
 	@echo "Use 'make restore-backup' to restore original files"
 

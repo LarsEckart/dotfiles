@@ -1,3 +1,21 @@
 {
-  "model": "sonnet"
+  "model": "opus",
+  "permissions": {
+    "allow": [
+      "Glob(**)",
+      "LS(**)",
+      "WebSearch(**)",
+      "Bash(git add:*)",
+      "Bash(git mv:*)",
+      "Bash(git rm:*)",
+      "Bash(git stash:*)",
+      "Bash(git diff:*)",
+      "Bash(git commit:*)",
+      "Bash(ls:*)",
+      "Bash(tree:*)",
+      "Bash(pwd:*)",
+      "Bash(which:*)"
+    ],
+    "deny": []
+  }
 }
