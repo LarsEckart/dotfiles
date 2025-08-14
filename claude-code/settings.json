@@ -21,18 +21,5 @@
   "model": "opusplan",
   "feedbackSurveyState": {
     "lastShownTime": 1754147549098
-  },
-  "hooks": {
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.dotfiles/scripts/claude-done.sh"
-          }
-        ]
-      }
-    ]
   }
 }

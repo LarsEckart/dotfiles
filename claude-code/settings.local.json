@@ -15,6 +15,5 @@
     "allow": ["Bash(mkdir:*)", "Bash(git add:*)", "Bash(find:*)", "Bash(ls:*)"],
     "deny": []
   },
-  "enableAllProjectMcpServers": true,
   "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": true
 }
