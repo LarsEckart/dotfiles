@@ -6,7 +6,6 @@
     "diagnostics": false,
     "metrics": false
   },
-  "show_user_picture": false,
   "scrollbar": {
     "show": "auto",
     "axes": {
@@ -19,14 +18,15 @@
     "quick_actions": false
   },
   "tab_bar": { "show": false },
-  "project_panel": { "button": false },
+  "project_panel": { "button": true },
   "outline_panel": { "button": false },
   "collaboration_panel": { "button": false },
   "notification_panel": { "button": false },
   "terminal": {
-    "button": false,
+    "button": true,
     "copy_on_select": true,
-    "dock": "left",
+    "dock": "right",
+    "font_size": 13,
     "toolbar": {
       "breadcrumbs": false
     }
@@ -42,8 +42,7 @@
     "default_model": {
       "provider": "copilot_chat",
       "model": "o3-mini"
-    },
-    "version": "2"
+    }
   },
 
   // Rullers and wrapping
@@ -53,19 +52,12 @@
 
   // Smaller gutter
   "gutter": {
-    "code_actions": false,
     "runnables": false,
     "folds": false
   },
 
   // Smaller statusbar
   "line_indicator_format": "short",
-
-  // Maybe
-  "active_pane_modifiers": {
-    "magnification": 1.5,
-    "inactive_opacity": 0.85
-  },
 
   // Usability
   "base_keymap": "JetBrains",
