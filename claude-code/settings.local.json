@@ -1,11 +1,18 @@
 {
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.dotfiles/scripts/notify.sh"
+          }
+        ]
+      }
+    ]
+  },
   "permissions": {
-    "allow": [
-      "Bash(mkdir:*)",
-      "Bash(git add:*)",
-      "Bash(find:*)",
-      "Bash(ls:*)"
-    ],
+    "allow": ["Bash(mkdir:*)", "Bash(git add:*)", "Bash(find:*)", "Bash(ls:*)"],
     "deny": []
   },
   "enableAllProjectMcpServers": true,
