@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/.dotfiles/scripts/notify.sh"
+            "command": "~/.dotfiles/scripts/claude-done.sh"
           }
         ]
       }
