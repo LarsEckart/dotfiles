@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a personal dotfiles repository organized into logical folders:
 
-- **shell/**: ZSH configuration files (.zshrc, .zsh_exports, .zsh_functions, .zsh_prompt, .aliases, .exports, .functions)
+- **shell/**: ZSH configuration files (.zshrc, .zsh_exports, .zsh_functions, .aliases, .exports, .functions)
 - **git/**: Git configuration files (.gitconfig, .gitconfig-personal, .gitconfig-work, .gitattributes, .gitignore_global)
 - **scripts/**: Setup and utility scripts (mac-setup.sh, brew.sh, curltime.sh)
 - **githooks/**: Global git hooks (prepare-commit-msg, pre-commit)

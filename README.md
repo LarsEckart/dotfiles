@@ -15,7 +15,6 @@ mv ~/.gitconfig ~/.dotfiles/backups/ 2>/dev/null || true
 ln -s ~/.dotfiles/shell/.zshrc ~/.zshrc
 ln -s ~/.dotfiles/shell/.zsh_exports ~/.zsh_exports
 ln -s ~/.dotfiles/shell/.zsh_functions ~/.zsh_functions
-ln -s ~/.dotfiles/shell/.zsh_prompt ~/.zsh_prompt
 ln -s ~/.dotfiles/shell/.aliases ~/.aliases
 ln -s ~/.dotfiles/shell/.exports ~/.exports
 ln -s ~/.dotfiles/shell/.functions ~/.functions

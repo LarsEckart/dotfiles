@@ -14,7 +14,6 @@ install-zsh: backup-existing
 	@ln -sf ~/.dotfiles/shell/.zshrc ~/.zshrc
 	@ln -sf ~/.dotfiles/shell/.zsh_exports ~/.zsh_exports
 	@ln -sf ~/.dotfiles/shell/.zsh_functions ~/.zsh_functions
-	@ln -sf ~/.dotfiles/shell/.zsh_prompt ~/.zsh_prompt
 	@ln -sf ~/.dotfiles/shell/.aliases ~/.aliases
 
 install-zed:
@@ -53,7 +52,7 @@ restore-backup:
 
 clean:
 	@echo "Removing symlinks..."
-	@rm -f ~/.zshrc ~/.zsh_exports ~/.zsh_functions ~/.zsh_prompt ~/.aliases
+	@rm -f ~/.zshrc ~/.zsh_exports ~/.zsh_functions ~/.aliases
 	@rm -f ~/.vimrc ~/.hushlogin
 	@rm -f ~/.config/zed/settings.json ~/.config/zed/themes/Casablanca.json ~/.config/zed/themes/NeoSolarized.json ~/.config/zed/themes/Github\ Theme.json ~/.config/zed/themes/macOS\ Classic.json
 	@rm -f ~/.claude/commands/*
