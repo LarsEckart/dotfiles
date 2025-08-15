@@ -1,15 +1,3 @@
-[include]
-	path = ~/.dotfiles/git/.gitconfig-personal
-[includeIf "gitdir/i:~/work/"]
-    path = ~/.dotfiles/git/.gitconfig-work
-[user]
-    # https://markentier.tech/posts/2021/02/github-with-multiple-profiles-gpg-ssh-keys/
-	# But if, say, you want Git to use one email address for your open source projects and a different one for your work projects, you’ve undoubtedly
-	# made the mistake of committing to a new Git repository without having first set your email address in that repository.
-	# In this situation, Git emits a warning, but it creates the commit anyway, using an email address that it guesses from the local system hostname.
-	# If you’re trying to do something as complicated as different addresses for different projects, this is almost certainly not what you want.
-	# Now you can tell Git not to guess, but rather to insist that you set user.name and user.email explicitly before it will let you commit:
-	useConfigOnly = true
 [alias]
 	# Displays all local branches in the order of their last commit, allowing to see what you worked on when.
 	wip = for-each-ref --sort='authordate:iso8601' --format=' %(color:green)%(authordate:relative)%09%(color:white)%(refname:short)' refs/heads
@@ -19,14 +7,8 @@
 	# Reset and sync local repository with remote branch
 	resetupstream = !git fetch upstream && git reset --hard upstream/master && git clean -f -d
 	fpush = push
-[core]
-	# Use custom `.gitignore`
-	excludesFile = ~/.gitignore_global
-	# Treat spaces before tabs, lines that are indented with 8 or more spaces, and all kinds of trailing whitespace as an error
-	whitespace = space-before-tab,indent-with-non-tab,trailing-space
-	autocrlf = input
-	attributesfile = ~/.dotfiles/git/.gitattributes
-	hooksPath = /Users/lars/.dotfiles/githooks
+[branch]
+	sort = -committerdate
 [color]
 	# Use colors in Git commands that are capable of colored output when outputting to the terminal
 	ui = auto
@@ -43,6 +25,16 @@
 	added = yellow
 	changed = green
 	untracked = cyan
+[column]
+	ui = auto
+[core]
+	# Use custom `.gitignore`
+	excludesFile = ~/.gitignore_global
+	# Treat spaces before tabs, lines that are indented with 8 or more spaces, and all kinds of trailing whitespace as an error
+	whitespace = space-before-tab,indent-with-non-tab,trailing-space
+	autocrlf = input
+	attributesfile = ~/.dotfiles/git/.gitattributes
+	hooksPath = /Users/lars/.dotfiles/githooks
 [diff]
 	# https://git-scm.com/docs/git-config#git-config-diffrenames
 	# Whether and how Git detects renames. If set to "false", rename detection is disabled.
@@ -53,20 +45,30 @@
 	# A POSIX Extended Regular Expression used to determine what is a "word" when performing word-by-word difference calculations. Character sequences that match the regular expression are "words", all other characters are ignorable whitespace.
 	# https://medium.com/@porteneuve/30-git-cli-options-you-should-know-about-15423e8771df
 	wordRegex = .
+[fetch]
+	prune = true
 [filter "lfs"]
 	required = true
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
+[include]
+	path = ~/.dotfiles/git/.gitconfig-personal
+[includeIf "gitdir/i:~/work/"]
+    path = ~/.dotfiles/git/.gitconfig-work
 [init]
 	defaultBranch = main
 [pull]
 	rebase = true
-[rebase]
-	autoStash = true
-[fetch]
-	prune = true
 [push]
 	autoSetupRemote = true
-[branch]
-	sort = -committerdate
+[rebase]
+	autoStash = true
+[user]
+    # https://markentier.tech/posts/2021/02/github-with-multiple-profiles-gpg-ssh-keys/
+	# But if, say, you want Git to use one email address for your open source projects and a different one for your work projects, you've undoubtedly
+	# made the mistake of committing to a new Git repository without having first set your email address in that repository.
+	# In this situation, Git emits a warning, but it creates the commit anyway, using an email address that it guesses from the local system hostname.
+	# If you're trying to do something as complicated as different addresses for different projects, this is almost certainly not what you want.
+	# Now you can tell Git not to guess, but rather to insist that you set user.name and user.email explicitly before it will let you commit:
+	useConfigOnly = true
