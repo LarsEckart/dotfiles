@@ -374,3 +374,12 @@ issue () {
 google(){
   gemini -p "Use google_web_search, search for <query>$1</query> and summarize  results"
 }
+
+# Text-to-speech using ElevenLabs
+speak() {
+  if [ $# -eq 0 ]; then
+    echo "Usage: speak \"your message here\""
+    return 1
+  fi
+  cd ~/.dotfiles/speech && uv run text_to_speech_eleven_labs.py "$1"
+}

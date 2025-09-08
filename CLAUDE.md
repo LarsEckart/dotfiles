@@ -14,6 +14,7 @@ This is a personal dotfiles repository organized into logical folders:
 - **zed/**: Zed editor configuration (settings.json, theme.json)
 - **ghostty/**: Ghostty terminal emulator configuration (ghostty.conf)
 - **claude-code/**: Claude Code configurations, commands, and agents
+- **speech/**: Text-to-speech integration using ElevenLabs API
 
 ## Installation and Setup
 
@@ -52,7 +53,7 @@ The prepare-commit-msg hook automatically extracts ticket numbers from branch na
 ## Important Files
 
 - `shell/.zsh_exports`: Environment variables and ZSH history configuration
-- `shell/.functions`: Custom shell functions including Docker cleanup, Git utilities
+- `shell/.zsh_functions`: Custom shell functions including Docker cleanup, Git utilities, text-to-speech
 - `git/.gitconfig`: Main git configuration with aliases and settings
 - `scripts/mac-setup.sh`: Complete macOS system configuration
 - `scripts/brew.sh`: Development tool installation via Homebrew
