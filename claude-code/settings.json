@@ -31,8 +31,12 @@
     ],
     "deny": []
   },
-  "model": "opusplan",
+  "model": "sonnet",
   "feedbackSurveyState": {
     "lastShownTime": 1754147549098
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/cc-statusline-rs"
   }
 }
