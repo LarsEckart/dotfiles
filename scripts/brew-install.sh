@@ -90,6 +90,8 @@ brew install tmux
 brew tap "rhysd/actionlint" "https://github.com/rhysd/actionlint"
 brew install actionlint
 
+brew install uv
+
 # Apps
 
 # brew install --cask rectangle

@@ -108,6 +108,9 @@ fi
 CLI_AGENTS=(
     "@google/gemini-cli|Gemini CLI|gemini"
     "@qwen-code/qwen-code|Qwen CLI|qwen"
+    "@openai/codex|OpenAI Codex CLI|codex"
+    "@sourcegraph/amp|Sourcegraph AMP|amp"
+    "@charmland/crush|Crush CLI|crush"
 )
 
 # Check and update each CLI agent
