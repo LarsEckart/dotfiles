@@ -383,3 +383,9 @@ speak() {
   fi
   cd ~/.dotfiles/speech && uv run text_to_speech_eleven_labs.py "$1"
 }
+
+# Show what's using a port (defaults to 8080)
+wtf() {
+  local port="${1:-8080}"
+  lsof -i "tcp:$port"
+}
