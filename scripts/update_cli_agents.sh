@@ -19,6 +19,68 @@ print_status() {
     echo -e "${color}${message}${NC}"
 }
 
+cleanup_partial_install() {
+    local package_name=$1
+    local display_name=$2
+    local npm_root
+    npm_root=$(npm root -g 2>/dev/null) || return 0
+
+    local pkg_dir="$npm_root/$package_name"
+    local parent_dir="$npm_root"
+    if [[ "$package_name" == */* ]]; then
+        parent_dir="$npm_root/${package_name%/*}"
+    fi
+    local base_name="${package_name##*/}"
+
+    local to_remove=()
+    if [ -d "$pkg_dir" ]; then
+        to_remove+=("$pkg_dir")
+    fi
+    if [ -d "$parent_dir" ]; then
+        shopt -s nullglob
+        for leftover in "$parent_dir"/."${base_name}"-*; do
+            to_remove+=("$leftover")
+        done
+        shopt -u nullglob
+    fi
+
+    if [ ${#to_remove[@]} -gt 0 ]; then
+        print_status $YELLOW "  Cleaning partial install state for $display_name"
+        rm -rf "${to_remove[@]}"
+    fi
+}
+
+perform_install() {
+    local package_name=$1
+    local display_name=$2
+    local spec=$3
+    local output
+
+    if output=$(npm install -g "$package_name$spec" 2>&1); then
+        return 0
+    fi
+
+    if echo "$output" | grep -q "ENOTEMPTY: directory not empty, rename"; then
+        cleanup_partial_install "$package_name" "$display_name"
+        if output=$(npm install -g "$package_name$spec" 2>&1); then
+            return 0
+        fi
+    fi
+
+    echo "$output" | tail -n 40
+    return 1
+}
+
+# Ensure we run with the user's preferred Node (via nvm) when available.
+if [ -z "${NVM_DIR:-}" ] && [ -d "$HOME/.nvm" ]; then
+    export NVM_DIR="$HOME/.nvm"
+fi
+if [ -n "${NVM_DIR:-}" ] && [ -s "$NVM_DIR/nvm.sh" ]; then
+    # shellcheck disable=SC1090
+    . "$NVM_DIR/nvm.sh"
+    nvm use --lts >/dev/null 2>&1 || print_status $YELLOW "⚠️ nvm failed to switch Node version; continuing with system Node"
+fi
+
 # Function to get installed version of npm package
 get_installed_version() {
     local package_name=$1
@@ -35,9 +97,9 @@ get_latest_version() {
 update_package() {
     local package_name=$1
     local display_name=$2
-    
+
     print_status $BLUE "Updating $display_name..."
-    if npm install -g "$package_name@latest" >/dev/null 2>&1; then
+    if perform_install "$package_name" "$display_name" "@latest"; then
         local new_version=$(get_installed_version "$package_name")
         print_status $GREEN "✅ $display_name updated to version $new_version"
     else
@@ -56,8 +118,16 @@ check_and_update() {
     
     # Check if binary exists
     if ! command -v "$binary_name" &> /dev/null; then
-        print_status $RED "❌ $display_name not found. Install with: npm install -g $package_name"
-        return 1
+        print_status $YELLOW "📦 $display_name not found. Installing..."
+        if perform_install "$package_name" "$display_name" ""; then
+            local new_version=$(get_installed_version "$package_name")
+            print_status $GREEN "✅ $display_name installed successfully (version $new_version)"
+        else
+            print_status $RED "❌ Failed to install $display_name"
+            return 1
+        fi
+        echo
+        return 0
     fi
     
     local installed_version=$(get_installed_version "$package_name")
@@ -78,11 +148,7 @@ check_and_update() {
     
     if [ "$installed_version" != "$latest_version" ]; then
         print_status $YELLOW "  Update available!"
-        if [ "$1" = "--dry-run" ] || [ "$2" = "--dry-run" ] || [ "$3" = "--dry-run" ]; then
-            print_status $YELLOW "  [DRY RUN] Would update $display_name from $installed_version to $latest_version"
-        else
-            update_package "$package_name" "$display_name"
-        fi
+        update_package "$package_name" "$display_name"
     else
         print_status $GREEN "  ✅ Already up to date"
     fi
@@ -95,13 +161,7 @@ print_status $BLUE "🔄 CLI Agent Updater"
 echo "===================="
 echo
 
-# Check for dry run flag
-DRY_RUN=false
-if [[ "$*" == *"--dry-run"* ]]; then
-    DRY_RUN=true
-    print_status $YELLOW "🔍 Running in dry-run mode (no actual updates will be performed)"
-    echo
-fi
+
 
 # List of CLI agents to check/update
 # Format: package_name display_name binary_name
@@ -111,25 +171,13 @@ CLI_AGENTS=(
     "@openai/codex|OpenAI Codex CLI|codex"
     "@sourcegraph/amp|Sourcegraph AMP|amp"
     "@charmland/crush|Crush CLI|crush"
+    "@github/copilot|GitHub Copilot CLI|copilot"
 )
 
 # Check and update each CLI agent
 for agent in "${CLI_AGENTS[@]}"; do
     IFS='|' read -r package_name display_name binary_name <<< "$agent"
-    if $DRY_RUN; then
-        check_and_update "$package_name" "$display_name" "$binary_name" --dry-run
-    else
-        check_and_update "$package_name" "$display_name" "$binary_name"
-    fi
+    check_and_update "$package_name" "$display_name" "$binary_name"
 done
 
 print_status $GREEN "🎉 CLI agent update check complete!"
-
-# Show usage information
-if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
-    echo
-    print_status $BLUE "Usage:"
-    echo "  $0           - Check and update all CLI agents"
-    echo "  $0 --dry-run - Check versions without updating"
-    echo "  $0 --help    - Show this help message"
-fi

@@ -2,7 +2,8 @@
 
 # Install command-line tools using Homebrew.
 
-# Install GNU `sed`, overwriting the built-in `sed`.
+# Install GNU core utilities and `sed`, overwriting the built-in versions.
+brew install coreutils
 brew install gnu-sed
 # Install Bash 4.
 # Note: don't forget to add `/usr/local/bin/bash` to `/etc/shells` before
@@ -61,6 +62,9 @@ brew install scc
 brew install gh  # github cli
 brew install cloc
 brew install ast-grep
+brew install fd
+brew install fzf
+brew install yq
 
 brew tap wagoodman/dive
 brew install dive
