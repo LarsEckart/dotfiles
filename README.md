@@ -35,6 +35,12 @@ ln -s ~/.dotfiles/claude-code/settings.local.json ~/.claude/settings.local.json
 ln -s ~/.dotfiles/claude-code/mcp_servers.json ~/.claude/mcp_servers.json
 ln -s ~/.dotfiles/claude-code/CLAUDE.md ~/.claude/CLAUDE.md
 
+# Codex configuration
+mkdir -p ~/.codex
+mkdir -p ~/.codex/prompts
+ln -s ~/.dotfiles/codex/AGENTS.md ~/.codex/AGENTS.md
+ln -s ~/.dotfiles/codex/prompts/commit.md ~/.codex/prompts/commit.md
+
 # Other dotfiles
 ln -s ~/.dotfiles/.hushlogin ~/.hushlogin
 ln -s ~/.dotfiles/.vimrc ~/.vimrc

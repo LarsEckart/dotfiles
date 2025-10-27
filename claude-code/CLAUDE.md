@@ -47,3 +47,22 @@ Use this for critical issues, significant discoveries, or when I need to draw at
 - Flag unclear but important points before they become problems. Be proactive in letting me know so we can talk about it and avoid the problem
 - Ask questions if something is not clear and you need to make a choice. Don't choose randomly if it's important for what we're doing
 - When you show me a potential error or miss, start your response with ❗️ emoji
+
+## When you need to call tools from the shell, **use this rubric**:
+
+- Find Files: `fd`
+- Find Text: `rg` (ripgrep)
+- Find Code Structure (TS/TSX): `ast-grep`
+  - **Default to TypeScript:**
+    - `.ts` → `ast-grep --lang ts -p '<pattern>'`
+    - `.java` (Java) → `ast-grep --lang java -p '<pattern>'`
+  - For other languages, set `--lang` appropriately (e.g., `--lang rust`).
+  - **Examples:**
+    - Find functions: `ast-grep --lang ts -p 'function $NAME($$$) { $$$ }'`
+    - Find classes: `ast-grep --lang ts -p 'class $NAME { $$$ }'`
+    - Find imports: `ast-grep --lang ts -p 'import { $$$ } from "$MOD"'`
+- Select among matches: pipe to `fzf`
+- JSON: `jq`
+- YAML/XML: `yq`
+
+If ast-grep is available avoid tools `rg` or `grep` unless a plain‑text search is explicitly requested.

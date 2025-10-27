@@ -86,3 +86,5 @@
 	sort = version:refname
 [merge]
 	conflictstyle = zdiff3
+[safe]
+	directory = *

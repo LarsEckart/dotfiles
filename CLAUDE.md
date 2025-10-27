@@ -1,7 +1,5 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Repository Structure
 
 This is a personal dotfiles repository organized into logical folders:
@@ -31,6 +29,9 @@ ln -s ~/.dotfiles/git/.gitconfig ~/.gitconfig
 ln -s ~/.dotfiles/zed/settings.json ~/.config/zed/settings.json
 ln -s ~/.dotfiles/zed/theme.json ~/.config/zed/themes/Casablanca.json
 ```
+
+So when we create new files here, verify if we need to make an update to the `README.md` to symlink the file.
+
 
 ## Git Configuration
 

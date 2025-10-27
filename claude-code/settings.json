@@ -1,23 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.dotfiles/scripts/claude-done.sh"
-          }
-        ]
-      }
-    ]
-  },
-  "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": true,
   "permissions": {
     "allow": [
       "Glob(**)",
       "LS(**)",
-      "WebSearch(**)",
       "Bash(git add:*)",
       "Bash(git mv:*)",
       "Bash(git rm:*)",
@@ -31,12 +17,25 @@
     ],
     "deny": []
   },
-  "model": "sonnet",
-  "feedbackSurveyState": {
-    "lastShownTime": 1754147549098
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.dotfiles/scripts/claude-done.sh"
+          }
+        ]
+      }
+    ]
   },
   "statusLine": {
     "type": "command",
     "command": "~/.claude/cc-statusline-rs"
+  },
+  "alwaysThinkingEnabled": false,
+  "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": true,
+  "feedbackSurveyState": {
+    "lastShownTime": 1754147549098
   }
 }
