@@ -161,8 +161,6 @@ print_status $BLUE "🔄 CLI Agent Updater"
 echo "===================="
 echo
 
-
-
 # List of CLI agents to check/update
 # Format: package_name display_name binary_name
 CLI_AGENTS=(
@@ -174,10 +172,92 @@ CLI_AGENTS=(
     "@github/copilot|GitHub Copilot CLI|copilot"
 )
 
-# Check and update each CLI agent
+# Arrays to track agents needing updates and their PIDs
+declare -a agents_to_update=()
+declare -a update_pids=()
+declare -a agent_names=()
+
+# Function to show a simple progress spinner
+show_progress() {
+    local pid=$1
+    local name=$2
+    local spinner=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
+    local i=0
+    while kill -0 $pid 2>/dev/null; do
+        printf "\r${spinner[$i]} Updating $name..."
+        i=$(( (i+1) % ${#spinner[@]} ))
+        sleep 0.1
+    done
+    printf "\r✅ $name update completed\n"
+}
+
+# Phase 1: Check versions and display status
+print_status $BLUE "📋 Checking installed versions..."
+echo
 for agent in "${CLI_AGENTS[@]}"; do
     IFS='|' read -r package_name display_name binary_name <<< "$agent"
-    check_and_update "$package_name" "$display_name" "$binary_name"
+
+    # Check if binary exists
+    if ! command -v "$binary_name" &> /dev/null; then
+        print_status $YELLOW "📦 $display_name not found"
+        agents_to_update+=("$package_name|$display_name|$binary_name")
+        continue
+    fi
+
+    installed_version=$(get_installed_version "$package_name")
+    latest_version=$(get_latest_version "$package_name")
+
+    if [ "$installed_version" = "not installed" ]; then
+        print_status $RED "❌ $display_name package not found"
+        continue
+    fi
+
+    if [ "$latest_version" = "unknown" ]; then
+        print_status $RED "❌ Could not fetch latest version for $display_name"
+        continue
+    fi
+
+    printf "%-25s %-12s %-12s" "$display_name:" "$installed_version" "$latest_version"
+    if [ "$installed_version" != "$latest_version" ]; then
+        print_status $YELLOW " (needs update)"
+        agents_to_update+=("$package_name|$display_name|$binary_name")
+    else
+        print_status $GREEN " (up to date)"
+    fi
+done
+echo
+
+# Phase 2: Update agents that need it
+if [ ${#agents_to_update[@]} -eq 0 ]; then
+    print_status $GREEN "✅ All CLI agents are up to date!"
+    exit 0
+fi
+
+print_status $BLUE "🔄 Updating ${#agents_to_update[@]} agent(s)..."
+echo
+
+for agent_info in "${agents_to_update[@]}"; do
+    IFS='|' read -r package_name display_name binary_name <<< "$agent_info"
+    agent_names+=("$display_name")
+
+    # Start update in background
+    (
+        if perform_install "$package_name" "$display_name" "@latest"; then
+            new_version=$(get_installed_version "$package_name")
+            echo "✅ $display_name updated to version $new_version"
+        else
+            echo "❌ Failed to update $display_name"
+        fi
+    ) &
+    update_pids+=($!)
 done
 
-print_status $GREEN "🎉 CLI agent update check complete!"
+# Show progress for each update
+for i in "${!update_pids[@]}"; do
+    show_progress "${update_pids[$i]}" "${agent_names[$i]}"
+done
+
+# Wait for all background processes to finish
+wait
+
+print_status $GREEN "🎉 CLI agent updates complete!"
