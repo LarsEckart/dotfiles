@@ -9,8 +9,8 @@ export PATH="$HOME/bin:$PATH";
 # Load the shell dotfiles, and then some:
 # * ~/.path can be used to extend `$PATH`.
 # * ~/.extra can be used for other settings you don't want to commit.
-# for file in ~/.dotfiles/.{aliases,zsh_exports,zsh_functions,work,secrets}; do
-for file in ~/.dotfiles/shell/.{aliases,zsh_exports,zsh_functions,secrets}; do
+# Note: .secrets is sourced in .zshenv for GUI app access
+for file in ~/.dotfiles/shell/.{aliases,zsh_exports,zsh_functions}; do
 	[ -r "$file" ] && [ -f "$file" ] && source "$file";
 done;
 unset file;
@@ -93,5 +93,8 @@ ng() {
 
 # opencode
 export PATH=/Users/lars/.opencode/bin:$PATH
+
+# try - experiment manager (location set via TRY_PATH in .zsh_exports)
+eval "$(try init)"
 
 eval "$(starship init zsh)"

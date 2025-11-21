@@ -12,6 +12,7 @@ mkdir -p ~/.dotfiles/backups
 mv ~/.gitconfig ~/.dotfiles/backups/ 2>/dev/null || true
 
 # Shell configuration (ZSH)
+ln -s ~/.dotfiles/shell/.zshenv ~/.zshenv
 ln -s ~/.dotfiles/shell/.zshrc ~/.zshrc
 ln -s ~/.dotfiles/shell/.zsh_exports ~/.zsh_exports
 ln -s ~/.dotfiles/shell/.zsh_functions ~/.zsh_functions
