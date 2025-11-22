@@ -96,6 +96,9 @@ brew install actionlint
 
 brew install uv
 
+brew tap tobi/try
+brew install try
+
 # Apps
 
 # brew install --cask rectangle

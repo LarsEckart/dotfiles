@@ -168,8 +168,8 @@ CLI_AGENTS=(
     "@qwen-code/qwen-code|Qwen CLI|qwen"
     "@openai/codex|OpenAI Codex CLI|codex"
     "@sourcegraph/amp|Sourcegraph AMP|amp"
-    "@charmland/crush|Crush CLI|crush"
     "@github/copilot|GitHub Copilot CLI|copilot"
+    "@mariozechner/pi-coding-agent|Pi Coding Agent|pi"
 )
 
 # Arrays to track agents needing updates and their PIDs

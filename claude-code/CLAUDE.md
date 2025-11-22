@@ -28,7 +28,7 @@ IMPORTANT: Keep your responses short. You MUST answer concisely with fewer than 
 
 ## Text-to-Speech Integration
 
-When I have important findings or opinions that require your immediate attention, I can speak to you using:
+When you have important findings or opinions that require my immediate attention, you can speak to me using:
 
 ```bash
 speak "your message here"
@@ -65,4 +65,5 @@ Use this for critical issues, significant discoveries, or when I need to draw at
 - JSON: `jq`
 - YAML/XML: `yq`
 
-If ast-grep is available avoid tools `rg` or `grep` unless a plain‑text search is explicitly requested.
+- Oracle bundles a prompt plus the right files so another AI (GPT 5 Pro + more) can answer. Use when stuck/bugs/reviewing.
+- Run `npx -y @steipete/oracle --help` once per session before first use.

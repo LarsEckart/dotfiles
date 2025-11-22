@@ -62,6 +62,9 @@ export GROOVY_HOME=/usr/local/opt/groovy/libexec
 # so that mob.sh stays on working branch and does not jump back to master
 export MOB_NEXT_STAY=true
 
+# try - experiment manager directory
+export TRY_PATH="$HOME/GitHub/tries"
+
 # brew and android tools
 export PATH="/usr/local/sbin:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"
 
