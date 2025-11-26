@@ -8,18 +8,8 @@ red() {
 
 # "check out a given PR for review"
 revpr() {
-  gh co $1
+  gh pr checkout $1
   git reset --mixed master
-}
-
-search() {
-	if [[ "$#" -ne 1 ]]; then
-        echo "Error: Please provide exactly one argument enclosed in quotes."
-        return 1
-    fi
-
-	local pattern="$1"
-    grep -Rnw . -e "$pattern"
 }
 
 jd() {

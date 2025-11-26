@@ -17,7 +17,6 @@ export PYTHONIOENCODING='UTF-8';
 
 # Zsh history configuration
 export HISTSIZE=32768
-export HISTFILESIZE="${HISTSIZE}"
 export SAVEHIST="${HISTSIZE}"
 export HISTFILE=~/.zsh_history
 
@@ -31,6 +30,8 @@ setopt HIST_SAVE_NO_DUPS         # Don't write duplicate entries in the history 
 setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks before recording entry
 setopt HIST_VERIFY               # Don't execute immediately upon history expansion
 setopt SHARE_HISTORY             # Share history between all sessions
+setopt INC_APPEND_HISTORY        # Flush each command to history immediately
+setopt HIST_FCNTL_LOCK           # Use fcntl locking to avoid concurrent write races
 
 # Prefer US English and use UTF-8.
 # export LANG='en_US.UTF-8';

@@ -16,7 +16,7 @@ done;
 unset file;
 
 # Zsh options (equivalent to bash shopt)
-setopt HIST_APPEND            # Append to history file, rather than overwriting it
+# Note: INC_APPEND_HISTORY in .zsh_exports handles appending (writes each command immediately)
 setopt CORRECT                # Autocorrect typos in path names when using cd
 setopt AUTO_CD                # Auto cd when entering just a path
 setopt EXTENDED_GLOB          # Extended globbing (equivalent to bash globstar)
