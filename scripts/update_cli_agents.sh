@@ -84,12 +84,28 @@ fi
 # Function to get installed version of npm package
 get_installed_version() {
     local package_name=$1
+
+    if [ "$package_name" = "opencode-ai" ]; then
+        if command -v opencode >/dev/null 2>&1; then
+            opencode --version 2>/dev/null || echo "not installed"
+        else
+            echo "not installed"
+        fi
+        return
+    fi
+
     npm list -g "$package_name" --depth=0 2>/dev/null | grep "$package_name" | sed 's/.*@//' || echo "not installed"
 }
 
 # Function to get latest version from npm
 get_latest_version() {
     local package_name=$1
+
+    if [ "$package_name" = "opencode-ai" ]; then
+        npm view opencode-ai version 2>/dev/null || echo "unknown"
+        return
+    fi
+
     npm view "$package_name" version 2>/dev/null || echo "unknown"
 }
 
@@ -97,6 +113,18 @@ get_latest_version() {
 update_package() {
     local package_name=$1
     local display_name=$2
+
+    if [ "$package_name" = "opencode-ai" ]; then
+        print_status $BLUE "Updating $display_name..."
+        if opencode upgrade --method curl >/dev/null 2>&1; then
+            local new_version=$(get_installed_version "$package_name")
+            print_status $GREEN "✅ $display_name updated to version $new_version"
+        else
+            print_status $RED "❌ Failed to update $display_name via opencode upgrade"
+            return 1
+        fi
+        return 0
+    fi
 
     print_status $BLUE "Updating $display_name..."
     if perform_install "$package_name" "$display_name" "@latest"; then
@@ -113,46 +141,56 @@ check_and_update() {
     local package_name=$1
     local display_name=$2
     local binary_name=$3
-    
+
     print_status $YELLOW "Checking $display_name..."
-    
+
     # Check if binary exists
     if ! command -v "$binary_name" &> /dev/null; then
         print_status $YELLOW "📦 $display_name not found. Installing..."
-        if perform_install "$package_name" "$display_name" ""; then
-            local new_version=$(get_installed_version "$package_name")
-            print_status $GREEN "✅ $display_name installed successfully (version $new_version)"
+        if [ "$package_name" = "opencode-ai" ]; then
+            if curl -fsSL https://cli.opencode.ai/install.sh | sh; then
+                local new_version=$(get_installed_version "$package_name")
+                print_status $GREEN "✅ $display_name installed successfully (version $new_version)"
+            else
+                print_status $RED "❌ Failed to install $display_name via install.sh"
+                return 1
+            fi
         else
-            print_status $RED "❌ Failed to install $display_name"
-            return 1
+            if perform_install "$package_name" "$display_name" ""; then
+                local new_version=$(get_installed_version "$package_name")
+                print_status $GREEN "✅ $display_name installed successfully (version $new_version)"
+            else
+                print_status $RED "❌ Failed to install $display_name"
+                return 1
+            fi
         fi
         echo
         return 0
     fi
-    
+
     local installed_version=$(get_installed_version "$package_name")
     local latest_version=$(get_latest_version "$package_name")
-    
+
     if [ "$installed_version" = "not installed" ]; then
         print_status $RED "❌ Package $package_name not found in global npm list"
         return 1
     fi
-    
+
     if [ "$latest_version" = "unknown" ]; then
         print_status $RED "❌ Could not fetch latest version for $package_name"
         return 1
     fi
-    
+
     print_status $BLUE "  Installed: $installed_version"
     print_status $BLUE "  Latest:    $latest_version"
-    
+
     if [ "$installed_version" != "$latest_version" ]; then
         print_status $YELLOW "  Update available!"
         update_package "$package_name" "$display_name"
     else
         print_status $GREEN "  ✅ Already up to date"
     fi
-    
+
     echo
 }
 
@@ -167,6 +205,7 @@ CLI_AGENTS=(
     "@google/gemini-cli|Gemini CLI|gemini"
     "@qwen-code/qwen-code|Qwen CLI|qwen"
     "@openai/codex|OpenAI Codex CLI|codex"
+    "opencode-ai|OpenCode CLI|opencode"
     "@sourcegraph/amp|Sourcegraph AMP|amp"
     "@github/copilot|GitHub Copilot CLI|copilot"
     "@mariozechner/pi-coding-agent|Pi Coding Agent|pi"
