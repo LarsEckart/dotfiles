@@ -53,7 +53,7 @@ top5() {
 #    head -50 to keep the 50 most changed files only
 churn() {
 	git log --format=format: --name-only --since=12.month \
- | egrep -v '^$' \
+ | grep -E -v '^$' \
  | sort \
  | uniq -c \
  | sort -r \
