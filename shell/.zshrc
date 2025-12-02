@@ -38,6 +38,13 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 
 # source nvm (lazy loaded for faster shell startup)
 export NVM_DIR="$HOME/.nvm"
+# Add default Node's bin to PATH so global packages work before nvm loads
+if [[ -f "$NVM_DIR/alias/default" ]]; then
+    _nvm_default=$(command cat "$NVM_DIR/alias/default")
+    _nvm_node_path=$(command ls -d "$NVM_DIR/versions/node/v${_nvm_default}"* 2>/dev/null | command tail -1)
+    [[ -d "$_nvm_node_path" ]] && export PATH="$_nvm_node_path/bin:$PATH"
+    unset _nvm_default _nvm_node_path
+fi
 nvm() {
     unset -f nvm node npm npx
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"

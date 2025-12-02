@@ -11,7 +11,9 @@ This is a personal dotfiles repository organized into logical folders:
 - **tuple-triggers/**: Tuple collaboration utilities
 - **zed/**: Zed editor configuration (settings.json, theme.json)
 - **ghostty/**: Ghostty terminal emulator configuration (ghostty.conf)
-- **claude-code/**: Claude Code configurations, commands, and agents
+- **agents/**: AI coding agent configurations
+  - **claude-code/**: Claude Code configurations, commands, and agents
+  - **codex/**: OpenAI Codex configurations and prompts
 - **speech/**: Text-to-speech integration using ElevenLabs API
 
 ## Installation and Setup
@@ -65,8 +67,8 @@ When modifying symlinks or file paths, ensure the git configuration paths in `.g
 
 ## Claude Code Integration
 
-- **Custom Slash Commands**: The `claude-code/commands/` directory contains custom slash commands
-- **Custom Agents**: The `claude-code/agents/` directory contains specialized Claude Code agents for specific workflows
+- **Custom Slash Commands**: The `agents/claude-code/commands/` directory contains custom slash commands
+- **Custom Agents**: The `agents/claude-code/agents/` directory contains specialized Claude Code agents for specific workflows
 - **Issue Function**: The `issue()` function in `shell/.zsh_functions` creates GitHub issues via Claude Code
 - **Known Issues**: Claude Code has a bug with piping input to slash commands - use direct arguments instead of pipes for reliable execution
 - **Settings**: Claude Code uses Opus model with specific permissions for Git operations and file system access

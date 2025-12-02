@@ -32,25 +32,25 @@ ln -s ~/.dotfiles/zed/theme.json ~/.config/zed/themes/Casablanca.json
 # Claude Code configuration
 mkdir -p ~/.claude
 mkdir -p ~/.claude/commands
-ln -s ~/.dotfiles/claude-code/settings.json ~/.claude/settings.json
-ln -s ~/.dotfiles/claude-code/settings.local.json ~/.claude/settings.local.json
-ln -s ~/.dotfiles/claude-code/mcp_servers.json ~/.claude/mcp_servers.json
-ln -s ~/.dotfiles/claude-code/CLAUDE.md ~/.claude/CLAUDE.md
-ln -s ~/.dotfiles/claude-code/commands/commit.md ~/.claude/commands/commit.md
-ln -s ~/.dotfiles/claude-code/commands/done-differently.md ~/.claude/commands/done-differently.md
-ln -s ~/.dotfiles/claude-code/commands/draft-release.md ~/.claude/commands/draft-release.md
-ln -s ~/.dotfiles/claude-code/commands/handoff.md ~/.claude/commands/handoff.md
-ln -s ~/.dotfiles/claude-code/commands/issue.md ~/.claude/commands/issue.md
-ln -s ~/.dotfiles/claude-code/commands/pickup.md ~/.claude/commands/pickup.md
-ln -s ~/.dotfiles/claude-code/commands/todo.md ~/.claude/commands/todo.md
-ln -s ~/.dotfiles/claude-code/commands/work.md ~/.claude/commands/work.md
+ln -s ~/.dotfiles/agents/claude-code/settings.json ~/.claude/settings.json
+ln -s ~/.dotfiles/agents/claude-code/settings.local.json ~/.claude/settings.local.json
+ln -s ~/.dotfiles/agents/claude-code/mcp_servers.json ~/.claude/mcp_servers.json
+ln -s ~/.dotfiles/agents/claude-code/CLAUDE.md ~/.claude/CLAUDE.md
+ln -s ~/.dotfiles/agents/claude-code/commands/commit.md ~/.claude/commands/commit.md
+ln -s ~/.dotfiles/agents/claude-code/commands/done-differently.md ~/.claude/commands/done-differently.md
+ln -s ~/.dotfiles/agents/claude-code/commands/draft-release.md ~/.claude/commands/draft-release.md
+ln -s ~/.dotfiles/agents/claude-code/commands/handoff.md ~/.claude/commands/handoff.md
+ln -s ~/.dotfiles/agents/claude-code/commands/issue.md ~/.claude/commands/issue.md
+ln -s ~/.dotfiles/agents/claude-code/commands/pickup.md ~/.claude/commands/pickup.md
+ln -s ~/.dotfiles/agents/claude-code/commands/todo.md ~/.claude/commands/todo.md
+ln -s ~/.dotfiles/agents/claude-code/commands/work.md ~/.claude/commands/work.md
 
 # Codex configuration
 mkdir -p ~/.codex
 mkdir -p ~/.codex/prompts
-ln -s ~/.dotfiles/codex/AGENTS.md ~/.codex/AGENTS.md
-ln -s ~/.dotfiles/codex/prompts/commit.md ~/.codex/prompts/commit.md
-ln -s ~/.dotfiles/codex/prompts/done-differently.md ~/.codex/prompts/done-differently.md
+ln -s ~/.dotfiles/agents/codex/AGENTS.md ~/.codex/AGENTS.md
+ln -s ~/.dotfiles/agents/codex/prompts/commit.md ~/.codex/prompts/commit.md
+ln -s ~/.dotfiles/agents/codex/prompts/done-differently.md ~/.codex/prompts/done-differently.md
 
 # Other dotfiles
 ln -s ~/.dotfiles/.hushlogin ~/.hushlogin

@@ -7,3 +7,7 @@ run_solo.sh
 # Claude Code local settings
 .claude/
 copilot-instructions.md
+
+# server-awards docs artifacts
+docs/
+docs/*.md
