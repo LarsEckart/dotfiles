@@ -52,6 +52,12 @@ ln -s ~/.dotfiles/agents/codex/AGENTS.md ~/.codex/AGENTS.md
 ln -s ~/.dotfiles/agents/codex/prompts/commit.md ~/.codex/prompts/commit.md
 ln -s ~/.dotfiles/agents/codex/prompts/done-differently.md ~/.codex/prompts/done-differently.md
 
+# Pi configuration
+mkdir -p ~/.pi/agent
+mkdir -p ~/.pi/agent/commands
+ln -s ~/.dotfiles/agents/pi/AGENTS.md ~/.pi/agent/AGENTS.md
+ln -s ~/.dotfiles/agents/pi/commands/commit.md ~/.pi/agent/commands/commit.md
+
 # Other dotfiles
 ln -s ~/.dotfiles/.hushlogin ~/.hushlogin
 ln -s ~/.dotfiles/.vimrc ~/.vimrc
