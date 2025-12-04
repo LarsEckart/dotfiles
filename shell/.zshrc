@@ -93,15 +93,11 @@ bundle() {
 # so that I use brew installed curl and not the system one
 export PATH="/opt/homebrew/opt/curl/bin:$PATH"
 
-export PATH="/Applications/Sublime Text.app/Contents/SharedSupport/bin:$PATH"
-
 # Setting PATH for Python 3.13
 # The original version is saved in .bash_profile.pysave
 PATH="/Library/Frameworks/Python.framework/Versions/3.13/bin:${PATH}"
 export PATH
 
-# Added by Windsurf
-export PATH="/Users/lars/.codeium/windsurf/bin:$PATH"
 
 # heroku autocomplete setup
 HEROKU_AC_ZSH_SETUP_PATH=/Users/lars/Library/Caches/heroku/autocomplete/zsh_setup && test -f $HEROKU_AC_ZSH_SETUP_PATH && source $HEROKU_AC_ZSH_SETUP_PATH;
