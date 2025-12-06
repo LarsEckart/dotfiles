@@ -215,19 +215,43 @@ CLI_AGENTS=(
 declare -a agents_to_update=()
 declare -a update_pids=()
 declare -a agent_names=()
+declare -a output_files=()
 
-# Function to show a simple progress spinner
-show_progress() {
-    local pid=$1
-    local name=$2
+# Function to show a simple progress spinner for all running jobs
+show_all_progress() {
     local spinner=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
     local i=0
-    while kill -0 $pid 2>/dev/null; do
-        printf "\r${spinner[$i]} Updating $name..."
-        i=$(( (i+1) % ${#spinner[@]} ))
-        sleep 0.1
+    local still_running=true
+
+    while $still_running; do
+        still_running=false
+        for pid in "${update_pids[@]}"; do
+            if kill -0 $pid 2>/dev/null; then
+                still_running=true
+                break
+            fi
+        done
+
+        if $still_running; then
+            # Build status line showing all agents
+            local status_line="${spinner[$i]} Updating: "
+            local first=true
+            for j in "${!update_pids[@]}"; do
+                if kill -0 "${update_pids[$j]}" 2>/dev/null; then
+                    if $first; then
+                        first=false
+                    else
+                        status_line+=", "
+                    fi
+                    status_line+="${agent_names[$j]}"
+                fi
+            done
+            printf "\r%-80s" "$status_line"
+            i=$(( (i+1) % ${#spinner[@]} ))
+            sleep 0.1
+        fi
     done
-    printf "\r✅ $name update completed\n"
+    printf "\r%-80s\r" ""  # Clear the line
 }
 
 # Phase 1: Check versions and display status
@@ -279,7 +303,11 @@ for agent_info in "${agents_to_update[@]}"; do
     IFS='|' read -r package_name display_name binary_name <<< "$agent_info"
     agent_names+=("$display_name")
 
-    # Start update in background
+    # Create temp file to capture output
+    output_file=$(mktemp)
+    output_files+=("$output_file")
+
+    # Start update in background, redirecting output to temp file
     (
         if perform_install "$package_name" "$display_name" "@latest"; then
             new_version=$(get_installed_version "$package_name")
@@ -287,16 +315,20 @@ for agent_info in "${agents_to_update[@]}"; do
         else
             echo "❌ Failed to update $display_name"
         fi
-    ) &
+    ) > "$output_file" 2>&1 &
     update_pids+=($!)
 done
 
-# Show progress for each update
-for i in "${!update_pids[@]}"; do
-    show_progress "${update_pids[$i]}" "${agent_names[$i]}"
-done
+# Show progress spinner while jobs are running
+show_all_progress
 
 # Wait for all background processes to finish
 wait
+
+# Display results from each job
+for output_file in "${output_files[@]}"; do
+    cat "$output_file"
+    rm -f "$output_file"
+done
 
 print_status $GREEN "🎉 CLI agent updates complete!"
