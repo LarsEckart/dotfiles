@@ -93,3 +93,13 @@ export OTEL_SERVICE_NAME="claude-code"
 
 export OTEL_METRIC_EXPORT_INTERVAL=60000  # 60 seconds (default: 60000ms)
 export OTEL_LOGS_EXPORT_INTERVAL=5000     # 5 seconds (default: 5000ms)
+
+
+## Dotfiles scripts
+export PATH="$PATH:$HOME/.dotfiles/scripts"
+
+## Agent tools
+export PATH="$PATH:/Users/lars/GitHub/agent-tools/brave-search"
+export PATH="$PATH:/Users/lars/GitHub/agent-tools/browser-tools"
+export PATH="$PATH:/Users/lars/GitHub/agent-tools/search-tools"
+export PATH="$PATH:/Users/lars/GitHub/agent-tools/sonar-tool"

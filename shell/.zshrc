@@ -120,3 +120,10 @@ export PATH=/Users/lars/.opencode/bin:$PATH
 eval "$(try init)"
 
 eval "$(starship init zsh)"
+
+# bun completions
+[ -s "/Users/lars/.bun/_bun" ] && source "/Users/lars/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
