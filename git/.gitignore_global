@@ -11,3 +11,6 @@ copilot-instructions.md
 # server-awards docs artifacts
 docs/
 docs/*.md
+
+# Local upstream sync script
+update_from_upstream.sh
