@@ -1,0 +1,13 @@
+# Audio outputs
+outputs/
+
+# Environment
+.env
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# IDE
+.ropeproject/
