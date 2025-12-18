@@ -22,12 +22,14 @@ uv run text_to_speech_eleven_labs.py --help
    uv sync
    ```
 
-2. **Set API key** - add to your shell exports or `.env` file:
+2. **Set API keys** - add to your shell exports or `.env` file:
    ```bash
    export ELEVENLABS_API_KEY="your-key-here"
+   export ANTHROPIC_API_KEY="your-key-here"
    ```
    
-   Get your key at: https://elevenlabs.io/app/settings/api-keys
+   - ElevenLabs: https://elevenlabs.io/app/settings/api-keys
+   - Anthropic: https://console.anthropic.com/settings/keys
 
 ## Configuration
 
@@ -36,9 +38,9 @@ uv run text_to_speech_eleven_labs.py --help
 | Voice | Grandpa (`NOpBlnGInO9m6vDvFkFC`) |
 | Model | `eleven_multilingual_v2` |
 | Output | MP3 44.1kHz 128kbps |
-| Archive | `outputs/` (timestamped MP3s) |
+| Archive | `outputs/` (AI-named MP3s) |
 
-All generated audio is automatically saved to `outputs/` folder with timestamp filenames (e.g., `20251218_101530.mp3`).
+All generated audio is automatically saved to `outputs/` with AI-generated descriptive names (e.g., `grandpa-christmas-bedtime-wishes.mp3`). Uses Claude Haiku to generate 3-5 word descriptions.
 
 To change voices, edit `VOICES` dict in `text_to_speech_eleven_labs.py` and add more voice IDs from your ElevenLabs account.
 

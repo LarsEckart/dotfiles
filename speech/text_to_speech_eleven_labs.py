@@ -2,10 +2,12 @@ from dotenv import load_dotenv
 from elevenlabs.client import ElevenLabs
 from elevenlabs import play
 from elevenlabs.core.api_error import ApiError
+import anthropic
 import os
 import sys
 import argparse
 import random
+import re
 from datetime import datetime
 from pathlib import Path
 
@@ -19,6 +21,36 @@ load_dotenv()
 elevenlabs = ElevenLabs(
     api_key=os.getenv("ELEVENLABS_API_KEY"),
 )
+
+claude = anthropic.Anthropic()
+
+
+def generate_filename(text: str) -> str:
+    """Use Claude Haiku to generate a 3-5 word description for the filename."""
+    response = claude.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=50,
+        messages=[
+            {
+                "role": "user",
+                "content": f"""Generate a short filename description for this spoken text.
+Rules:
+- Use 3-5 words, lowercase, separated by hyphens
+- Describe the content/topic, not that it's speech
+- No special characters, just letters and hyphens
+- Reply with ONLY the filename, nothing else
+
+Text: "{text[:500]}"
+""",
+            }
+        ],
+    )
+    
+    result = response.content[0].text.strip().lower()
+    # Sanitize: keep only letters and hyphens, collapse multiple hyphens
+    result = re.sub(r"[^a-z-]", "-", result)
+    result = re.sub(r"-+", "-", result).strip("-")
+    return result or "speech"
 
 parser = argparse.ArgumentParser(description="Text-to-speech using ElevenLabs API")
 parser.add_argument("text", nargs="+", help="Text to speak")
@@ -51,12 +83,22 @@ try:
     # Collect audio bytes
     audio_bytes = b"".join(audio)
     
-    # Save to outputs folder
+    # Save to outputs folder with descriptive name
     outputs_dir = Path(__file__).parent / "outputs"
     outputs_dir.mkdir(exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_file = outputs_dir / f"{timestamp}.mp3"
+    
+    description = generate_filename(text)
+    base_filename = f"{voice_name}-{description}"
+    output_file = outputs_dir / f"{base_filename}.mp3"
+    
+    # Handle duplicates by adding a number suffix
+    counter = 1
+    while output_file.exists():
+        output_file = outputs_dir / f"{base_filename}-{counter}.mp3"
+        counter += 1
+    
     output_file.write_bytes(audio_bytes)
+    print(f"Saved: {output_file.name}")
     
     play(audio_bytes)
 except ApiError as e:
