@@ -101,6 +101,9 @@ try:
     print(f"Saved: {output_file.name}")
     
     play(audio_bytes)
+except KeyboardInterrupt:
+    print("\nStopped.")
+    sys.exit(0)
 except ApiError as e:
     print(
         f"ElevenLabs API Error: {e.body.get('detail', {}).get('message', 'Unknown error')}"
