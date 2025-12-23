@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+"""
+Generate images via OpenAI gpt-image-1.5 API.
+
+Supports all gpt-image-1.5 parameters: size, quality, background, output_format,
+output_compression, and moderation.
+"""
 
 import argparse
 import base64
@@ -11,6 +17,15 @@ import sys
 import time
 import urllib.error
 import urllib.request
+
+MODEL = "gpt-image-1.5"
+
+# Valid parameter values per OpenAI API
+VALID_SIZES = ["1024x1024", "1536x1024", "1024x1536", "auto"]
+VALID_QUALITIES = ["low", "medium", "high", "auto"]
+VALID_BACKGROUNDS = ["transparent", "opaque", "auto"]
+VALID_OUTPUT_FORMATS = ["png", "jpeg", "webp"]
+VALID_MODERATIONS = ["low", "auto"]
 
 
 def _stamp() -> str:
@@ -124,6 +139,10 @@ def _post_json(url: str, api_key: str, payload: dict, timeout_s: int) -> dict:
         raise SystemExit(f"invalid JSON response: {raw[:300]!r}")
 
 
+def _file_extension(output_format: str) -> str:
+    return {"jpeg": "jpg", "webp": "webp", "png": "png"}.get(output_format, "png")
+
+
 def _write_index(out_dir: str, items: list[dict]) -> None:
     html = [
         "<!doctype html>",
@@ -150,19 +169,92 @@ def _write_index(out_dir: str, items: list[dict]) -> None:
 def main(argv: list[str]) -> int:
     p = argparse.ArgumentParser(
         prog="openai-image-gen",
-        description="Generate a batch of images via OpenAI Images API (random prompts by default).",
+        description=f"Generate images via OpenAI {MODEL} API.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=f"""
+Valid parameter values:
+  --size        {", ".join(VALID_SIZES)}
+  --quality     {", ".join(VALID_QUALITIES)}
+  --background  {", ".join(VALID_BACKGROUNDS)}
+  --format      {", ".join(VALID_OUTPUT_FORMATS)}
+  --moderation  {", ".join(VALID_MODERATIONS)}
+  --compression 0-100 (only for jpeg/webp)
+""",
     )
-    p.add_argument("--count", type=int, default=8)
-    p.add_argument("--model", default="gpt-image-1.5")
-    p.add_argument("--size", default="1024x1024")
-    p.add_argument("--quality", default="high")
-    p.add_argument("--timeout", type=int, default=180, help="per-request timeout (seconds)")
-    p.add_argument("--sleep", type=float, default=0.2, help="pause between requests (seconds)")
-    p.add_argument("--out-dir", default=None)
-    p.add_argument("--api-key", default=None)
-    p.add_argument("--prompt", action="append", default=None, help="repeatable; overrides random prompts")
-    p.add_argument("--dry-run", action="store_true", help="print prompts + exit (no API calls)")
+    p.add_argument("--count", type=int, default=8, help="number of images to generate")
+    p.add_argument(
+        "--size",
+        default="1024x1024",
+        choices=VALID_SIZES,
+        help="image dimensions (default: 1024x1024)",
+    )
+    p.add_argument(
+        "--quality",
+        default="high",
+        choices=VALID_QUALITIES,
+        help="image quality (default: high)",
+    )
+    p.add_argument(
+        "--background",
+        default=None,
+        choices=VALID_BACKGROUNDS,
+        help="background type (default: API default)",
+    )
+    p.add_argument(
+        "--format",
+        dest="output_format",
+        default="png",
+        choices=VALID_OUTPUT_FORMATS,
+        help="output format (default: png)",
+    )
+    p.add_argument(
+        "--compression",
+        type=int,
+        default=None,
+        metavar="0-100",
+        help="compression level for jpeg/webp (default: API default)",
+    )
+    p.add_argument(
+        "--moderation",
+        default=None,
+        choices=VALID_MODERATIONS,
+        help="content moderation level (default: API default)",
+    )
+    p.add_argument(
+        "--timeout",
+        type=int,
+        default=180,
+        help="per-request timeout in seconds (default: 180)",
+    )
+    p.add_argument(
+        "--sleep",
+        type=float,
+        default=0.2,
+        help="pause between requests in seconds (default: 0.2)",
+    )
+    p.add_argument("--out-dir", default=None, help="output directory")
+    p.add_argument("--api-key", default=None, help="OpenAI API key (or set OPENAI_API_KEY)")
+    p.add_argument(
+        "--prompt",
+        action="append",
+        default=None,
+        help="custom prompt (repeatable; overrides random prompts)",
+    )
+    p.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="print prompts and exit without making API calls",
+    )
     args = p.parse_args(argv)
+
+    # Validate compression
+    if args.compression is not None:
+        if not 0 <= args.compression <= 100:
+            print("--compression must be 0-100", file=sys.stderr)
+            return 2
+        if args.output_format == "png":
+            print("--compression is only valid for jpeg/webp, not png", file=sys.stderr)
+            return 2
 
     api_key = args.api_key or os.environ.get("OPENAI_API_KEY")
     if not api_key:
@@ -181,34 +273,43 @@ def main(argv: list[str]) -> int:
 
     url = _api_url()
     items: list[dict] = []
+    ext = _file_extension(args.output_format)
 
     for i, prompt in enumerate(prompts, 1):
-        payload = {
-            "model": args.model,
+        payload: dict = {
+            "model": MODEL,
             "prompt": prompt,
             "size": args.size,
             "quality": args.quality,
+            "output_format": args.output_format,
             "n": 1,
-            "response_format": "b64_json",
         }
+        # Add optional parameters only if specified
+        if args.background:
+            payload["background"] = args.background
+        if args.compression is not None:
+            payload["output_compression"] = args.compression
+        if args.moderation:
+            payload["moderation"] = args.moderation
+
         data = _post_json(url=url, api_key=api_key, payload=payload, timeout_s=args.timeout)
         b64 = (data.get("data") or [{}])[0].get("b64_json")
         if not b64:
             raise SystemExit(f"unexpected response: {json.dumps(data, indent=2)[:1200]}")
 
-        png = base64.b64decode(b64)
-        filename = f"{i:02d}-{_slug(prompt)}.png"
+        img_bytes = base64.b64decode(b64)
+        filename = f"{i:02d}-{_slug(prompt)}.{ext}"
         path = os.path.join(out_dir, filename)
         with open(path, "wb") as f:
-            f.write(png)
+            f.write(img_bytes)
 
         items.append(
             {
                 "file": filename,
                 "prompt": prompt,
-                "model": args.model,
                 "size": args.size,
                 "quality": args.quality,
+                "format": args.output_format,
             }
         )
         print(f"wrote {filename}")
