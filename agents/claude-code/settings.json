@@ -17,6 +17,7 @@
     ],
     "deny": []
   },
+  "model": "opus",
   "hooks": {
     "Stop": [
       {
@@ -33,10 +34,8 @@
     "type": "command",
     "command": "~/.dotfiles/claude-code/cc-statusline-rs"
   },
-  "alwaysThinkingEnabled": false,
   "CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754147549098
-  },
-  "model": "opus"
+  }
 }
