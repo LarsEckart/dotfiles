@@ -14,6 +14,7 @@ from pathlib import Path
 # Voice IDs and names from ElevenLabs API
 VOICES = {
     "grandpa": "NOpBlnGInO9m6vDvFkFC",
+    "arnold": "VR6AewLTigWG4xSOukaG",
 }
 
 load_dotenv()
