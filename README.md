@@ -44,9 +44,10 @@ ln -s ~/.dotfiles/agents/codex/AGENTS.md ~/.codex/AGENTS.md
 ln -s ~/.dotfiles/agents/codex/prompts ~/.codex/prompts
 
 # Pi configuration
-mkdir -p ~/.pi/agent
+mkdir -p ~/.pi/agent/hooks
 ln -s ~/.dotfiles/agents/pi/AGENTS.md ~/.pi/agent/AGENTS.md
 ln -s ~/.dotfiles/agents/pi/commands ~/.pi/agent/commands
+ln -s ~/.dotfiles/agents/pi/hooks/bash-history.ts ~/.pi/agent/hooks/bash-history.ts
 
 # Sync shared skills to all agents (Claude Code, Codex, Pi)
 ~/.dotfiles/agents/skills/sync.sh
