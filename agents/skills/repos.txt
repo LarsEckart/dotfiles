@@ -1,0 +1,7 @@
+# External skill repositories
+# Format: <repo-url> [skill-paths...]
+# If no paths specified, all skills from the repo are included
+# Paths are relative to repo root
+
+https://github.com/badlogic/pi-skills
+https://github.com/mitsuhiko/agent-commands skills/tmux

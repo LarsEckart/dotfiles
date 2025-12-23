@@ -48,6 +48,9 @@ mkdir -p ~/.pi/agent
 ln -s ~/.dotfiles/agents/pi/AGENTS.md ~/.pi/agent/AGENTS.md
 ln -s ~/.dotfiles/agents/pi/commands ~/.pi/agent/commands
 
+# Sync shared skills to all agents (Claude Code, Codex, Pi)
+~/.dotfiles/agents/skills/sync.sh
+
 # Other dotfiles
 ln -s ~/.dotfiles/.hushlogin ~/.hushlogin
 ln -s ~/.dotfiles/.vimrc ~/.vimrc
