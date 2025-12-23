@@ -65,6 +65,7 @@ brew install ast-grep
 brew install fd
 brew install fzf
 brew install yq
+brew install poppler  # PDF tools (pdftotext, pdfinfo, etc.)
 
 brew tap wagoodman/dive
 brew install dive
@@ -98,6 +99,9 @@ brew install uv
 
 brew tap tobi/try
 brew install try
+
+brew tap steveyegge/beads
+brew install bd
 
 # Apps
 
