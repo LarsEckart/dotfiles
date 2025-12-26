@@ -205,8 +205,8 @@ CLI_AGENTS=(
     "@google/gemini-cli|Gemini CLI|gemini"
     "@qwen-code/qwen-code|Qwen CLI|qwen"
     "@openai/codex|OpenAI Codex CLI|codex"
-    "opencode-ai|OpenCode CLI|opencode"
-    "@sourcegraph/amp|Sourcegraph AMP|amp"
+    "opencode-ai|OpenCode|opencode"
+    "@sourcegraph/amp|Amp|amp"
     "@github/copilot|GitHub Copilot CLI|copilot"
     "@mariozechner/pi-coding-agent|Pi Coding Agent|pi"
 )
