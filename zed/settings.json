@@ -90,8 +90,8 @@
   "ui_font_family": "JetBrains Mono",
   "theme": {
     "mode": "system",
-    "light": "Gruvbox Light",
-    "dark": "Gruvbox Dark"
+    "light": "macOS Classic Light",
+    "dark": "macOS Classic Dark"
   },
 
   // LSPs
