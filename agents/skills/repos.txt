@@ -3,5 +3,5 @@
 # If no paths specified, all skills from the repo are included
 # Paths are relative to repo root
 
-https://github.com/badlogic/pi-skills
+https://github.com/badlogic/pi-skills browser-tools
 https://github.com/mitsuhiko/agent-commands skills/tmux
