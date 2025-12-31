@@ -93,3 +93,7 @@ alias copi='copilot --allow-all-tools'
 
 # Use Zoe voice for text-to-speech by default
 alias say='say -v Zoe'
+
+# summarize aliases
+alias sume='summarize --extract --format md --markdown-mode llm'
+alias sum='summarize --format md --markdown-mode llm'
