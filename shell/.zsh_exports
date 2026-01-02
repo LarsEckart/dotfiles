@@ -103,3 +103,7 @@ export PATH="$PATH:/Users/lars/GitHub/agent-tools/brave-search"
 export PATH="$PATH:/Users/lars/GitHub/agent-tools/browser-tools"
 export PATH="$PATH:/Users/lars/GitHub/agent-tools/search-tools"
 export PATH="$PATH:/Users/lars/GitHub/agent-tools/sonar-tool"
+
+
+## My harry potter adventure game (locally use my OpenAI key, but openRouter in prod)
+export IMAGE_PROVIDER=openai
