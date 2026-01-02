@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { isBashToolResult, type HookAPI } from "@mariozechner/pi-coding-agent/hooks";
+import type { HookAPI } from "@mariozechner/pi-coding-agent/hooks";
 
 /**
  * Adds bash tool calls to your shell history so you can recall them
@@ -15,7 +15,8 @@ export default function (pi: HookAPI) {
   const isZsh = histFile.includes("zsh");
 
   pi.on("tool_result", async (event, ctx) => {
-    if (!isBashToolResult(event)) return;
+    // Check tool name directly - isBashToolResult isn't properly exported from the package
+    if (event.toolName !== "bash") return;
     if (event.isError) return; // Skip failed commands
 
     const command = event.input.command as string;
