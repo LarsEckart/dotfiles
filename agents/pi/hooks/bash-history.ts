@@ -26,8 +26,10 @@ export default function (pi: HookAPI) {
       // ZSH extended history format: `: timestamp:0;command`
       // Bash format: just the command
       // Prefix with "# pi: " comment so agent commands are identifiable
+      // Escape newlines so multi-line commands don't break history format
       const timestamp = Math.floor(Date.now() / 1000);
-      const prefixedCommand = `# pi: ${command}`;
+      const escapedCommand = command.replace(/\n/g, '\\n');
+      const prefixedCommand = `# pi: ${escapedCommand}`;
       const entry = isZsh 
         ? `: ${timestamp}:0;${prefixedCommand}\n`
         : `${prefixedCommand}\n`;
