@@ -1,13 +1,13 @@
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import type { HookAPI } from "@mariozechner/pi-coding-agent/hooks";
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 
 /**
  * Adds bash tool calls to your shell history so you can recall them
  * with arrow keys or Ctrl+R in your terminal.
  */
-export default function (pi: HookAPI) {
+export default function (pi: ExtensionAPI) {
   // Support both ZSH and Bash history files
   const histFile = process.env.HISTFILE 
     ?? path.join(os.homedir(), ".zsh_history");

@@ -11,45 +11,24 @@ echo "Syncing pi agent config..."
 echo "  Source: $SCRIPT_DIR"
 echo "  Target: $TARGET_DIR"
 
-# Create target directories if needed
-mkdir -p "$TARGET_DIR/hooks"
-mkdir -p "$TARGET_DIR/commands"
+mkdir -p "$TARGET_DIR"
 
-# Sync hooks (symlink)
-if [ -d "$SCRIPT_DIR/hooks" ]; then
-    for file in "$SCRIPT_DIR/hooks"/*.ts; do
-        [ -e "$file" ] || continue
-        filename=$(basename "$file")
-        target="$TARGET_DIR/hooks/$filename"
+# Symlink whole directories
+for dir in extensions prompts; do
+    if [ -d "$SCRIPT_DIR/$dir" ]; then
+        target="$TARGET_DIR/$dir"
         
-        # Remove existing file/symlink if present
+        # Remove existing dir/symlink if present
         if [ -e "$target" ] || [ -L "$target" ]; then
-            rm "$target"
+            rm -rf "$target"
         fi
         
-        echo "  → hooks/$filename"
-        ln -s "$file" "$target"
-    done
-fi
+        echo "  → $dir/"
+        ln -s "$SCRIPT_DIR/$dir" "$target"
+    fi
+done
 
-# Sync commands (symlink)
-if [ -d "$SCRIPT_DIR/commands" ]; then
-    for file in "$SCRIPT_DIR/commands"/*.md; do
-        [ -e "$file" ] || continue
-        filename=$(basename "$file")
-        target="$TARGET_DIR/commands/$filename"
-        
-        # Remove existing file/symlink if present
-        if [ -e "$target" ] || [ -L "$target" ]; then
-            rm "$target"
-        fi
-        
-        echo "  → commands/$filename"
-        ln -s "$file" "$target"
-    done
-fi
-
-# Sync AGENTS.md (symlink)
+# Symlink AGENTS.md
 if [ -f "$SCRIPT_DIR/AGENTS.md" ]; then
     target="$TARGET_DIR/AGENTS.md"
     if [ -e "$target" ] || [ -L "$target" ]; then
