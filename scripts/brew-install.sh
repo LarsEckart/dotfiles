@@ -100,8 +100,7 @@ brew install uv
 brew tap tobi/try
 brew install try
 
-brew tap steveyegge/beads
-brew install bd
+brew install go
 
 # Apps
 
