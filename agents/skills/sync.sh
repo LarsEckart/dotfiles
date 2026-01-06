@@ -137,7 +137,7 @@ sync_to_target() {
     
     mkdir -p "$target_dir"
     
-    log_section "Syncing to $agent_name"
+    log_section "Syncing to $agent_name (symlinks)"
     echo "Target: $target_dir"
     
     # Build set of valid skill names from skill_list
@@ -205,6 +205,80 @@ sync_to_target() {
     done
 }
 
+# Copy skills to target directory (for agents that don't support symlinks)
+copy_to_target() {
+    local target_dir="$1"
+    local agent_name="$2"
+    local -a skill_list=("${@:3}")
+    
+    mkdir -p "$target_dir"
+    
+    log_section "Syncing to $agent_name (copying)"
+    echo "Target: $target_dir"
+    
+    # Build set of valid skill names from skill_list
+    declare -A valid_skills
+    for skill_path in "${skill_list[@]}"; do
+        [[ -z "$skill_path" ]] && continue
+        valid_skills["$(basename "$skill_path")"]=1
+    done
+    
+    # Track which skill names we've seen (to handle duplicates)
+    declare -A seen_skills
+    
+    # Remove stale/outdated copied skills (but preserve .system and other non-managed dirs)
+    for existing in "$target_dir"/*; do
+        [[ -e "$existing" ]] || continue
+        [[ -d "$existing" ]] || continue
+        
+        local dir_name
+        dir_name="$(basename "$existing")"
+        
+        # Skip hidden directories like .system
+        [[ "$dir_name" == .* ]] && continue
+        
+        # Remove if not in valid skills
+        if [[ -z "${valid_skills[$dir_name]:-}" ]]; then
+            log_warn "Removing stale copy: $dir_name"
+            rm -rf "$existing"
+        fi
+    done
+    
+    # Copy each skill
+    for skill_path in "${skill_list[@]}"; do
+        [[ -z "$skill_path" ]] && continue
+        
+        local skill_name
+        skill_name="$(basename "$skill_path")"
+        local copy_path="$target_dir/$skill_name"
+        
+        # Skip duplicates (first one wins)
+        if [[ -n "${seen_skills[$skill_name]:-}" ]]; then
+            log_warn "$skill_name (duplicate, skipping - already from ${seen_skills[$skill_name]})"
+            continue
+        fi
+        seen_skills[$skill_name]="$skill_path"
+        
+        if [[ -d "$copy_path" ]]; then
+            # Check if source is newer than copy
+            local source_mtime copy_mtime
+            source_mtime="$(find "$skill_path" -type f -exec stat -f %m {} \; 2>/dev/null | sort -rn | head -1)"
+            copy_mtime="$(find "$copy_path" -type f -exec stat -f %m {} \; 2>/dev/null | sort -rn | head -1)"
+            
+            if [[ "${source_mtime:-0}" -gt "${copy_mtime:-0}" ]]; then
+                rm -rf "$copy_path"
+                cp -R "$skill_path" "$copy_path"
+                log_info "$skill_name (updated)"
+            else
+                log_info "$skill_name (up to date)"
+            fi
+        else
+            cp -R "$skill_path" "$copy_path"
+            log_info "$skill_name (copied)"
+        fi
+    done
+}
+
 main() {
     echo "=== Agent Skills Sync ==="
     echo "Source: $SCRIPT_DIR"
@@ -242,7 +316,7 @@ main() {
     
     # Sync to each agent
     sync_to_target "$CLAUDE_SKILLS" "Claude Code" "${skills_array[@]}"
-    sync_to_target "$CODEX_SKILLS" "Codex" "${skills_array[@]}"
+    copy_to_target "$CODEX_SKILLS" "Codex" "${skills_array[@]}"  # Codex doesn't support symlinks
     sync_to_target "$PI_SKILLS" "Pi" "${skills_array[@]}"
     
     echo ""

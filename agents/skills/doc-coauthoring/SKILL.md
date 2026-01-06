@@ -27,7 +27,7 @@ If user declines, work freeform. If user accepts, proceed to Stage 1.
 
 ## Stage 1: Context Gathering
 
-**Goal:** Close the gap between what the user knows and what Claude knows, enabling smart guidance later.
+**Goal:** Close the gap between what the user knows and what the LLM knows, enabling smart guidance later.
 
 ### Initial Questions
 
