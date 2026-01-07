@@ -1,46 +1,100 @@
 ---
 name: github-actions
-description: Guide for creating, debugging, and optimizing GitHub Actions workflows. Use when users need to automate CI/CD pipelines, create reusable workflows, debug workflow failures, optimize action performance, or validate workflow syntax. Includes comprehensive guidance on workflow structure, best practices, common patterns, and actionlint integration for workflow validation.
+description: |
+  Create, debug, and optimize GitHub Actions workflows (.github/workflows/*.yml): triggers, jobs, matrices,
+  caching, artifacts, permissions/OIDC, reusable workflows, and actionlint-driven troubleshooting.
+  Use when the user shares workflow YAML, actionlint output, or GitHub Actions run logs, or asks for CI/CD improvements.
 license: MIT
+compatibility: Designed for Claude Code (repo filesystem access). Optional tools: actionlint, gh, act.
+metadata:
+  version: "2.0"
 ---
 
 # GitHub Actions
 
-## Overview
+Practical guidance for building, debugging, and hardening GitHub Actions workflows that are:
+- **Valid** (actionlint passes)
+- **Secure** (least privilege, safe with forks)
+- **Fast & cost-aware** (caching, concurrency, matrices)
 
-This skill helps you create, debug, and optimize GitHub Actions workflows for CI/CD automation. It covers workflow syntax, best practices, debugging techniques, performance optimization, and workflow validation using actionlint.
+---
 
-## When to Use This Skill
+## 0) When to use / when NOT to use
 
-Use this skill when users:
-- Need to create new GitHub Actions workflows for CI/CD
-- Want to debug failing or flaky workflows
-- Request optimization of existing workflows (faster builds, reduced costs)
-- Ask about GitHub Actions best practices or patterns
-- Need to validate workflow syntax before committing
-- Want to create reusable workflows or custom actions
-- Request help with matrix builds, caching, or advanced features
-- Need to integrate third-party actions or services
+Use this skill when the user:
+- Is creating or editing `.github/workflows/*.yml`
+- Has **actionlint output** or **workflow run logs** they need help interpreting
+- Wants CI improvements: caching, matrices, concurrency, artifacts, permissions, OIDC, reusable workflows
+- Needs advice on GitHub-hosted vs self-hosted runners, containers, or service containers
 
-## General Workflow
+Do **NOT** use this skill for:
+- Generic YAML questions not tied to GitHub Actions semantics
+- Application deployment architecture (Docker/Kubernetes/etc.) unless it directly affects the workflow
+- Debugging test failures inside the codebase (use language/testing skills)
 
-Follow this process to help users with GitHub Actions:
+---
 
-### Step 1: Understand Requirements
+## 1) Guardrails (MUST / MUST NOT)
 
-Clarify what the user needs:
-- What should the workflow do? (test, build, deploy, release, etc.)
-- What events should trigger it? (push, pull_request, schedule, workflow_dispatch)
-- What languages/tools are involved?
-- Are there dependencies on external services?
-- What are the performance/cost constraints?
-- Should it run on multiple OS/versions (matrix)?
+MUST:
+- Ask for missing constraints instead of guessing (see §2).
+- Treat **actionlint output and runner logs as the source of truth**; never fabricate them.
+- Recommend pinning actions to a **major tag** (e.g., `@v6`) or, for higher assurance, a **full commit SHA**.
+- Add explicit `permissions:` (workflow-level + job overrides) with least privilege.
+- End with **copy‑pastable YAML** (or a minimal diff against the user's current YAML).
 
-### Step 2: Create or Modify Workflow
+MUST NOT:
+- Print secrets/tokens or dump secrets contexts.
+- Suggest `pull_request_target` as a quick fix unless you explain the security implications and add hard gates.
+- Use floating refs (`@main`, `@master`) or `:latest` in production examples without calling out the risk.
 
-Create workflows in `.github/workflows/` directory with `.yml` or `.yaml` extension.
+---
 
-**Basic workflow structure:**
+## 2) First questions to ask (fast triage)
+
+If the user didn't provide these, ask (briefly) before writing YAML:
+
+1. **Trigger(s):** `push`, `pull_request`, `workflow_dispatch`, `schedule`, `release`, `workflow_call`, etc.
+2. **Branches / paths filters:** what should run on `main`, PRs, tags, docs-only changes, etc.?
+3. **Runtime:** language + version(s), build tool (npm/pnpm/yarn, Gradle/Maven, pip/poetry, etc.)
+4. **Runners:** GitHub-hosted vs self-hosted; OS matrix needed?
+5. **Secrets/vars:** which external services? Are PRs from forks expected? (affects secrets/permissions)
+6. **Write actions:** does the workflow need to push tags, create releases, comment on PRs, auto-merge, deploy? (determines permissions)
+
+---
+
+## 3) Output contract (what you should produce)
+
+When replying, output in this order:
+
+1. **Diagnosis / plan (2–6 bullets)** — what you're changing and why.
+2. **The workflow YAML** (or a minimal patch) — copy‑pastable.
+3. **How to verify** — e.g. `actionlint`, optional `act`, and what to look for in the GitHub run UI.
+4. **Optional optimizations** — only after a correct baseline is provided.
+
+---
+
+## 4) Workflow anatomy (mental checklist)
+
+Make sure the workflow has:
+
+- `name`
+- `on:` triggers with correct event names + filters
+- `permissions:` (workflow-level; override per job when needed)
+- `concurrency:` if the workflow can be spammed (PR updates, fast pushes)
+- `jobs.<job_id>.runs-on` (pin runner images when stability matters)
+- `timeout-minutes` on jobs
+- `strategy.matrix` when it reduces duplication
+- Steps with correct `uses: owner/repo@ref` format and correct contexts in `${{ }}` expressions
+- Caching and artifacts where it materially improves runtime
+- A reporting step with `if: success() || failure()` (or `if: always()`) for diagnostics
+
+---
+
+## 5) Create a new workflow (template-first)
+
+Start from a minimal, valid skeleton and then specialize.
+
 ```yaml
 name: CI
 
@@ -48,753 +102,463 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-
+  build:
+    runs-on: ubuntu-latest # consider pinning (e.g. ubuntu-24.04) for stability
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up environment
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm ci
-
+      - name: Check out repo
+        uses: actions/checkout@v6
       - name: Run tests
-        run: npm test
+        run: echo "TODO: add your build/test command"
 ```
 
-### Step 3: Validate with actionlint
+Then add (in this order): setup toolchain → cache → build/test → artifacts/reports.
 
-Always validate workflows before committing using [actionlint](https://github.com/rhysd/actionlint/blob/v1.7.7/docs/usage.md):
+---
 
-**Install actionlint:**
-```bash
-# macOS
-brew install actionlint
+## 6) Debug a failing workflow (actionlint-first)
 
-# Linux
-bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+### 6.1 If the user has actionlint output
 
-# Or use Docker
-docker run --rm -v $(pwd):/repo --workdir /repo rhysd/actionlint:latest
+- Fix errors **top-to-bottom**; one typo can cascade into many errors.
+- The bracketed suffix is the rule ID (e.g. `[events]`, `[expression]`, `[action]`).
+
+#### Real actionlint output examples (verbatim)
+
+```text
+bad-workflow.yml:3:12: unknown Webhook event "pull_requests". see https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#webhook-events for list of all Webhook event names [events]
+  |
+3 | on: [push, pull_requests]  # typo: should be pull_request
+  |            ^~~~~~~~~~~~~~
+bad-workflow.yml:11:23: property "secret" is not defined in object type {action: string; ...} [expression]
+   |
+11 |         run: echo ${{ github.secret }}  # invalid context
+   |                       ^~~~~~~~~~~~~
+bad-workflow.yml:15:15: specifying action "actions/setup-node" in invalid format because ref is missing. available formats are "{owner}/{repo}@{ref}" or "{owner}/{repo}/{path}@{ref}" [action]
+   |
+15 |         uses: actions/setup-node
+   |               ^~~~~~~~~~~~~~~~~~
 ```
 
-**Run actionlint:**
-```bash
-# Validate all workflows
-actionlint
+#### Fix patterns for the above
 
-# Validate specific workflow
-actionlint .github/workflows/ci.yml
-
-# Output in different formats
-actionlint -format '{{range $err := .}}{{$err.Message}}{{end}}'
-
-# Ignore specific rules
-actionlint -ignore 'SC2086:' -ignore 'SC2016:'
-
-# Use with GitHub Actions (in workflow)
-- name: Check workflow files
-  uses: docker://rhysd/actionlint:latest
-  with:
-    args: -color
-```
-
-**Common actionlint checks:**
-- Syntax errors in YAML
-- Invalid action references or versions
-- Type mismatches in expressions
-- Undefined variables or contexts
-- Shell script issues (via shellcheck integration)
-- Invalid event triggers
-- Deprecated features
-
-See [actionlint usage documentation](https://github.com/rhysd/actionlint/blob/v1.7.7/docs/usage.md) for complete validation options.
-
-### Step 4: Test and Debug
-
-Test workflows using these techniques:
-
-**Local testing with act:**
-```bash
-# Install act (runs workflows locally with Docker)
-brew install act
-
-# Run workflow locally
-act
-
-# Run specific job
-act -j test
-
-# Run specific event
-act pull_request
-```
-
-**Debug in GitHub Actions:**
-```yaml
-# Enable debug logging
-- name: Debug info
-  run: |
-    echo "Event: ${{ github.event_name }}"
-    echo "Ref: ${{ github.ref }}"
-    echo "SHA: ${{ github.sha }}"
-
-# Enable step debugging with ACTIONS_STEP_DEBUG secret set to true
-# Enable runner debugging with ACTIONS_RUNNER_DEBUG secret set to true
-```
-
-**Common debugging commands:**
-```bash
-# View workflow runs
-gh run list
-
-# View specific run details
-gh run view <run-id>
-
-# View logs
-gh run view <run-id> --log
-
-# Re-run failed jobs
-gh run rerun <run-id> --failed
-
-# Watch a running workflow
-gh run watch
-```
-
-### Step 5: Optimize for Performance
-
-Apply these optimizations:
-
-**Use caching:**
-```yaml
-- uses: actions/cache@v4
-  with:
-    path: ~/.npm
-    key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-    restore-keys: |
-      ${{ runner.os }}-node-
-```
-
-**Parallel jobs:**
-```yaml
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18, 20, 22]
-    steps:
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-```
-
-**Conditional execution:**
-```yaml
-- name: Deploy
-  if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-  run: npm run deploy
-```
-
-**Fail fast:**
-```yaml
-strategy:
-  fail-fast: true  # Stop all jobs if one fails
-  matrix:
-    os: [ubuntu-latest, macos-latest, windows-latest]
-```
-
-## Workflow Syntax Reference
-
-### Event Triggers
+1) **Bad trigger name** (`pull_requests` → `pull_request`):
 
 ```yaml
-# Single event
-on: push
-
-# Multiple events
-on: [push, pull_request]
-
-# Event with filters
 on:
+  push:
+  pull_request:
+```
+
+2) **Wrong context** (`github.secret` doesn't exist). Use:
+- `secrets.*` for secrets
+- `vars.*` for non-secret variables
+- `github.*` only for documented GitHub context fields
+
+```yaml
+- run: echo "${{ secrets.MY_TOKEN }}"
+```
+
+3) **Missing action ref** (must include `@ref`):
+
+```yaml
+- uses: actions/setup-node@v6
+```
+
+### 6.2 If actionlint passes but the run fails
+
+Ask for:
+- failing step log lines (include the command + exit code)
+- runner OS + shell (`bash`, `pwsh`, etc.)
+- whether the PR is from a fork (secrets/permissions change)
+
+Then apply common fixes:
+- Make shell explicit (especially on Windows)
+- Add `set -euo pipefail` (bash) / `$ErrorActionPreference='Stop'` (pwsh)
+- Ensure expected files exist (`actions/checkout`, correct working directory)
+- Fix permissions (403s are usually token scope issues)
+- Pin action versions and rerun
+
+---
+
+## 7) Canonical production pattern (inspired by a real Java workflow)
+
+This pattern demonstrates:
+- Trigger filtering (`branches`, `paths`, `workflow_dispatch`)
+- `concurrency` to cancel stale runs
+- A cross‑OS matrix
+- An always-run test report
+- A gated Dependabot auto-merge job
+
+```yaml
+name: Run tests
+
+on:
+  workflow_dispatch:
   push:
     branches:
       - main
-      - 'releases/**'
     paths:
-      - '**.js'
-      - '!docs/**'
-    tags:
-      - v*
+      - '**.java'
+      - 'build.gradle'
+      - 'gradle/wrapper/**'
+      - '.github/workflows/test.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '**.java'
+      - 'build.gradle'
+      - 'gradle/wrapper/**'
 
-# Scheduled workflows
-on:
-  schedule:
-    - cron: '0 0 * * *'  # Daily at midnight
+permissions:
+  contents: read
 
-# Manual trigger
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [25]
+        os: [ubuntu, windows]
+
+    # Make shell explicit so a single command can work cross-OS (optional).
+    defaults:
+      run:
+        shell: bash
+
+    permissions:
+      contents: read
+      checks: write # required by many test-report actions that create check runs
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v6
+
+      - name: Set up latest JDK N from oracle.com
+        uses: oracle-actions/setup-java@v1
+        with:
+          website: oracle.com
+          release: ${{ matrix.java }}
+
+      - name: Run Gradle's test task
+        run: ./gradlew -i --no-daemon --parallel --continue --build-cache --stacktrace test
+        env:
+          GH_USERNAME: 'GitHub Action'
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v6
+        if: success() || failure()
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+          retention-days: 1
+
+  auto-merge:
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v6
+
+      - name: auto-merge
+        if: |
+          github.actor == 'dependabot[bot]' &&
+          github.event_name == 'pull_request'
+        run: |
+          gh pr merge --auto --rebase "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GH_ACTION_TOKEN }}
+```
+
+---
+
+## 8) Recipe library (copy/paste snippets)
+
+### 8.1 Lint workflows in CI (actionlint)
+
+Pin the image/action ref (avoid `:latest` in production).
+
+```yaml
+jobs:
+  actionlint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - name: actionlint
+        uses: docker://rhysd/actionlint:1.7.4
+        with:
+          args: -color
+```
+
+Tip: If shellcheck findings are noisy (e.g., non-bash shells), set `shell:` explicitly on `run:` steps so the linter knows what it's analyzing.
+
+### 8.2 Permissions cheat sheet (least privilege)
+
+Start with:
+
+```yaml
+permissions:
+  contents: read
+```
+
+Common adds:
+- `checks: write` → create/update check runs (test reporters)
+- `pull-requests: write` → comment/label/merge PRs
+- `contents: write` → push commits/tags, create releases
+- `packages: write` → publish packages
+- `id-token: write` → OIDC federation to cloud providers
+
+Prefer job-level escalation:
+
+```yaml
+jobs:
+  deploy:
+    permissions:
+      contents: read
+      id-token: write
+```
+
+### 8.3 Concurrency (cancel stale runs)
+
+```yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+```
+
+### 8.4 Caching (prefer setup-* built-ins when available)
+
+**Node (setup-node with caching):**
+
+```yaml
+- uses: actions/setup-node@v6
+  with:
+    node-version: 24
+    cache: npm
+- run: npm ci
+```
+
+**Gradle (simple):**
+
+```yaml
+- run: ./gradlew --no-daemon --build-cache test
+```
+
+### 8.5 Upload artifacts (share between jobs)
+
+```yaml
+- uses: actions/upload-artifact@v4
+  if: always()
+  with:
+    name: test-results
+    path: '**/build/test-results/test/TEST-*.xml'
+    retention-days: 1
+```
+
+### 8.6 Job summary (human-friendly output in the run UI)
+
+```yaml
+- name: Summary
+  if: always()
+  run: |
+    {
+      echo "## CI Summary"
+      echo ""
+      echo "- OS: ${{ runner.os }}"
+      echo "- Ref: ${{ github.ref }}"
+    } >> "$GITHUB_STEP_SUMMARY"
+```
+
+### 8.7 Step outputs + job outputs (pass data across jobs)
+
+```yaml
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+    steps:
+      - id: meta
+        run: echo "version=1.2.3" >> "$GITHUB_OUTPUT"
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Publishing ${{ needs.build.outputs.version }}"
+```
+
+### 8.8 Manual runs with inputs (workflow_dispatch)
+
+```yaml
 on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Environment to deploy to'
-        required: true
+        description: "Where to deploy"
         type: choice
-        options:
-          - dev
-          - staging
-          - prod
+        options: [staging, production]
+        required: true
+      run_integration:
+        description: "Run integration tests?"
+        type: boolean
+        default: false
 ```
 
-### Job Configuration
+Use them as `${{ inputs.environment }}` and `${{ inputs.run_integration }}`.
+
+### 8.9 Scheduled workflows (cron)
 
 ```yaml
-jobs:
-  job-name:
-    name: Human-readable name
-    runs-on: ubuntu-latest  # or ubuntu-22.04, macos-latest, windows-latest
-
-    # Job dependencies
-    needs: [previous-job]
-
-    # Conditional execution
-    if: github.event_name == 'push'
-
-    # Environment variables
-    env:
-      NODE_ENV: production
-
-    # Timeout (default: 360 minutes)
-    timeout-minutes: 30
-
-    # Permissions
-    permissions:
-      contents: read
-      pull-requests: write
-
-    # Environment deployment
-    environment:
-      name: production
-      url: https://example.com
-
-    # Strategy for matrix/parallel builds
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-        node: [18, 20]
-      fail-fast: false
-      max-parallel: 4
-
-    steps:
-      # ... steps here
-```
-
-### Common Actions
-
-```yaml
-# Checkout code
-- uses: actions/checkout@v4
-  with:
-    fetch-depth: 0  # Full history
-    submodules: true
-
-# Setup languages/tools
-- uses: actions/setup-node@v4
-  with:
-    node-version: '20'
-    cache: 'npm'
-
-- uses: actions/setup-python@v5
-  with:
-    python-version: '3.12'
-    cache: 'pip'
-
-- uses: actions/setup-go@v5
-  with:
-    go-version: '1.22'
-    cache: true
-
-# Upload/download artifacts
-- uses: actions/upload-artifact@v4
-  with:
-    name: test-results
-    path: test-results/
-    retention-days: 30
-
-- uses: actions/download-artifact@v4
-  with:
-    name: test-results
-
-# Cache dependencies
-- uses: actions/cache@v4
-  with:
-    path: |
-      ~/.npm
-      ~/.cache
-    key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-
-# Create GitHub releases
-- uses: actions/create-release@v1
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  with:
-    tag_name: ${{ github.ref }}
-    release_name: Release ${{ github.ref }}
-```
-
-### Expressions and Contexts
-
-```yaml
-# Access contexts
-steps:
-  - name: Print context
-    run: |
-      echo "Event: ${{ github.event_name }}"
-      echo "Actor: ${{ github.actor }}"
-      echo "Repo: ${{ github.repository }}"
-      echo "Branch: ${{ github.ref_name }}"
-      echo "SHA: ${{ github.sha }}"
-      echo "Runner OS: ${{ runner.os }}"
-      echo "Job status: ${{ job.status }}"
-
-# Conditional expressions
-- name: Conditional step
-  if: |
-    github.event_name == 'push' &&
-    startsWith(github.ref, 'refs/tags/') &&
-    !contains(github.event.head_commit.message, '[skip ci]')
-  run: echo "Deploy!"
-
-# Functions
-- name: With functions
-  if: |
-    success() &&
-    contains(needs.*.result, 'success') &&
-    !cancelled()
-  run: echo "All jobs succeeded"
-```
-
-### Secrets and Variables
-
-```yaml
-# Use secrets (encrypted)
-- name: Deploy
-  env:
-    API_KEY: ${{ secrets.API_KEY }}
-    AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-  run: ./deploy.sh
-
-# Use variables (not encrypted)
-- name: Build
-  env:
-    ENVIRONMENT: ${{ vars.ENVIRONMENT }}
-    API_URL: ${{ vars.API_URL }}
-  run: npm run build
-
-# Set output for later steps
-- name: Set output
-  id: vars
-  run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-
-- name: Use output
-  run: echo "Short SHA: ${{ steps.vars.outputs.sha_short }}"
-```
-
-## Best Practices
-
-### Security
-
-1. **Use specific action versions:**
-   ```yaml
-   # Good: pinned to SHA
-   - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
-
-   # Acceptable: pinned to major version
-   - uses: actions/checkout@v4
-
-   # Bad: uses latest
-   - uses: actions/checkout@main
-   ```
-
-2. **Minimize permissions:**
-   ```yaml
-   permissions:
-     contents: read  # Only what's needed
-   ```
-
-3. **Use environment secrets, not inline:**
-   ```yaml
-   # Good
-   env:
-     API_KEY: ${{ secrets.API_KEY }}
-   run: ./script.sh
-
-   # Bad: could leak in logs
-   run: ./script.sh ${{ secrets.API_KEY }}
-   ```
-
-4. **Validate external inputs:**
-   ```yaml
-   - name: Validate input
-     if: github.event_name == 'workflow_dispatch'
-     run: |
-       if [[ ! "${{ inputs.environment }}" =~ ^(dev|staging|prod)$ ]]; then
-         echo "Invalid environment"
-         exit 1
-       fi
-   ```
-
-### Performance
-
-1. **Use caching aggressively:**
-   ```yaml
-   - uses: actions/cache@v4
-     with:
-       path: |
-         ~/.cargo/bin/
-         ~/.cargo/registry/index/
-         ~/.cargo/registry/cache/
-         ~/.cargo/git/db/
-         target/
-       key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-   ```
-
-2. **Run jobs in parallel:**
-   ```yaml
-   jobs:
-     lint:
-       # Runs independently
-     test:
-       # Runs independently
-     build:
-       needs: [lint, test]  # Waits for both
-   ```
-
-3. **Skip unnecessary steps:**
-   ```yaml
-   - name: Skip on draft
-     if: "!github.event.pull_request.draft"
-     run: npm run e2e
-   ```
-
-4. **Use self-hosted runners for heavy workloads:**
-   ```yaml
-   runs-on: [self-hosted, linux, x64, gpu]
-   ```
-
-### Maintainability
-
-1. **Use reusable workflows:**
-   ```yaml
-   # .github/workflows/reusable-test.yml
-   on:
-     workflow_call:
-       inputs:
-         node-version:
-           required: true
-           type: string
-
-   # .github/workflows/ci.yml
-   jobs:
-     test:
-       uses: ./.github/workflows/reusable-test.yml
-       with:
-         node-version: '20'
-   ```
-
-2. **Use composite actions for repeated steps:**
-   ```yaml
-   # .github/actions/setup-env/action.yml
-   name: Setup Environment
-   runs:
-     using: composite
-     steps:
-       - uses: actions/setup-node@v4
-       - run: npm ci
-
-   # Use it
-   - uses: ./.github/actions/setup-env
-   ```
-
-3. **Document complex workflows:**
-   ```yaml
-   name: Complex Deployment
-   # This workflow:
-   # 1. Builds the application
-   # 2. Runs security scans
-   # 3. Deploys to staging
-   # 4. Runs smoke tests
-   # 5. Requires manual approval
-   # 6. Deploys to production
-   ```
-
-## Common Patterns
-
-### CI/CD Pipeline
-
-```yaml
-name: CI/CD
-
 on:
-  push:
-    branches: [main]
-  pull_request:
+  schedule:
+    - cron: '0 3 * * 1' # Mondays 03:00 UTC
+```
 
+### 8.10 Service containers (integration tests)
+
+```yaml
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm test
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: test-results
-          path: test-results/
+      - uses: actions/checkout@v6
+      - run: ./gradlew test
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+```
 
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run lint
+### 8.11 Environments (approvals + environment secrets)
 
+```yaml
+jobs:
   deploy:
-    needs: [test, lint]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - uses: actions/checkout@v4
-      - name: Deploy
-        run: ./deploy.sh
-        env:
-          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+      - run: echo "deploying..."
 ```
 
-### Matrix Testing
+Environment-scoped secrets live in GitHub "Environments," not repo-level secrets.
+
+### 8.12 Reusable workflows (workflow_call)
+
+**Reusable workflow (callee):** `.github/workflows/reusable-test.yml`
 
 ```yaml
-name: Matrix Test
+name: Reusable test
 
-on: [push, pull_request]
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        type: string
+        required: true
+    secrets:
+      NPM_TOKEN:
+        required: false
+
+permissions:
+  contents: read
 
 jobs:
   test:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        node: [18, 20, 22]
-        include:
-          # Add specific config for certain combinations
-          - os: ubuntu-latest
-            node: 20
-            experimental: true
-        exclude:
-          # Skip certain combinations
-          - os: windows-latest
-            node: 18
-
-    runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.experimental || false }}
-
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
-          node-version: ${{ matrix.node }}
+          node-version: ${{ inputs.node-version }}
+          cache: npm
       - run: npm ci
       - run: npm test
 ```
 
-### Release Automation
+**Caller:**
 
 ```yaml
-name: Release
-
-on:
-  push:
-    tags:
-      - 'v*'
-
 jobs:
-  release:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Generate changelog
-        id: changelog
-        run: |
-          CHANGELOG=$(git log --oneline $(git describe --tags --abbrev=0 HEAD^)..HEAD)
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGELOG" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
-          body: ${{ steps.changelog.outputs.changelog }}
-          draft: false
-          prerelease: false
+  test:
+    uses: ./.github/workflows/reusable-test.yml
+    with:
+      node-version: '24'
+    secrets: inherit
 ```
 
-### Scheduled Maintenance
+### 8.13 Common "why didn't my workflow run?" checks
 
-```yaml
-name: Scheduled Maintenance
+- Wrong event name (e.g. `pull_requests` instead of `pull_request`)
+- Branch filters don't match the push/PR target
+- `paths` filters exclude the changed files
+- Workflow file isn't on the default branch yet (for `push`/`pull_request`)
+- YAML indentation errors cause the workflow to be ignored
 
-on:
-  schedule:
-    # Run at 2 AM UTC every Sunday
-    - cron: '0 2 * * 0'
-  workflow_dispatch:  # Allow manual trigger
+---
 
-jobs:
-  cleanup:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clean up old artifacts
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const days = 90;
-            const timestamp = Date.now() - (days * 24 * 60 * 60 * 1000);
+## 9) Security & reliability rules of thumb
 
-            const artifacts = await github.rest.actions.listArtifactsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            });
+- Pin actions (major tag or SHA). Avoid `@main`.
+- Prefer `contents: read` and escalate per job.
+- Assume PRs from forks are untrusted: secrets may be unavailable and you must not run privileged steps.
+- Be extremely cautious with `pull_request_target` (it runs with base repo privileges).
+- Add `timeout-minutes` and `concurrency.cancel-in-progress: true` for noisy workflows.
+- Use `fail-fast: false` on big matrices to maximize feedback.
 
-            for (const artifact of artifacts.data.artifacts) {
-              if (Date.parse(artifact.created_at) < timestamp) {
-                await github.rest.actions.deleteArtifact({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  artifact_id: artifact.id,
-                });
-                console.log(`Deleted artifact: ${artifact.name}`);
-              }
-            }
-```
+---
 
-## Troubleshooting
+## 10) Local tools (optional but recommended)
 
-### Common Issues
-
-**Workflow not triggering:**
-- Check event trigger configuration
-- Verify branch/path filters match
-- Ensure `.github/workflows/` path is correct
-- Check if workflow file has syntax errors (use actionlint)
-
-**Permission denied:**
-```yaml
-# Add necessary permissions
-permissions:
-  contents: write
-  pull-requests: write
-```
-
-**Checkout fails on PR from fork:**
-```yaml
-- uses: actions/checkout@v4
-  with:
-    # Use PR head ref for forks
-    ref: ${{ github.event.pull_request.head.sha }}
-```
-
-**Secrets not available:**
-- Secrets aren't available in workflows triggered by forks
-- Use `pull_request_target` carefully (security risk)
-- Or use conditional logic:
-  ```yaml
-  if: github.event.pull_request.head.repo.full_name == github.repository
-  ```
-
-**Timeout issues:**
-```yaml
-# Increase timeout
-timeout-minutes: 60
-
-# Or add timeout to specific step
-- name: Long-running test
-  timeout-minutes: 30
-  run: npm run e2e
-```
-
-## Resources
-
-### Official Documentation
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [Workflow Syntax](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions)
-- [GitHub Actions Marketplace](https://github.com/marketplace?type=actions)
-
-### Tools
-- [actionlint](https://github.com/rhysd/actionlint) - Fast workflow linter
-- [actionlint usage docs](https://github.com/rhysd/actionlint/blob/v1.7.7/docs/usage.md) - Complete validation guide
-- [act](https://github.com/nektos/act) - Run workflows locally
-- [GitHub CLI](https://cli.github.com/) - Manage workflows from terminal
-
-### Best Practices
-- [GitHub Actions Security Best Practices](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions)
-- [Workflow Optimization](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstrategy)
-
-## Quick Reference
-
-**Validate workflow:**
 ```bash
-actionlint .github/workflows/*.yml
+# Lint workflows
+actionlint
+
+# Run a job locally (best-effort; not all features match GitHub)
+act -j build
+
+# Inspect a run
+gh run view --log
 ```
 
-**Test locally:**
-```bash
-act -j test
-```
+---
 
-**View runs:**
-```bash
-gh run list
-gh run view <run-id> --log
-```
+## 11) Further reading
 
-**Debug expressions:**
-```yaml
-- run: echo '${{ toJSON(github) }}'
-- run: echo '${{ toJSON(runner) }}'
-- run: echo '${{ toJSON(job) }}'
-```
-
-**Common contexts:**
-- `github.event_name` - Event that triggered workflow
-- `github.ref` - Full ref (e.g., refs/heads/main)
-- `github.ref_name` - Short ref name (e.g., main)
-- `github.sha` - Commit SHA
-- `github.actor` - User who triggered workflow
-- `runner.os` - Runner operating system
-- `secrets.GITHUB_TOKEN` - Auto-generated auth token
+- https://docs.github.com/actions
+- https://github.com/rhysd/actionlint
+- https://github.com/nektos/act
