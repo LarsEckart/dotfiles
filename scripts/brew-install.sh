@@ -78,7 +78,7 @@ brew install remotemobprogramming/brew/mob
 brew install ykman
 # for 'ykman config usb --disable otp'
 
-#brew install ffmpeg --with-libvpx
+brew install ffmpeg
 
 brew tap anchore/grype
 brew install grype
