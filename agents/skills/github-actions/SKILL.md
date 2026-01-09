@@ -1,11 +1,8 @@
 ---
 name: github-actions
-description: |
-  Create, debug, and optimize GitHub Actions workflows (.github/workflows/*.yml): triggers, jobs, matrices,
-  caching, artifacts, permissions/OIDC, reusable workflows, and actionlint-driven troubleshooting.
-  Use when the user shares workflow YAML, actionlint output, or GitHub Actions run logs, or asks for CI/CD improvements.
+description: "Create, debug, and optimize GitHub Actions workflows (.github/workflows/*.yml): triggers, jobs, matrices, caching, artifacts, permissions/OIDC, reusable workflows, and actionlint-driven troubleshooting. Use when the user shares workflow YAML, actionlint output, or GitHub Actions run logs, or asks for CI/CD improvements."
 license: MIT
-compatibility: "Designed for Claude Code (repo filesystem access). Optional tools: actionlint, gh, act."
+compatibility: "Designed for Claude Code (repo filesystem access). Optional tools - actionlint, gh, act."
 metadata:
   version: "2.0"
 ---
