@@ -5,7 +5,7 @@ description: |
   caching, artifacts, permissions/OIDC, reusable workflows, and actionlint-driven troubleshooting.
   Use when the user shares workflow YAML, actionlint output, or GitHub Actions run logs, or asks for CI/CD improvements.
 license: MIT
-compatibility: Designed for Claude Code (repo filesystem access). Optional tools: actionlint, gh, act.
+compatibility: "Designed for Claude Code (repo filesystem access). Optional tools: actionlint, gh, act."
 metadata:
   version: "2.0"
 ---
