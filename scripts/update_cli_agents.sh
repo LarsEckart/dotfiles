@@ -202,14 +202,13 @@ echo
 # List of CLI agents to check/update
 # Format: package_name display_name binary_name
 CLI_AGENTS=(
-    "@anthropic-ai/claude-code|Claude Code|claude"
-    "@google/gemini-cli|Gemini CLI|gemini"
-    "@qwen-code/qwen-code|Qwen CLI|qwen"
-    "@openai/codex|OpenAI Codex CLI|codex"
-    "opencode-ai|OpenCode|opencode"
-    "@sourcegraph/amp|Amp|amp"
-    "@github/copilot|GitHub Copilot CLI|copilot"
     "@mariozechner/pi-coding-agent|Pi Coding Agent|pi"
+    "@openai/codex|OpenAI Codex CLI|codex"
+    "@anthropic-ai/claude-code|Claude Code|claude"
+    "@sourcegraph/amp|Amp|amp"
+    "opencode-ai|OpenCode|opencode"
+    "@github/copilot|GitHub Copilot CLI|copilot"
+    "@qwen-code/qwen-code|Qwen CLI|qwen"
 )
 
 # Arrays to track agents needing updates and their PIDs
