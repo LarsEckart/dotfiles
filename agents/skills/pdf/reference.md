@@ -1,6 +1,13 @@
 # PDF Processing Advanced Reference
 
-This document contains advanced PDF processing features, detailed examples, and additional libraries not covered in the main skill instructions.
+This document covers **advanced** PDF processing when CLI tools (poppler, qpdf) aren't sufficient. For most tasks, prefer the CLI tools in SKILL.md.
+
+Use this reference for:
+- Complex programmatic manipulation (pypdfium2, pypdf)
+- Browser-based PDF work (pdf-lib, pdfjs-dist)
+- Advanced table extraction settings (pdfplumber)
+- Batch processing with error handling
+- Performance optimization
 
 ## pypdfium2 Library (Apache/BSD License)
 
