@@ -202,6 +202,7 @@ echo
 # List of CLI agents to check/update
 # Format: package_name display_name binary_name
 CLI_AGENTS=(
+    "@anthropic-ai/claude-code|Claude Code|claude"
     "@google/gemini-cli|Gemini CLI|gemini"
     "@qwen-code/qwen-code|Qwen CLI|qwen"
     "@openai/codex|OpenAI Codex CLI|codex"
