@@ -43,6 +43,10 @@ mkdir -p ~/.codex
 ln -s ~/.dotfiles/agents/codex/AGENTS.md ~/.codex/AGENTS.md
 ln -s ~/.dotfiles/agents/codex/prompts ~/.codex/prompts
 
+# Ghostty configuration
+mkdir -p ~/.config/ghostty
+ln -s ~/.dotfiles/ghostty/ghostty.conf ~/.config/ghostty/config
+
 # Pi configuration
 mkdir -p ~/.pi/agent/hooks
 ln -s ~/.dotfiles/agents/pi/AGENTS.md ~/.pi/agent/AGENTS.md
