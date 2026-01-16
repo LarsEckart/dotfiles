@@ -84,28 +84,12 @@ fi
 # Function to get installed version of npm package
 get_installed_version() {
     local package_name=$1
-
-    if [ "$package_name" = "opencode-ai" ]; then
-        if command -v opencode >/dev/null 2>&1; then
-            opencode --version 2>/dev/null || echo "not installed"
-        else
-            echo "not installed"
-        fi
-        return
-    fi
-
     npm list -g "$package_name" --depth=0 2>/dev/null | grep "$package_name" | sed 's/.*@//' || echo "not installed"
 }
 
 # Function to get latest version from npm
 get_latest_version() {
     local package_name=$1
-
-    if [ "$package_name" = "opencode-ai" ]; then
-        npm view opencode-ai version 2>/dev/null || echo "unknown"
-        return
-    fi
-
     npm view "$package_name" version 2>/dev/null || echo "unknown"
 }
 
@@ -113,18 +97,6 @@ get_latest_version() {
 update_package() {
     local package_name=$1
     local display_name=$2
-
-    if [ "$package_name" = "opencode-ai" ]; then
-        print_status $BLUE "Updating $display_name..."
-        if opencode upgrade --method curl >/dev/null 2>&1; then
-            local new_version=$(get_installed_version "$package_name")
-            print_status $GREEN "✅ $display_name updated to version $new_version"
-        else
-            print_status $RED "❌ Failed to update $display_name via opencode upgrade"
-            return 1
-        fi
-        return 0
-    fi
 
     print_status $BLUE "Updating $display_name..."
     if perform_install "$package_name" "$display_name" "@latest"; then
@@ -147,22 +119,12 @@ check_and_update() {
     # Check if binary exists
     if ! command -v "$binary_name" &> /dev/null; then
         print_status $YELLOW "📦 $display_name not found. Installing..."
-        if [ "$package_name" = "opencode-ai" ]; then
-            if curl -fsSL https://cli.opencode.ai/install.sh | sh; then
-                local new_version=$(get_installed_version "$package_name")
-                print_status $GREEN "✅ $display_name installed successfully (version $new_version)"
-            else
-                print_status $RED "❌ Failed to install $display_name via install.sh"
-                return 1
-            fi
+        if perform_install "$package_name" "$display_name" ""; then
+            local new_version=$(get_installed_version "$package_name")
+            print_status $GREEN "✅ $display_name installed successfully (version $new_version)"
         else
-            if perform_install "$package_name" "$display_name" ""; then
-                local new_version=$(get_installed_version "$package_name")
-                print_status $GREEN "✅ $display_name installed successfully (version $new_version)"
-            else
-                print_status $RED "❌ Failed to install $display_name"
-                return 1
-            fi
+            print_status $RED "❌ Failed to install $display_name"
+            return 1
         fi
         echo
         return 0
@@ -206,10 +168,10 @@ CLI_AGENTS=(
     "@openai/codex|OpenAI Codex CLI|codex"
     "@anthropic-ai/claude-code|Claude Code|claude"
     "@sourcegraph/amp|Amp|amp"
-    "opencode-ai|OpenCode|opencode"
     "@github/copilot|GitHub Copilot CLI|copilot"
     "@qwen-code/qwen-code|Qwen CLI|qwen"
 )
+# Note: OpenCode (opencode-ai) excluded - use `opencode upgrade` for updates
 
 # Arrays to track agents needing updates and their PIDs
 declare -a agents_to_update=()
