@@ -11,7 +11,6 @@ REPOS_DIR="$SCRIPT_DIR/.repos"
 
 # Target directories for each agent
 CLAUDE_SKILLS="$HOME/.claude/skills"
-CODEX_SKILLS="$HOME/.codex/skills"
 PI_SKILLS="$HOME/.pi/agent/skills"
 
 # Colors for output
@@ -316,7 +315,6 @@ main() {
     
     # Sync to each agent
     sync_to_target "$CLAUDE_SKILLS" "Claude Code" "${skills_array[@]}"
-    copy_to_target "$CODEX_SKILLS" "Codex" "${skills_array[@]}"  # Codex doesn't support symlinks
     sync_to_target "$PI_SKILLS" "Pi" "${skills_array[@]}"
     
     echo ""
