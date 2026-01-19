@@ -4,3 +4,4 @@ speech/.venv/
 speech/__pycache__/
 speech/*.pyc
 speech/.env
+scripts/browser

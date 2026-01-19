@@ -504,4 +504,11 @@ defaults write com.apple.ActivityMonitor NetworkGraphType -int 1
 # 6: CPU History
 # defaults write com.apple.ActivityMonitor IconType -int 0
 
+###############################################################################
+# Build Local Tools                                                           #
+###############################################################################
+
+# Build browser switcher
+swiftc -O ~/.dotfiles/scripts/browser.swift -o ~/.dotfiles/scripts/browser
+
 echo "Done. Note that some of these changes require a logout/restart to take effect."
