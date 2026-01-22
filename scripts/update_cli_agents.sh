@@ -166,12 +166,12 @@ echo
 CLI_AGENTS=(
     "@mariozechner/pi-coding-agent|Pi Coding Agent|pi"
     "@openai/codex|OpenAI Codex CLI|codex"
-    "@anthropic-ai/claude-code|Claude Code|claude"
     "@sourcegraph/amp|Amp|amp"
     "@github/copilot|GitHub Copilot CLI|copilot"
     "@qwen-code/qwen-code|Qwen CLI|qwen"
 )
 # Note: OpenCode (opencode-ai) excluded - use `opencode upgrade` for updates
+# Note: Claude Code excluded - uses native installer, update via `claude update`
 
 # Arrays to track agents needing updates and their PIDs
 declare -a agents_to_update=()
