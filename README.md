@@ -17,8 +17,6 @@ ln -s ~/.dotfiles/shell/.zshrc ~/.zshrc
 ln -s ~/.dotfiles/shell/.zsh_exports ~/.zsh_exports
 ln -s ~/.dotfiles/shell/.zsh_functions ~/.zsh_functions
 ln -s ~/.dotfiles/shell/.aliases ~/.aliases
-ln -s ~/.dotfiles/shell/.exports ~/.exports
-ln -s ~/.dotfiles/shell/.functions ~/.functions
 
 # Git configuration
 ln -s ~/.dotfiles/git/.gitconfig ~/.gitconfig
@@ -26,47 +24,35 @@ ln -s ~/.dotfiles/git/.gitattributes ~/.gitattributes
 ln -s ~/.dotfiles/git/.gitignore_global ~/.gitignore_global
 
 # Zed configuration
+mkdir -p ~/.config/zed/themes
 ln -s ~/.dotfiles/zed/settings.json ~/.config/zed/settings.json
-ln -s ~/.dotfiles/zed/theme.json ~/.config/zed/themes/Casablanca.json
-
-# Claude Code configuration
-mkdir -p ~/.claude
-ln -s ~/.dotfiles/agents/claude-code/settings.json ~/.claude/settings.json
-ln -s ~/.dotfiles/agents/claude-code/settings.local.json ~/.claude/settings.local.json
-ln -s ~/.dotfiles/agents/claude-code/mcp_servers.json ~/.claude/mcp_servers.json
-ln -s ~/.dotfiles/agents/claude-code/CLAUDE.md ~/.claude/CLAUDE.md
-ln -s ~/.dotfiles/agents/claude-code/commands ~/.claude/commands
-ln -s ~/.dotfiles/agents/claude-code/agents ~/.claude/agents
-
-# Codex configuration
-mkdir -p ~/.codex
-ln -s ~/.dotfiles/agents/codex/AGENTS.md ~/.codex/AGENTS.md
-ln -s ~/.dotfiles/agents/codex/prompts ~/.codex/prompts
+ln -s ~/.dotfiles/zed/themes/Casablanca.json ~/.config/zed/themes/Casablanca.json
+ln -s ~/.dotfiles/zed/themes/NeoSolarized.json ~/.config/zed/themes/NeoSolarized.json
+ln -s ~/.dotfiles/zed/themes/Github\ Theme.json ~/.config/zed/themes/Github\ Theme.json
+ln -s ~/.dotfiles/zed/themes/macOS\ Classic.json ~/.config/zed/themes/macOS\ Classic.json
 
 # Ghostty configuration
 mkdir -p ~/.config/ghostty
 ln -s ~/.dotfiles/ghostty/ghostty.conf ~/.config/ghostty/config
-
-# Pi configuration
-mkdir -p ~/.pi/agent/hooks
-ln -s ~/.dotfiles/agents/pi/AGENTS.md ~/.pi/agent/AGENTS.md
-ln -s ~/.dotfiles/agents/pi/commands ~/.pi/agent/commands
-ln -s ~/.dotfiles/agents/pi/hooks/bash-history.ts ~/.pi/agent/hooks/bash-history.ts
-ln -s ~/.dotfiles/agents/pi/hooks/completion-sound.ts ~/.pi/agent/hooks/completion-sound.ts
-
-# Sync shared skills to all agents (Claude Code, Codex, Pi)
-~/.dotfiles/agents/skills/sync.sh
 
 # Other dotfiles
 ln -s ~/.dotfiles/.hushlogin ~/.hushlogin
 ln -s ~/.dotfiles/.vimrc ~/.vimrc
 ```
 
+Or use the Makefile:
+
+```bash
+make install          # Install all configurations
+make setup-macos      # Run macOS defaults setup
+make brew-install     # Install Homebrew packages
+```
+
 Setup for multiple git identities is also described [here](https://garrit.xyz/posts/2023-10-13-organizing-multiple-git-identities).
 
 ### Fonts
 
-* Jetbrains Mono
+* JetBrains Mono
 
 ### Others
 

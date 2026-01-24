@@ -1,6 +1,6 @@
-.PHONY: install install-zsh install-zed install-claude-code install-scripts install-githooks install-misc install-scripts-bin backup-existing restore-backup clean
+.PHONY: install install-zsh install-zed install-ghostty install-githooks install-misc install-scripts-bin backup-existing restore-backup clean
 
-install: install-zsh install-zed install-claude-code install-scripts install-githooks install-misc
+install: install-zsh install-zed install-ghostty install-githooks install-misc
 
 backup-existing:
 	@echo "Creating backups of existing dotfiles..."
@@ -25,13 +25,10 @@ install-zed:
 	@ln -sf ~/.dotfiles/zed/themes/Github\ Theme.json ~/.config/zed/themes/Github\ Theme.json
 	@ln -sf ~/.dotfiles/zed/themes/macOS\ Classic.json ~/.config/zed/themes/macOS\ Classic.json
 
-install-claude-code:
-	@echo "Installing Claude Code commands..."
-	@mkdir -p ~/.claude/commands
-	@ln -sf ~/.dotfiles/claude-code/commands/* ~/.claude/commands/
-	@echo "Installing Claude Code agents..."
-	@mkdir -p ~/.claude/agents
-	@ln -sf ~/.dotfiles/claude-code/agents/* ~/.claude/agents/
+install-ghostty:
+	@echo "Installing Ghostty configuration..."
+	@mkdir -p ~/.config/ghostty
+	@ln -sf ~/.dotfiles/ghostty/ghostty.conf ~/.config/ghostty/config
 
 install-githooks:
 	@echo "Installing global git hooks..."
@@ -55,9 +52,7 @@ clean:
 	@rm -f ~/.zshrc ~/.zsh_exports ~/.zsh_functions ~/.aliases
 	@rm -f ~/.vimrc ~/.hushlogin
 	@rm -f ~/.config/zed/settings.json ~/.config/zed/themes/Casablanca.json ~/.config/zed/themes/NeoSolarized.json ~/.config/zed/themes/Github\ Theme.json ~/.config/zed/themes/macOS\ Classic.json
-	@rm -f ~/.claude/commands/*
-	@rm -f ~/.claude/agents/*
-	@rm -f ~/bin/curltime
+	@rm -f ~/.config/ghostty/config
 	@echo "Use 'make restore-backup' to restore original files"
 
 uninstall: clean restore-backup
