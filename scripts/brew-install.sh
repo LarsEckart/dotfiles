@@ -73,7 +73,7 @@ brew install actionlint
 brew install uv
 brew install n  # Node.js version manager (simpler alternative to nvm)
 
-brew tap tobi/try
+brew tap tobi/try https://github.com/tobi/try
 brew install try
 
 brew install go
