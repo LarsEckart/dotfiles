@@ -71,6 +71,7 @@ brew tap "rhysd/actionlint" "https://github.com/rhysd/actionlint"
 brew install actionlint
 
 brew install uv
+brew install n  # Node.js version manager (simpler alternative to nvm)
 
 brew tap tobi/try
 brew install try
