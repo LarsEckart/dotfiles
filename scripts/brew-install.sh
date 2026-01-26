@@ -78,6 +78,9 @@ brew install try
 
 brew install go
 
+brew install xcodegen
+brew install swift-format
+
 # Apps
 
 # brew install --cask rectangle
