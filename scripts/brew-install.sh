@@ -46,11 +46,7 @@ brew install fzf
 brew install yq
 brew install poppler  # PDF tools (pdftotext, pdfinfo, etc.)
 
-
-
 brew install remotemobprogramming/brew/mob
-
-
 
 brew install ffmpeg
 brew install yt-dlp  # Video downloader (YouTube, Twitter, etc.)
@@ -62,8 +58,6 @@ brew install rbenv
 
 # https://github.com/chadgeary/cloudblock/blob/master/oci/README.md
 brew install terraform git oci-cli
-
-
 
 brew install tmux
 
@@ -81,6 +75,8 @@ brew install golangci-lint
 
 brew install xcodegen
 brew install swift-format
+
+brew install xcbeautify
 
 # Apps
 
