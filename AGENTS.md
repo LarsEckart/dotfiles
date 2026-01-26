@@ -23,7 +23,7 @@ Personal dotfiles repository for macOS, organized into logical folders:
 
 ### shell/
 ZSH-only configuration (bash removed):
-- `.zshrc` - Main config, sources other files, lazy-loads nvm/rbenv
+- `.zshrc` - Main config, sources other files, lazy-loads rbenv
 - `.zshenv` - Environment setup for GUI apps
 - `.zsh_exports` - Environment variables, history config, PATH setup
 - `.zsh_functions` - Custom functions (git helpers, docker cleanup, text-to-speech)
@@ -106,7 +106,6 @@ Automatic identity switching based on directory:
 
 ### Lazy Loading
 Shell startup optimized with lazy loading for:
-- nvm (Node.js)
 - rbenv (Ruby)
 - Angular CLI completions
 

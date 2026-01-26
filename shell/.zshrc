@@ -36,37 +36,6 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 # Add tab completion for SSH hostnames based on ~/.ssh/config, ignoring wildcards
 [ -e "$HOME/.ssh/config" ] && _ssh_config=($(cat ~/.ssh/config | sed -ne 's/Host[=\t ]//p' | grep -v '[?*]')) && zstyle ':completion:*:*:ssh:*:hosts' hosts $_ssh_config
 
-# source nvm (lazy loaded for faster shell startup)
-export NVM_DIR="$HOME/.nvm"
-# Add default Node's bin to PATH so global packages work before nvm loads
-if [[ -f "$NVM_DIR/alias/default" ]]; then
-    _nvm_default=$(command cat "$NVM_DIR/alias/default")
-    _nvm_node_path=$(command ls -d "$NVM_DIR/versions/node/v${_nvm_default}"* 2>/dev/null | command tail -1)
-    [[ -d "$_nvm_node_path" ]] && export PATH="$_nvm_node_path/bin:$PATH"
-    unset _nvm_default _nvm_node_path
-fi
-nvm() {
-    unset -f nvm node npm npx
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-    nvm "$@"
-}
-node() {
-    unset -f nvm node npm npx
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    node "$@"
-}
-npm() {
-    unset -f nvm node npm npx
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    npm "$@"
-}
-npx() {
-    unset -f nvm node npm npx
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    npx "$@"
-}
-
 # Add rbenv to PATH (lazy loaded)
 export PATH="$HOME/.rbenv/bin:$PATH"
 rbenv() {
@@ -103,7 +72,7 @@ export PATH
 HEROKU_AC_ZSH_SETUP_PATH=/Users/lars/Library/Caches/heroku/autocomplete/zsh_setup && test -f $HEROKU_AC_ZSH_SETUP_PATH && source $HEROKU_AC_ZSH_SETUP_PATH;
 
 # Cargo environment
-. "$HOME/.cargo/env"
+[[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
 
 
 # Load Angular CLI autocompletion (lazy loaded)

@@ -71,16 +71,6 @@ perform_install() {
     return 1
 }
 
-# Ensure we run with the user's preferred Node (via nvm) when available.
-if [ -z "${NVM_DIR:-}" ] && [ -d "$HOME/.nvm" ]; then
-    export NVM_DIR="$HOME/.nvm"
-fi
-if [ -n "${NVM_DIR:-}" ] && [ -s "$NVM_DIR/nvm.sh" ]; then
-    # shellcheck disable=SC1090
-    . "$NVM_DIR/nvm.sh"
-    nvm use --lts >/dev/null 2>&1 || print_status $YELLOW "⚠️ nvm failed to switch Node version; continuing with system Node"
-fi
-
 # Function to get installed version of npm package
 get_installed_version() {
     local package_name=$1
