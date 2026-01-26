@@ -77,6 +77,7 @@ brew tap tobi/try https://github.com/tobi/try
 brew install try
 
 brew install go
+brew install golangci-lint
 
 brew install xcodegen
 brew install swift-format
