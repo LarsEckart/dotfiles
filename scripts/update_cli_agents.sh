@@ -158,7 +158,6 @@ CLI_AGENTS=(
     "@openai/codex|OpenAI Codex CLI|codex"
     "@sourcegraph/amp|Amp|amp"
     "@github/copilot|GitHub Copilot CLI|copilot"
-    "@qwen-code/qwen-code|Qwen CLI|qwen"
 )
 # Note: OpenCode (opencode-ai) excluded - use `opencode upgrade` for updates
 # Note: Claude Code excluded - uses native installer, update via `claude update`
