@@ -3,8 +3,8 @@
 # Mark that .zshrc has been loaded to prevent double-loading
 export ZSH_PROFILE_LOADED=1
 
-# Add `~/bin` to the `$PATH`
-export PATH="$HOME/bin:$PATH";
+# Add `~/bin` and `~/go/bin` to the `$PATH`
+export PATH="$HOME/bin:$HOME/go/bin:$PATH";
 
 # Load the shell dotfiles, and then some:
 # * ~/.path can be used to extend `$PATH`.

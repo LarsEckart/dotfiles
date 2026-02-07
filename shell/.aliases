@@ -88,6 +88,7 @@ alias gcr=rename_last_commit
 # Claude Code in dangerous mode
 alias ccd='claude --dangerously-skip-permissions'
 alias cdx='codex --dangerously-bypass-approvals-and-sandbox'
+alias amp='amp --dangerously-allow-all'
 alias gemi='gemini -y'
 alias copi='copilot --allow-all-tools'
 
