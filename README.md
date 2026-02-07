@@ -35,6 +35,10 @@ ln -s ~/.dotfiles/zed/themes/macOS\ Classic.json ~/.config/zed/themes/macOS\ Cla
 mkdir -p ~/.config/ghostty
 ln -s ~/.dotfiles/ghostty/ghostty.conf ~/.config/ghostty/config
 
+# tmux configuration
+mkdir -p ~/.config/tmux
+ln -s ~/.dotfiles/tmux/tmux.conf ~/.config/tmux/tmux.conf
+
 # Other dotfiles
 ln -s ~/.dotfiles/.hushlogin ~/.hushlogin
 ln -s ~/.dotfiles/.vimrc ~/.vimrc
