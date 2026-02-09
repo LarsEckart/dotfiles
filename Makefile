@@ -1,6 +1,6 @@
-.PHONY: install install-zsh install-zed install-ghostty install-tmux install-githooks install-misc install-scripts-bin backup-existing restore-backup clean
+.PHONY: install install-zsh install-zed install-ghostty install-tmux install-starship install-githooks install-misc install-scripts-bin backup-existing restore-backup clean
 
-install: install-zsh install-zed install-ghostty install-tmux install-githooks install-misc
+install: install-zsh install-zed install-ghostty install-tmux install-starship install-githooks install-misc
 
 backup-existing:
 	@echo "Creating backups of existing dotfiles..."
@@ -35,6 +35,11 @@ install-tmux:
 	@mkdir -p ~/.config/tmux
 	@ln -sf ~/.dotfiles/tmux/tmux.conf ~/.config/tmux/tmux.conf
 
+install-starship:
+	@echo "Installing Starship configuration..."
+	@mkdir -p ~/.config
+	@ln -sf ~/.dotfiles/starship/starship.toml ~/.config/starship.toml
+
 install-githooks:
 	@echo "Installing global git hooks..."
 	@chmod +x ~/.dotfiles/githooks/*
@@ -59,6 +64,7 @@ clean:
 	@rm -f ~/.config/zed/settings.json ~/.config/zed/themes/Casablanca.json ~/.config/zed/themes/NeoSolarized.json ~/.config/zed/themes/Github\ Theme.json ~/.config/zed/themes/macOS\ Classic.json
 	@rm -f ~/.config/ghostty/config
 	@rm -f ~/.config/tmux/tmux.conf
+	@rm -f ~/.config/starship.toml
 	@echo "Use 'make restore-backup' to restore original files"
 
 uninstall: clean restore-backup
