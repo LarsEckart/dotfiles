@@ -88,6 +88,8 @@ export PATH=/Users/lars/.opencode/bin:$PATH
 # try - experiment manager (location set via TRY_PATH in .zsh_exports)
 eval "$(try init)"
 
+eval "$(mise activate zsh)"
+
 eval "$(starship init zsh)"
 
 # bun completions
