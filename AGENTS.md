@@ -41,7 +41,6 @@ Multi-identity git configuration:
 ### scripts/
 Utility scripts (added to PATH via `.zsh_exports`):
 - `mac-setup.sh` - macOS system defaults configuration
-- `brew-install.sh` / `brew-update.sh` - Homebrew package management
 - `curltime.sh` - HTTP timing diagnostics
 - `shoreman.sh` - Procfile process manager
 - `bumbailiff` - TODO debt tracker
@@ -90,7 +89,7 @@ make install-zsh      # Just shell config
 make install-zed      # Just Zed config
 make install-githooks # Just git hooks
 make setup-macos      # Run macOS defaults setup
-make brew-install     # Install Homebrew packages
+make brew-install     # Install Homebrew packages from Brewfile
 make clean            # Remove symlinks
 make uninstall        # Clean and restore backups
 ```

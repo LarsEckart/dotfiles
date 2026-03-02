@@ -4,6 +4,10 @@
 run_solo.sh
 *.iml
 
+# Python bytecode/cache
+__pycache__/
+*.pyc
+
 # Claude Code local settings
 .claude/
 copilot-instructions.md

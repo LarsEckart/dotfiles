@@ -2,7 +2,20 @@
 
 ### Installation
 
-Quick installation guide, backs up original dot files and stores them out of the way in a git ignored directory.
+#### Quick start (recommended)
+
+```bash
+git clone git@github.com:LarsEckart/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
+./install.sh
+```
+
+This bootstrap script is idempotent and will:
+- install Homebrew if needed
+- install/update packages from `Brewfile`
+- run `make install`
+
+#### Manual install
 
 ```bash
 git clone git@github.com:LarsEckart/dotfiles.git ~/.dotfiles
@@ -49,7 +62,7 @@ Or use the Makefile:
 ```bash
 make install          # Install all configurations
 make setup-macos      # Run macOS defaults setup
-make brew-install     # Install Homebrew packages
+make brew-install     # Install Homebrew packages from Brewfile
 ```
 
 Setup for multiple git identities is also described [here](https://garrit.xyz/posts/2023-10-13-organizing-multiple-git-identities).

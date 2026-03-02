@@ -1,4 +1,6 @@
-.PHONY: install install-zsh install-zed install-ghostty install-tmux install-starship install-githooks install-misc install-scripts-bin backup-existing restore-backup clean
+.PHONY: install install-zsh install-zed install-ghostty install-tmux install-starship install-githooks install-misc install-scripts-bin backup-existing restore-backup clean uninstall setup-macos brew-install brew-update
+DOTFILES_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+BREWFILE ?= $(DOTFILES_DIR)/Brewfile
 
 install: install-zsh install-zed install-ghostty install-tmux install-starship install-githooks install-misc
 
@@ -75,14 +77,14 @@ setup-macos:
 	@~/.dotfiles/scripts/mac-setup.sh
 
 brew-install:
-	@echo "Installing Homebrew packages..."
-	@chmod +x ~/.dotfiles/scripts/brew-install.sh
-	@~/.dotfiles/scripts/brew-install.sh
+	@echo "Installing Homebrew packages from Brewfile..."
+	@brew bundle --file "$(BREWFILE)"
 
 brew-update:
 	@echo "Updating Homebrew packages..."
-	@chmod +x ~/.dotfiles/scripts/brew-update.sh
-	@~/.dotfiles/scripts/brew-update.sh
+	@brew update
+	@brew upgrade
+	@brew cleanup
 
 install-scripts-bin:
 	@echo "Installing scripts to /usr/local/bin..."
