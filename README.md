@@ -15,6 +15,8 @@ This bootstrap script is idempotent and will:
 - install/update packages from `Brewfile`
 - run `make install`
 
+For a full new-machine checklist, see [SETUP.md](./SETUP.md).
+
 #### Manual install
 
 ```bash
