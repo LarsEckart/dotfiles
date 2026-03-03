@@ -2,6 +2,11 @@
 
 # moved to scripts/: red revpr jd ups pk down
 
+# Reload current shell config (must be a function to affect current shell)
+reload() {
+	source ~/.zshrc
+}
+
 # Create a new directory and enter it
 mkd() {
 	mkdir -p "$@" && cd "$_";
