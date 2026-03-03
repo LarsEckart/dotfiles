@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
+# Reset git working tree and remove untracked files.
+
 set -euo pipefail
 
 git reset --hard HEAD
 git clean -df
+

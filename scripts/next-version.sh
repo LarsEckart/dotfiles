@@ -1,4 +1,5 @@
 #!/bin/bash
+# Calculate the next semantic version from the latest git tag.
 
 # Script to determine next semantic version based on git tags
 # Usage: ./next-version.sh <major|minor|patch>
@@ -66,3 +67,4 @@ esac
 
 # Output the new version
 echo "${MAJOR}.${MINOR}.${PATCH}"
+

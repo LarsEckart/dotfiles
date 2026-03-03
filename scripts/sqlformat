@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Format SQL using the sqlformat.org API.
+
 set -euo pipefail
 
 curl -s --location --request POST 'https://sqlformat.org/api/v1/format' \
@@ -8,3 +10,4 @@ curl -s --location --request POST 'https://sqlformat.org/api/v1/format' \
   --data-urlencode 'keyword_case=upper' \
   --data-urlencode 'strip_comments=1' \
   --data-urlencode "sql=$1" | jq -r '.result'
+

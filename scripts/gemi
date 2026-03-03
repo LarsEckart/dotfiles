@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Run Gemini CLI with auto-approve enabled.
+
 set -euo pipefail
 
 exec gemini -y "$@"
+

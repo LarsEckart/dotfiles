@@ -1,4 +1,6 @@
 #!/bin/bash
+# Fetch upstream, merge into current branch, and push to origin.
+
 # Fetch upstream and fast-forward current branch, then push to origin
 # Usage: git-sync-upstream.sh [upstream-remote-name]
 #
@@ -27,3 +29,4 @@ echo "Pushing to origin..."
 git push origin "$BRANCH"
 
 echo "Done."
+

@@ -1,4 +1,6 @@
 #!/bin/bash
+# Run Procfile processes with logging and lifecycle management.
+
 # [shoreman](https://github.com/chrismytton/shoreman) is an
 # implementation of the **Procfile** format. Inspired by the original
 # [foreman](http://ddollar.github.com/foreman/) tool for ruby.
@@ -157,3 +159,4 @@ main() {
 }
 
 main "$@"
+

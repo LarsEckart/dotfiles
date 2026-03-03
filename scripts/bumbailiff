@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Fail when TODO comments exceed the configured age budget.
+
 #
 # The bumbailiff allows the team to take up a small amount of technical debt
 # (TODOs in the code) for a limited period. After that period the script fails.
@@ -98,3 +100,4 @@ fi
 
 echo -e "${icon}${color}${total_days} TODO-days accumulated (max allowance: ${MAX_AGE} 💵).${NC}"
 exit ${status}
+

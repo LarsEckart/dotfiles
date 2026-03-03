@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Mute macOS system output volume.
+
 set -euo pipefail
 
 osascript -e 'set volume output muted true'
+

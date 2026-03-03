@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Mark node_modules folders to be excluded from Spotlight indexing.
+
 set -euo pipefail
 
 find . -type d -name "node_modules" -exec touch "{}/.metadata_never_index" \;
+

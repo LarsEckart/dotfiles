@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Summarize content in markdown mode for LLM consumption.
+
 set -euo pipefail
 
 exec summarize --format md --markdown-mode llm "$@"
+

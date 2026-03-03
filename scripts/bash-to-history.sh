@@ -1,4 +1,6 @@
 #!/bin/bash
+# Append AI agent Bash commands to shell history from JSON hook input.
+
 #
 # Adds bash commands from AI coding agents to shell history.
 # Used as a PostToolUse hook for Claude Code.
@@ -38,3 +40,4 @@ else
 fi
 
 exit 0
+

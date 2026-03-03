@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Delete local git branches that are already merged.
+
 set -euo pipefail
 
 git branch --merged \
@@ -7,3 +9,4 @@ git branch --merged \
   | while read -r branch; do
       [[ -n "$branch" ]] && git branch -d "$branch"
     done
+

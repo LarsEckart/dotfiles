@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Recursively delete .DS_Store files from the current directory.
+
 set -euo pipefail
 
 find . -type f -name '*.DS_Store' -ls -delete
+

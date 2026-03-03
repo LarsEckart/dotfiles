@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Show a recursive directory tree using ls, grep, and sed.
+
 set -euo pipefail
 
 ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/' | less
+

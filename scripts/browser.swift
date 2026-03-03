@@ -1,4 +1,5 @@
 #!/usr/bin/env swift
+// Toggle the default browser between Firefox and Chrome on macOS.
 
 // Toggle default browser between Firefox and Chrome
 // Compile: swiftc -O browser.swift -o browser
@@ -39,3 +40,4 @@ for _ in 0..<300 {
         exit(0)
     }
 }
+

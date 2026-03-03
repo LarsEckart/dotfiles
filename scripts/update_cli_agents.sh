@@ -1,4 +1,5 @@
 #!/bin/bash
+# Check and update configured AI CLI tools installed via npm.
 
 # update_cli_agents.sh
 # Script to update CLI agents and check for new versions
@@ -283,3 +284,4 @@ for output_file in "${output_files[@]}"; do
 done
 
 print_status $GREEN "🎉 CLI agent updates complete!"
+

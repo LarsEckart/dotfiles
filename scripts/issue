@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Create a GitHub issue through Claude Code issue mode.
+
 set -euo pipefail
 
 exec ccd "/issue $*"
+

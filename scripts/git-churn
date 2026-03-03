@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Show file churn counts across git history.
+
 set -euo pipefail
 
 git log --all -M -C --name-only --format='format:' "$@" \
@@ -7,3 +9,4 @@ git log --all -M -C --name-only --format='format:' "$@" \
   | uniq -c \
   | sort -n \
   | awk 'BEGIN {print "count\tfile"} {print $1 "\t" $2}'
+

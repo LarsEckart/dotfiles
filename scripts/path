@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Print each PATH entry on its own line.
+
 set -euo pipefail
 
 tr ':' '\n' <<<"$PATH"
+

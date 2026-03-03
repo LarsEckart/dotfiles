@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
+# Empty macOS trash folders and clear related system log and quarantine data.
+
 set -euo pipefail
 
 sudo rm -rfv /Volumes/*/.Trashes
 sudo rm -rfv ~/.Trash
 sudo rm -rfv /private/var/log/asl/*.asl 2>/dev/null || true
 sqlite3 "$HOME"/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'
+

@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Open the Java API docs search page for the given query.
+
 set -euo pipefail
 
 open "https://docs.oracle.com/en/java/javase/21/docs/api/search.html?q=$*"
+

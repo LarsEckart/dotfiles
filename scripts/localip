@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Print the local IP address for interface en0.
+
 set -euo pipefail
 
 exec ipconfig getifaddr en0
+

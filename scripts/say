@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Run macOS say with the Zoe voice.
+
 set -euo pipefail
 
 exec /usr/bin/say -v Zoe "$@"
+

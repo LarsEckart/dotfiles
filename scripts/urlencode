@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# URL-encode input text using Python 3.
+
 set -euo pipefail
 
 if [[ $# -eq 0 ]]; then
@@ -7,3 +9,4 @@ if [[ $# -eq 0 ]]; then
 fi
 
 python3 -c 'import sys, urllib.parse; print(urllib.parse.quote_plus(" ".join(sys.argv[1:])))' "$@"
+

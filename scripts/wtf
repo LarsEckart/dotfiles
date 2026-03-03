@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
+# Show which process is using a TCP port.
+
 set -euo pipefail
 
 port="${1:-8080}"
 lsof -i "tcp:$port"
+

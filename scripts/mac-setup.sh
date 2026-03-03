@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Apply macOS defaults and system preferences for the main machine setup.
 
 # go through https://registerspill.thorstenball.com/p/new-year-new-job-new-machine and update this script
 
@@ -512,3 +513,4 @@ defaults write com.apple.ActivityMonitor NetworkGraphType -int 1
 swiftc -O ~/.dotfiles/scripts/browser.swift -o ~/.dotfiles/scripts/browser
 
 echo "Done. Note that some of these changes require a logout/restart to take effect."
+

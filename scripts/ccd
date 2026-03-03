@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Run Claude Code with dangerously skipped permissions.
+
 set -euo pipefail
 
 exec claude --dangerously-skip-permissions "$@"
+

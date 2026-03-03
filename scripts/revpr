@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
+# Check out a PR and reset against master for review.
+
 set -euo pipefail
 
 gh pr checkout "$1"
 git reset --mixed master
+

@@ -1,4 +1,5 @@
 #!/bin/bash
+# Show a macOS notification from a title:message argument.
 
 # Require argument in format "title:message"
 if [ $# -eq 0 ]; then
@@ -19,3 +20,4 @@ TITLE="${INPUT%%:*}"
 MESSAGE="${INPUT#*:}"
 
 osascript -e "display notification \"$MESSAGE\" with title \"$TITLE\""
+

@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Show active network interfaces on macOS.
+
 set -euo pipefail
 
 ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*status: active'
+

@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Set macOS output volume to 100 percent.
+
 set -euo pipefail
 
 osascript -e 'set volume output volume 100'
+

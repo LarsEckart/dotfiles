@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Open /etc/hosts with sudo using the configured editor.
+
 set -euo pipefail
 
 exec sudo "${EDITOR:-vim}" /etc/hosts
+

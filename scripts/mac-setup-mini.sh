@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Apply macOS defaults and system preferences for the Mac Mini setup.
 
 # Mac Mini specific setup script
 # Based on mac-setup.sh but tailored for desktop use
@@ -392,3 +393,4 @@ defaults write com.apple.ActivityMonitor NetworkGraphType -int 1
 
 
 echo "Done. Note that some of these changes require a logout/restart to take effect."
+

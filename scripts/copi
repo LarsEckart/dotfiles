@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Run GitHub Copilot CLI with all tools allowed.
+
 set -euo pipefail
 
 exec copilot --allow-all-tools "$@"
+

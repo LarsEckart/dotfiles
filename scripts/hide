@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
+# Hide hidden files in Finder and restart Finder.
+
 set -euo pipefail
 
 defaults write com.apple.finder AppleShowAllFiles -bool false
 killall Finder
+

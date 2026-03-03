@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Kill the process listening on the given TCP port.
+
 set -euo pipefail
 
 lsof -i ":$1" -s TCP:LISTEN -t | xargs kill
+

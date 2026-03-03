@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Run a Gemini web search prompt and summarize results.
+
 set -euo pipefail
 
 exec gemini -p "Use google_web_search, search for <query>$1</query> and summarize  results"
+

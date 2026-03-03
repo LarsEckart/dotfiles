@@ -1,4 +1,5 @@
 #!/bin/bash
+# Print curl timing breakdown metrics for a request.
 
 curl -w @- -o /dev/null -s "$@" <<'EOF'
     time_namelookup:  %{time_namelookup}\n
@@ -10,3 +11,4 @@ curl -w @- -o /dev/null -s "$@" <<'EOF'
                     ----------\n
          time_total:  %{time_total}\n
 EOF
+

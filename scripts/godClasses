@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# List the largest Java files by line count.
+
 set -euo pipefail
 
 find . -name "*.java" | xargs wc -l | sort -rn | head
+
