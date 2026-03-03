@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+gh pr checkout "$1"
+git reset --mixed master

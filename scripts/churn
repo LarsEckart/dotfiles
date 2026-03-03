@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+git log --format=format: --name-only --since=12.month \
+ | grep -E -v '^$' \
+ | sort \
+ | uniq -c \
+ | sort -r \
+ | head -50

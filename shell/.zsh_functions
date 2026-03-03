@@ -1,36 +1,6 @@
 #!/usr/bin/env zsh
 
-# -d for recursive removing untracked files -f force, delete directories
-red() {
-	git reset --hard HEAD
-	git clean -df
-}
-
-# "check out a given PR for review"
-revpr() {
-  gh pr checkout $1
-  git reset --mixed master
-}
-
-jd() {
-	open "https://docs.oracle.com/en/java/javase/21/docs/api/search.html?q=$*"
-}
-
-ups() {
-	git remote add upstream $@
-	git fetch upstream
-	git pull upstream/main
-	git push
-}
-
-pk() {
-	lsof -i :"$1" -s TCP:LISTEN -t | xargs kill
-}
-
-# curl every second with timeout for downtime checks during deploy
-down() {
-	while true ; do time curl --connect-timeout 1 https://micronaut.herokuapp.com/health ; sleep 1 ; done
-}
+# moved to scripts/: red revpr jd ups pk down
 
 # Create a new directory and enter it
 mkd() {
@@ -42,37 +12,7 @@ top5() {
 	fc -l 1 | awk '{CMD[$2]++;count++;}END { for (a in CMD)print CMD[a] " " CMD[a]/count*100 "% " a;}' | grep -v "./" | column -c3 -s " " -t | sort -nr | nl |  head -n5
 }
 
-#  git log is the git command to get logs data
-#        --format=format: to remove all fancy formatting
-#        --name-only because we only care about file names
-#        --since=12.month is quite explicit
-#    egrep -v '^$' removes all empty lines from the output
-#    sort to sort file names alphabetically
-#    uniq -c to count individual file names occurrences
-#    sort -r to sort the result in descending order
-#    head -50 to keep the 50 most changed files only
-churn() {
-	git log --format=format: --name-only --since=12.month \
- | grep -E -v '^$' \
- | sort \
- | uniq -c \
- | sort -r \
- | head -50
-}
-
-# git-churn --since='3 months ago' <core_of_the_app> | tail -10
-git-churn() {
-	git log --all -M -C --name-only --format='format:' "$@" \
-  | sort \
-  | grep -v '^$' \
-  | uniq -c \
-  | sort -n \
-  | awk 'BEGIN {print "count\tfile"} {print $1 "\t" $2}'
-}
-
-godClasses() {
-    find . -name "*.java" | xargs wc -l | sort -rn | head
-}
+# moved to scripts/: churn git-churn godClasses
 
 # Change working directory to the top-most Finder window location
 cdf() { # short for `cdfinder`
@@ -236,18 +176,7 @@ tre() {
 	tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX;
 }
 
-# docker functions
-dcleanup(){
-	local containers
-	containers=($(docker ps -aq 2>/dev/null))
-	[[ ${#containers[@]} -gt 0 ]] && docker rm "${containers[@]}" 2>/dev/null
-	local volumes
-	volumes=($(docker ps --filter status=exited -q 2>/dev/null))
-	[[ ${#volumes[@]} -gt 0 ]] && docker rm -v "${volumes[@]}" 2>/dev/null
-	local images
-	images=($(docker images --filter dangling=true -q 2>/dev/null))
-	[[ ${#images[@]} -gt 0 ]] && docker rmi "${images[@]}" 2>/dev/null
-}
+# moved to scripts/: dcleanup sqlformat
 
 rename_last_commit(){
 	git commit --amend -m "$1"
@@ -259,17 +188,6 @@ gcr() {
 
 howManyJava(){
 	gw -q javaToolChains
-}
-
-# https://sqlformat.org/api/
-sqlformat(){
-	curl -s --location --request POST 'https://sqlformat.org/api/v1/format' \
-	--header 'Content-Type: application/x-www-form-urlencoded' \
-	--data-urlencode 'reindent=1' \
-	--data-urlencode 'indent_width=3' \
-	--data-urlencode 'keyword_case=upper' \
-	--data-urlencode 'strip_comments=1' \
-	--data-urlencode "sql=$1" | jq -r '.result'
 }
 
 #
@@ -345,41 +263,4 @@ print -P "💵  ${color}${total_days} TODO-days accumulated. Max allowance is ${
 # exit ${status}
 }
 
-# Create a Procfile and copy shoreman.sh for process management
-proc() {
-    # Copy template files
-    cp ~/.dotfiles/templates/proc/Procfile.template ./Procfile
-    cp ~/.dotfiles/templates/proc/.env.template ./.env
-    cp ~/.dotfiles/templates/proc/Makefile.template ./Makefile
-
-    # Copy shoreman.sh from scripts directory
-    cp ~/.dotfiles/scripts/shoreman.sh .
-
-    echo "Created Procfile, .env, Makefile, and copied shoreman.sh"
-    echo "Run 'make dev' to start services, 'make stop' to stop, 'make logs' to view logs"
-}
-
-# Create GitHub issues using Claude Code
-# Usage: issue implement hello world in go
-issue () {
-  ccd "/issue $*"
-}
-
-google(){
-  gemini -p "Use google_web_search, search for <query>$1</query> and summarize  results"
-}
-
-# Text-to-speech using ElevenLabs
-speak() {
-  if [ $# -eq 0 ]; then
-    echo "Usage: speak \"your message here\""
-    return 1
-  fi
-  cd ~/.dotfiles/speech && uv run text_to_speech_eleven_labs.py "$1"
-}
-
-# Show what's using a port (defaults to 8080)
-wtf() {
-  local port="${1:-8080}"
-  lsof -i "tcp:$port"
-}
+# moved to scripts/: proc issue google speak wtf

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cp "$HOME/.dotfiles/templates/proc/Procfile.template" ./Procfile
+cp "$HOME/.dotfiles/templates/proc/.env.template" ./.env
+cp "$HOME/.dotfiles/templates/proc/Makefile.template" ./Makefile
+cp "$HOME/.dotfiles/scripts/shoreman.sh" .
+
+echo "Created Procfile, .env, Makefile, and copied shoreman.sh"
+echo "Run 'make dev' to start services, 'make stop' to stop, 'make logs' to view logs"

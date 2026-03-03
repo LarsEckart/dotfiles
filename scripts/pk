@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+lsof -i ":$1" -s TCP:LISTEN -t | xargs kill

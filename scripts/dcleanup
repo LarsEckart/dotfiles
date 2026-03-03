@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+containers=($(docker ps -aq 2>/dev/null))
+[[ ${#containers[@]} -gt 0 ]] && docker rm "${containers[@]}" 2>/dev/null
+
+volumes=($(docker ps --filter status=exited -q 2>/dev/null))
+[[ ${#volumes[@]} -gt 0 ]] && docker rm -v "${volumes[@]}" 2>/dev/null
+
+images=($(docker images --filter dangling=true -q 2>/dev/null))
+[[ ${#images[@]} -gt 0 ]] && docker rmi "${images[@]}" 2>/dev/null

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+git remote add upstream "$@"
+git fetch upstream
+git pull upstream/main
+git push
