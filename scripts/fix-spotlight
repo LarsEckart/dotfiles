@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+find . -type d -name "node_modules" -exec touch "{}/.metadata_never_index" \;

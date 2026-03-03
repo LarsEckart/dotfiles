@@ -30,42 +30,8 @@ alias sudo='sudo '
 # Get macOS Software Updates, and update installed Ruby gems, Homebrew, npm, and their installed packages
 # alias update='sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; npm install npm -g; npm update -g; sudo gem update --system; sudo gem update; sudo gem cleanup'
 
-# IP addresses
-alias localip="ipconfig getifaddr en0"
-
-# Show active network interfaces
-alias ifactive="ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*status: active'"
-
-# Recursively delete `.DS_Store` files
-alias cleanup="find . -type f -name '*.DS_Store' -ls -delete"
-
-# Empty the Trash on all mounted volumes and the main HDD.
-# Also, clear Apple’s System Logs to improve shell startup speed.
-# Finally, clear download history from quarantine. https://mths.be/bum
-alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* 'delete from LSQuarantineEvent'"
-
-# Show/hide hidden files in Finder
-alias show="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
-alias hide="defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder"
-
-# URL-encode strings
-alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1]);"'
-
-# Stuff I never really use but cannot delete either because of http://xkcd.com/530/
-alias stfu="osascript -e 'set volume output muted true'"
-alias pumpitup="osascript -e 'set volume output volume 100'"
-
-# Reload the shell (i.e. invoke as a login shell)
-alias reload="exec zsh"
-
-# Print each PATH entry on a separate line
-alias path='echo -e ${PATH//:/\\n}'
-
-# Full Recursive Directory Listing
-alias lr='ls -R | grep ":$" | sed -e '\''s/:$//'\'' -e '\''s/[^-][^\/]*\//--/g'\'' -e '\''s/^/   /'\'' -e '\''s/-/|/'\'' | less'
-
-# vhosts
-alias hosts='sudo vim /etc/hosts'
+# Commands moved to ~/.dotfiles/scripts to avoid alias overuse:
+# localip ifactive cleanup emptytrash show hide urlencode stfu pumpitup path lr hosts fix-spotlight gcl ccd cdx amp gemi copi say sume sum
 
 # copy file interactive
 alias cp='cp -i'
@@ -73,28 +39,6 @@ alias cp='cp -i'
 # move file interactive
 alias mv='mv -i'
 
-# do not index npm_modules foler with spotlight, https://github.com/yarnpkg/yarn/issues/6453
-alias fix-spotlight='find . -type d -name "node_modules" -exec touch "{}/.metadata_never_index" \;'
-
-# delete local branches (unless master/develop) that were merged
-alias gcl='git branch --merged | grep -E -v "(^\*|master|main|develop)" | xargs git branch -d'
-
 # git aliases
-
 alias gss='git status -s'
 alias gc='git clone'
-alias gcr=rename_last_commit
-
-# Claude Code in dangerous mode
-alias ccd='claude --dangerously-skip-permissions'
-alias cdx='codex --dangerously-bypass-approvals-and-sandbox'
-alias amp='amp --dangerously-allow-all'
-alias gemi='gemini -y'
-alias copi='copilot --allow-all-tools'
-
-# Use Zoe voice for text-to-speech by default
-alias say='say -v Zoe'
-
-# summarize aliases
-alias sume='summarize --extract --format md --markdown-mode llm'
-alias sum='summarize --format md --markdown-mode llm'

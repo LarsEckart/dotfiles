@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+git branch --merged \
+  | grep -E -v '(^\*|master|main|develop)' \
+  | awk '{print $1}' \
+  | while read -r branch; do
+      [[ -n "$branch" ]] && git branch -d "$branch"
+    done

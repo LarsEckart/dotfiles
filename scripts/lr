@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ls -R | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/' | less

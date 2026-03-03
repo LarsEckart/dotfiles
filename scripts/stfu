@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+osascript -e 'set volume output muted true'
