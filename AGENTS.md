@@ -108,7 +108,15 @@ Shell startup optimized with lazy loading for:
 - rbenv (Ruby)
 - Angular CLI completions
 
-### AI Tool Aliases
+### Alias Policy (Script-First)
+This repository follows a script-first command approach inspired by:
+https://evanhahn.com/why-alias-is-my-last-resort-for-aliases/
+
+Guideline:
+- Prefer executable commands in `scripts/` (on `PATH`) over shell `alias`
+- Use aliases/functions only when shell-specific behavior is required (e.g. `cd`, shell state mutation, completion quirks)
+
+### AI Tool Commands
 ```bash
 ccd   # Claude Code (dangerous mode)
 cdx   # Codex (bypass mode)
