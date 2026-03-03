@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Summarize content in markdown mode for LLM consumption.
+# Summarize content into a concise markdown overview.
 
 set -euo pipefail
 
