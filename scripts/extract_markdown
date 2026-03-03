@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Summarize and extract content into detailed markdown notes.
+# Extract content as markdown (no summary).
 
 set -euo pipefail
 

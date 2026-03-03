@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Summarize content into a concise markdown overview.
+# Summarize content into a concise overview.
 
 set -euo pipefail
 
-exec summarize --format md --markdown-mode llm "$@"
+exec summarize --length medium --plain --stream off "$@"
 
