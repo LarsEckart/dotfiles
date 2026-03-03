@@ -31,7 +31,7 @@ alias sudo='sudo '
 # alias update='sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; npm install npm -g; npm update -g; sudo gem update --system; sudo gem update; sudo gem cleanup'
 
 # Commands moved to ~/.dotfiles/scripts to avoid alias overuse:
-# localip ifactive cleanup emptytrash show hide urlencode stfu pumpitup path lr hosts fix-spotlight gcl ccd cdx amp gemi copi say sume sum
+# localip ifactive cleanup emptytrash show hide urlencode stfu pumpitup path lr hosts fix-spotlight gcl ccd cdx amp gemi copi sume sum
 
 # copy file interactive
 alias cp='cp -i'
