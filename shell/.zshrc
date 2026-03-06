@@ -98,3 +98,9 @@ eval "$(starship init zsh)"
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# Final PATH normalization for interactive shells
+path=(${(s/:/)PATH})
+path=(${path:#'~/.dotnet/tools'})
+typeset -U path
+export PATH="${(j/:/)path}"
