@@ -58,6 +58,7 @@ brew "go"
 brew "golangci-lint"
 brew "xcodegen"
 brew "swift-format"
+brew "swiftlint"
 brew "xcbeautify"
 
 # Utilities
