@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Copy stdin to the system clipboard, trimming one trailing newline.
+
+set -euo pipefail
+
+if command -v pbcopy >/dev/null 2>&1; then
+  clipboard_command='pbcopy'
+elif command -v xclip >/dev/null 2>&1; then
+  clipboard_command='xclip -selection clipboard'
+else
+  echo 'cannot find a copy program' >&2
+  exit 1
+fi
+
+exec perl -pe 'chomp if eof' | ${clipboard_command}

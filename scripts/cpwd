@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Copy the current working directory to the system clipboard.
+
+set -euo pipefail
+
+pwd | tr -d '\n' | copy
