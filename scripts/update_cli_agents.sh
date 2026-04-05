@@ -157,9 +157,9 @@ echo
 CLI_AGENTS=(
     "@mariozechner/pi-coding-agent|Pi Coding Agent|pi"
     "@openai/codex|OpenAI Codex CLI|codex"
-    "@sourcegraph/amp|Amp|amp"
     "@github/copilot|GitHub Copilot CLI|copilot"
 )
+# Note: Amp excluded - uses native installer
 # Note: OpenCode (opencode-ai) excluded - use `opencode upgrade` for updates
 # Note: Claude Code excluded - uses native installer, update via `claude update`
 
@@ -284,4 +284,3 @@ for output_file in "${output_files[@]}"; do
 done
 
 print_status $GREEN "🎉 CLI agent updates complete!"
-

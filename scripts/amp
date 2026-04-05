@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-# Run Amp CLI with dangerous allow-all permissions.
-
-set -euo pipefail
-
-exec amp --dangerously-allow-all "$@"
-
