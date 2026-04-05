@@ -1,0 +1,209 @@
+#!/bin/bash
+# Rebase all affected local branches onto the latest base branch.
+#
+# A branch is considered affected when it:
+#   1) contains the "bad" commit
+#   2) does not yet contain the "fix" commit
+#
+# Default mode is dry-run. Use --apply to actually rebase branches.
+
+set -euo pipefail
+
+REMOTE="origin"
+BASE_BRANCH=""
+BRANCH_PATTERN="*"
+DRY_RUN=1
+PUSH=0
+BAD_COMMIT=""
+FIX_COMMIT=""
+CURRENT_BRANCH=""
+
+usage() {
+  cat <<EOF
+Usage:
+  $(basename "$0") --bad <commit> --fix <commit> [options]
+
+Affected branches are local branches that:
+  - contain the bad commit
+  - do not yet contain the fix commit
+
+Options:
+  --bad <commit>         Commit that marks a branch as affected
+  --fix <commit>         Commit that resolves the issue
+  --base <branch>        Base branch to rebase onto
+                         default: auto-detect from origin/HEAD, then main/master
+  --remote <remote>      Remote used for fetch/rebase (default: origin)
+  --branches <glob>      Restrict branch names with a shell glob (default: *)
+  --apply                Actually perform rebases (default: dry-run)
+  --push                 Force-push rebased branches with --force-with-lease
+  -h, --help             Show this help
+
+Examples:
+  $(basename "$0") --bad abc1234 --fix def5678
+  $(basename "$0") --bad abc1234 --fix def5678 --apply
+  $(basename "$0") --bad abc1234 --fix def5678 --apply --push
+EOF
+}
+
+fail() {
+  echo "Error: $*" >&2
+  exit 1
+}
+
+detect_base_branch() {
+  local remote_head
+
+  remote_head=$(git symbolic-ref --quiet --short "refs/remotes/$REMOTE/HEAD" 2>/dev/null || true)
+  if [[ -n "$remote_head" ]]; then
+    echo "${remote_head#${REMOTE}/}"
+    return
+  fi
+
+  if git show-ref --verify --quiet refs/heads/main || git show-ref --verify --quiet refs/remotes/$REMOTE/main; then
+    echo "main"
+    return
+  fi
+
+  if git show-ref --verify --quiet refs/heads/master || git show-ref --verify --quiet refs/remotes/$REMOTE/master; then
+    echo "master"
+    return
+  fi
+
+  fail "Could not determine base branch. Pass --base explicitly."
+}
+
+ensure_clean_worktree() {
+  if ! git diff --quiet || ! git diff --cached --quiet; then
+    fail "Working tree is not clean. Commit or stash your changes first."
+  fi
+}
+
+validate_commit() {
+  local commit="$1"
+  git rev-parse --verify "${commit}^{commit}" >/dev/null 2>&1 || fail "Unknown commit: $commit"
+}
+
+restore_branch() {
+  if [[ -n "$CURRENT_BRANCH" ]]; then
+    git checkout "$CURRENT_BRANCH" >/dev/null 2>&1 || true
+  fi
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --bad)
+      BAD_COMMIT="$2"
+      shift 2
+      ;;
+    --fix)
+      FIX_COMMIT="$2"
+      shift 2
+      ;;
+    --base)
+      BASE_BRANCH="$2"
+      shift 2
+      ;;
+    --remote)
+      REMOTE="$2"
+      shift 2
+      ;;
+    --branches)
+      BRANCH_PATTERN="$2"
+      shift 2
+      ;;
+    --apply)
+      DRY_RUN=0
+      shift
+      ;;
+    --push)
+      PUSH=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      usage >&2
+      fail "Unknown argument: $1"
+      ;;
+  esac
+done
+
+[[ -n "$BAD_COMMIT" ]] || fail "Missing required flag: --bad"
+[[ -n "$FIX_COMMIT" ]] || fail "Missing required flag: --fix"
+
+git rev-parse --git-dir >/dev/null 2>&1 || fail "Not inside a git repository."
+ensure_clean_worktree
+
+BASE_BRANCH="${BASE_BRANCH:-$(detect_base_branch)}"
+CURRENT_BRANCH=$(git branch --show-current)
+trap restore_branch EXIT
+
+echo "Fetching $REMOTE/$BASE_BRANCH..."
+git fetch "$REMOTE" "$BASE_BRANCH" --prune
+
+validate_commit "$BAD_COMMIT"
+validate_commit "$FIX_COMMIT"
+
+affected_branches=()
+while IFS= read -r branch; do
+  [[ "$branch" == "$BASE_BRANCH" ]] && continue
+  [[ "$branch" == $BRANCH_PATTERN ]] || continue
+
+  if git merge-base --is-ancestor "$BAD_COMMIT" "$branch" \
+    && ! git merge-base --is-ancestor "$FIX_COMMIT" "$branch"; then
+    affected_branches+=("$branch")
+  fi
+done < <(git for-each-ref --format='%(refname:short)' refs/heads)
+
+if [[ ${#affected_branches[@]} -eq 0 ]]; then
+  echo "No affected branches found."
+  exit 0
+fi
+
+echo
+printf 'Affected branches (%s):\n' "${#affected_branches[@]}"
+for branch in "${affected_branches[@]}"; do
+  echo "  - $branch"
+done
+
+if [[ "$DRY_RUN" -eq 1 ]]; then
+  echo
+  echo "Dry run only. Re-run with --apply to perform the rebases."
+  exit 0
+fi
+
+failed_branches=()
+for branch in "${affected_branches[@]}"; do
+  echo
+  echo ">>> Rebasing $branch onto $REMOTE/$BASE_BRANCH"
+  git checkout "$branch" >/dev/null
+
+  if git rebase "$REMOTE/$BASE_BRANCH"; then
+    echo "Rebased $branch"
+
+    if [[ "$PUSH" -eq 1 ]]; then
+      if git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' >/dev/null 2>&1; then
+        git push --force-with-lease
+      else
+        echo "No upstream configured for $branch; skipping push."
+      fi
+    fi
+  else
+    echo "Rebase conflicted on $branch. Aborting that rebase and continuing."
+    git rebase --abort || true
+    failed_branches+=("$branch")
+  fi
+done
+
+echo
+if [[ ${#failed_branches[@]} -gt 0 ]]; then
+  echo "Finished with conflicts on:"
+  for branch in "${failed_branches[@]}"; do
+    echo "  - $branch"
+  done
+  exit 2
+fi
+
+echo "All affected branches rebased successfully."
