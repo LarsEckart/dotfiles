@@ -1,0 +1,242 @@
+#!/bin/bash
+# Merge the base branch into all open PR branches in the current GitHub repo.
+#
+# Inspired by:
+# https://www.semicolonandsons.com/articles/merge-master-into-all-git-branches
+#
+# Default mode is dry-run. Use --apply to actually perform merges.
+
+set -euo pipefail
+
+REMOTE="origin"
+BASE_BRANCH=""
+DRY_RUN=1
+PUSH=0
+LIMIT=100
+CURRENT_BRANCH=""
+
+merged_branches=()
+conflicted_branches=()
+skipped_branches=()
+updated_branches=()
+
+usage() {
+  cat <<EOF
+Usage:
+  $(basename "$0") [options]
+
+This script lists open PR branches via gh, updates local copies, and merges the
+base branch into each one.
+
+Options:
+  --base <branch>    Base branch to merge from
+                     default: auto-detect from origin/HEAD, then main/master
+  --remote <remote>  Remote used for fetch/push (default: origin)
+  --limit <n>        Max PRs to inspect (default: 100)
+  --apply            Actually perform merges (default: dry-run)
+  --push             Push merged branches to the remote after success
+  -h, --help         Show this help
+
+Examples:
+  $(basename "$0")
+  $(basename "$0") --apply
+  $(basename "$0") --base master --apply --push
+EOF
+}
+
+fail() {
+  echo "Error: $*" >&2
+  exit 1
+}
+
+require_clean_worktree() {
+  if [[ -n "$(git status --porcelain --untracked-files=all)" ]]; then
+    fail "Working tree is not clean. Commit, stash, or remove local changes first."
+  fi
+}
+
+require_command() {
+  command -v "$1" >/dev/null 2>&1 || fail "Required command not found: $1"
+}
+
+detect_base_branch() {
+  local remote_head
+
+  remote_head=$(git symbolic-ref --quiet --short "refs/remotes/$REMOTE/HEAD" 2>/dev/null || true)
+  if [[ -n "$remote_head" ]]; then
+    echo "${remote_head#${REMOTE}/}"
+    return
+  fi
+
+  if git show-ref --verify --quiet refs/heads/main || git show-ref --verify --quiet refs/remotes/$REMOTE/main; then
+    echo "main"
+    return
+  fi
+
+  if git show-ref --verify --quiet refs/heads/master || git show-ref --verify --quiet refs/remotes/$REMOTE/master; then
+    echo "master"
+    return
+  fi
+
+  fail "Could not determine base branch. Pass --base explicitly."
+}
+
+restore_branch() {
+  if [[ -n "$CURRENT_BRANCH" ]]; then
+    git checkout "$CURRENT_BRANCH" >/dev/null 2>&1 || true
+  fi
+}
+
+merge_abort_safely() {
+  git merge --abort >/dev/null 2>&1 || git reset --merge >/dev/null 2>&1 || true
+}
+
+checkout_pr_branch() {
+  local branch="$1"
+
+  git fetch "$REMOTE" "$branch" >/dev/null
+
+  if git show-ref --verify --quiet "refs/heads/$branch"; then
+    git checkout "$branch" >/dev/null
+    git pull --ff-only "$REMOTE" "$branch" >/dev/null
+  else
+    git checkout -b "$branch" "$REMOTE/$branch" >/dev/null
+  fi
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --base)
+      BASE_BRANCH="$2"
+      shift 2
+      ;;
+    --remote)
+      REMOTE="$2"
+      shift 2
+      ;;
+    --limit)
+      LIMIT="$2"
+      shift 2
+      ;;
+    --apply)
+      DRY_RUN=0
+      shift
+      ;;
+    --push)
+      PUSH=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      usage >&2
+      fail "Unknown argument: $1"
+      ;;
+  esac
+done
+
+git rev-parse --git-dir >/dev/null 2>&1 || fail "Not inside a git repository."
+require_command gh
+require_clean_worktree
+
+BASE_BRANCH="${BASE_BRANCH:-$(detect_base_branch)}"
+CURRENT_BRANCH=$(git branch --show-current)
+trap restore_branch EXIT
+
+echo "Fetching $REMOTE/$BASE_BRANCH..."
+git fetch "$REMOTE" "$BASE_BRANCH" --prune >/dev/null
+
+echo "Inspecting open PRs..."
+mapfile -t prs < <(
+  gh pr list --state open --limit "$LIMIT" \
+    --json number,title,headRefName,isCrossRepository \
+    --jq '.[] | [.headRefName, .title, (.number|tostring), (.isCrossRepository|tostring)] | @tsv'
+)
+
+if [[ ${#prs[@]} -eq 0 ]]; then
+  echo "No open PRs found."
+  exit 0
+fi
+
+echo
+for pr in "${prs[@]}"; do
+  IFS=$'\t' read -r branch title pr_number is_cross_repo <<< "$pr"
+
+  if [[ "$is_cross_repo" == "true" ]]; then
+    echo "Skipping PR #$pr_number ($title): cross-repository PR"
+    skipped_branches+=("#$pr_number $title (cross-repository)")
+    continue
+  fi
+
+  if [[ "$branch" == "$BASE_BRANCH" ]]; then
+    echo "Skipping PR #$pr_number ($title): branch is base branch"
+    skipped_branches+=("#$pr_number $title (base branch)")
+    continue
+  fi
+
+  echo "PR #$pr_number: $title"
+  echo "  branch: $branch"
+
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "  would merge $BASE_BRANCH into $branch"
+    skipped_branches+=("#$pr_number $title (dry-run)")
+    echo
+    continue
+  fi
+
+  if ! checkout_pr_branch "$branch"; then
+    echo "  could not check out/update branch; skipping"
+    skipped_branches+=("#$pr_number $title (checkout failed)")
+    echo
+    continue
+  fi
+
+  if git merge-base --is-ancestor "$REMOTE/$BASE_BRANCH" HEAD; then
+    echo "  already contains $BASE_BRANCH"
+    updated_branches+=("#$pr_number $title (already up to date)")
+    echo
+    continue
+  fi
+
+  if git merge "$REMOTE/$BASE_BRANCH" --no-edit; then
+    echo "  merged successfully"
+
+    if [[ "$PUSH" -eq 1 ]]; then
+      git push "$REMOTE" "$branch"
+      echo "  pushed to $REMOTE/$branch"
+    fi
+
+    merged_branches+=("#$pr_number $title")
+  else
+    echo "  merge conflict"
+    merge_abort_safely
+    conflicted_branches+=("#$pr_number $title")
+  fi
+
+  echo
+done
+
+echo "Summary"
+echo "-------"
+
+echo "Merged: ${#merged_branches[@]}"
+for item in "${merged_branches[@]}"; do
+  echo "  - $item"
+done
+
+echo "Conflicted: ${#conflicted_branches[@]}"
+for item in "${conflicted_branches[@]}"; do
+  echo "  - $item"
+done
+
+echo "Skipped: ${#skipped_branches[@]}"
+for item in "${skipped_branches[@]}"; do
+  echo "  - $item"
+done
+
+echo "Already up to date: ${#updated_branches[@]}"
+for item in "${updated_branches[@]}"; do
+  echo "  - $item"
+done

@@ -1,0 +1,7 @@
+#!/bin/bash
+# Convenience wrapper for merging main into all open PR branches.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec "$SCRIPT_DIR/merge-master-into-all-git-branches" --base main "$@"
