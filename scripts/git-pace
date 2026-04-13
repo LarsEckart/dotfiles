@@ -1,0 +1,171 @@
+#!/usr/bin/env python3
+"""Show monthly git commit activity as a left-to-right sparkline."""
+
+from __future__ import annotations
+
+import argparse
+import subprocess
+import sys
+from collections import Counter
+from dataclasses import dataclass
+from typing import Iterable
+
+SPARK_CHARS = "·▁▂▃▄▅▆▇█"
+
+
+@dataclass(frozen=True, order=True)
+class YearMonth:
+    year: int
+    month: int
+
+    def __str__(self) -> str:
+        return f"{self.year:04d}-{self.month:02d}"
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Show monthly git commit activity as a left-to-right sparkline.",
+    )
+    parser.add_argument(
+        "--current-branch",
+        action="store_true",
+        help="Only include commits reachable from HEAD (default: all refs via git log --all).",
+    )
+    parser.add_argument(
+        "--since",
+        help="Pass a git-compatible --since value, like '2 years ago' or '2024-01-01'.",
+    )
+    parser.add_argument(
+        "--until",
+        help="Pass a git-compatible --until value, like '2026-01-01'.",
+    )
+    parser.add_argument(
+        "--counts",
+        action="store_true",
+        help="Also print the month-by-month counts.",
+    )
+    return parser.parse_args()
+
+
+def run_git_log(args: argparse.Namespace) -> list[str]:
+    command = [
+        "git",
+        "log",
+        "--date=format-local:%Y-%m",
+        "--format=%ad",
+    ]
+
+    if not args.current_branch:
+        command.insert(2, "--all")
+    if args.since:
+        command.append(f"--since={args.since}")
+    if args.until:
+        command.append(f"--until={args.until}")
+
+    try:
+        result = subprocess.run(
+            command,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except FileNotFoundError:
+        print("python3 script could not find git in PATH", file=sys.stderr)
+        sys.exit(1)
+    except subprocess.CalledProcessError as error:
+        stderr = error.stderr.strip() or "git log failed"
+        print(stderr, file=sys.stderr)
+        sys.exit(error.returncode)
+
+    return [line.strip() for line in result.stdout.splitlines() if line.strip()]
+
+
+def parse_year_month(value: str) -> YearMonth:
+    year, month = value.split("-", maxsplit=1)
+    return YearMonth(int(year), int(month))
+
+
+def month_range(start: YearMonth, end: YearMonth) -> Iterable[YearMonth]:
+    current = start
+    while current <= end:
+        yield current
+        if current.month == 12:
+            current = YearMonth(current.year + 1, 1)
+        else:
+            current = YearMonth(current.year, current.month + 1)
+
+
+def spark_char(count: int, max_count: int) -> str:
+    if count == 0:
+        return SPARK_CHARS[0]
+    if max_count <= 0:
+        return SPARK_CHARS[0]
+    scaled = round((count / max_count) * (len(SPARK_CHARS) - 1))
+    return SPARK_CHARS[max(1, scaled)]
+
+
+def build_year_guides(months: list[YearMonth]) -> tuple[str, str]:
+    tick_line = [" "] * len(months)
+    label_line = [" "] * len(months)
+    last_label_end = -2
+
+    for index, ym in enumerate(months):
+        if index != 0 and ym.month != 1:
+            continue
+
+        tick_line[index] = "|"
+        label = str(ym.year)
+        start = max(index, last_label_end + 2)
+        if start >= len(label_line):
+            continue
+
+        for offset, char in enumerate(label):
+            position = start + offset
+            if position >= len(label_line):
+                break
+            label_line[position] = char
+        last_label_end = min(len(label_line) - 1, start + len(label) - 1)
+
+    return "".join(tick_line).rstrip(), "".join(label_line).rstrip()
+
+
+def main() -> None:
+    args = parse_args()
+    raw_months = run_git_log(args)
+
+    if not raw_months:
+        print("No commits found.", file=sys.stderr)
+        sys.exit(1)
+
+    counts_by_month = Counter(parse_year_month(value) for value in raw_months)
+    first_month = min(counts_by_month)
+    last_month = max(counts_by_month)
+    months = list(month_range(first_month, last_month))
+    counts = [counts_by_month.get(month, 0) for month in months]
+
+    total_commits = sum(counts)
+    max_count = max(counts)
+    peak_month = months[counts.index(max_count)]
+    average = total_commits / len(months)
+    scope = "current branch" if args.current_branch else "all refs"
+    sparkline = "".join(spark_char(count, max_count) for count in counts)
+    tick_line, label_line = build_year_guides(months)
+
+    print(f"Monthly commits ({scope})")
+    print(f"{first_month} → {last_month}  total={total_commits}  peak={max_count} in {peak_month}  avg={average:.1f}/month")
+    print()
+    print(sparkline)
+    if tick_line:
+        print(tick_line)
+    if label_line:
+        print(label_line)
+
+    if args.counts:
+        print()
+        width = len(str(max_count))
+        for month, count in zip(months, counts):
+            print(f"{month}  {count:>{width}}")
+
+
+if __name__ == "__main__":
+    main()
