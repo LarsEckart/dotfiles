@@ -76,6 +76,7 @@ Setup for multiple git identities is also described [here](https://garrit.xyz/po
 ### Handy scripts
 
 * `git-pace` — monthly commit activity as a left-to-right sparkline
+* `git-pull-all` — run `git pull` across every repo one level below the current directory
 
 ### Others
 

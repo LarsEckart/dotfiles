@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# Pull every git repository one level below the given directory.
+
+set -euo pipefail
+
+root_dir="${1:-$PWD}"
+
+if [ ! -d "$root_dir" ]; then
+  echo "Directory not found: $root_dir" >&2
+  exit 1
+fi
+
+tmp_dir="$(mktemp -d)"
+trap 'rm -rf "$tmp_dir"' EXIT
+
+repo_count=0
+failures=0
+declare -a pids=()
+declare -a repo_names=()
+declare -a log_files=()
+
+while IFS= read -r -d '' dir; do
+  if ! git -C "$dir" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    continue
+  fi
+
+  repo_count=$((repo_count + 1))
+  repo_name="$(basename "$dir")"
+  log_file="$tmp_dir/$repo_name.log"
+
+  (
+    cd "$dir"
+    git pull
+  ) >"$log_file" 2>&1 &
+
+  pids+=("$!")
+  repo_names+=("$repo_name")
+  log_files+=("$log_file")
+done < <(find "$root_dir" -mindepth 1 -maxdepth 1 -type d -print0)
+
+if [ "$repo_count" -eq 0 ]; then
+  echo "No git repositories found in $root_dir"
+  exit 0
+fi
+
+echo "Pulling $repo_count repositories under $root_dir..."
+
+for i in "${!pids[@]}"; do
+  echo
+  echo "==> ${repo_names[$i]}"
+
+  if wait "${pids[$i]}"; then
+    cat "${log_files[$i]}"
+  else
+    failures=$((failures + 1))
+    cat "${log_files[$i]}" >&2
+  fi
+done
+
+if [ "$failures" -gt 0 ]; then
+  echo
+  echo "$failures repositories failed to pull." >&2
+  exit 1
+fi
+
+echo
+echo "All repositories updated."
