@@ -11,6 +11,11 @@ tap "anchore/grype"
 tap "rhysd/actionlint", "https://github.com/rhysd/actionlint"
 tap "tobi/try", "https://github.com/tobi/try"
 
+
+# Android tooling
+cask "temurin@21"
+cask "android-commandlinetools"
+cask "android-platform-tools"
 # Core / shell tooling
 brew "coreutils"
 brew "gnu-sed"
