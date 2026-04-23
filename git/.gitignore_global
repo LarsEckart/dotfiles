@@ -14,3 +14,8 @@ copilot-instructions.md
 
 # Local upstream sync script
 update_from_upstream.sh
+
+# Local files for meiner
+run_meiner.sh
+.pi/turbocommit.json
+.fizzy.yaml
