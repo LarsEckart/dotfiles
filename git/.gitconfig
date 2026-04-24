@@ -35,7 +35,7 @@
 	autocrlf = input
 	attributesfile = ~/.dotfiles/git/.gitattributes
 	hooksPath = /Users/lars/.dotfiles/githooks
-	fsmonitor = true
+	fsmonitor = false
 	untrackedCache = true
 [diff]
 	# https://git-scm.com/docs/git-config#git-config-diffrenames

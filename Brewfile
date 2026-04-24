@@ -11,11 +11,14 @@ tap "anchore/grype"
 tap "rhysd/actionlint", "https://github.com/rhysd/actionlint"
 tap "tobi/try", "https://github.com/tobi/try"
 
+# Fonts
+cask "font-ibm-plex-mono"
 
 # Android tooling
 cask "temurin@21"
 cask "android-commandlinetools"
 cask "android-platform-tools"
+
 # Core / shell tooling
 brew "coreutils"
 brew "gnu-sed"
@@ -59,6 +62,7 @@ brew "oci-cli"
 brew "actionlint"
 brew "uv"
 brew "n"
+brew "pnpm"
 brew "try"
 brew "go"
 brew "golangci-lint"

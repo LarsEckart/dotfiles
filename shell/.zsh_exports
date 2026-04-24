@@ -104,5 +104,8 @@ export OTEL_LOGS_EXPORT_INTERVAL=5000     # 5 seconds (default: 5000ms)
 ## Dotfiles scripts
 export PATH="$PATH:$HOME/.dotfiles/scripts"
 
+# Ensure n-managed Node/npm/global CLIs win over Homebrew/system installs.
+export PATH="$N_PREFIX/bin:$PATH"
+
 ## My harry potter adventure game (locally use my OpenAI key, but openRouter in prod)
 export IMAGE_PROVIDER=openai
