@@ -5,6 +5,9 @@
 # Make vim the default editor.
 export EDITOR='vim';
 
+# Use Zed for pi's /comment flow so the temporary file opens in a GUI editor.
+export PI_COMMENT_EDITOR='zed --wait';
+
 # Enable persistent REPL history for `node`.
 export NODE_REPL_HISTORY=~/.node_history;
 # Allow 32³ entries; the default is 1000.
