@@ -99,6 +99,19 @@ update_package() {
     fi
 }
 
+run_update_command() {
+	local update_command=$1
+	local display_name=$2
+
+	print_status $BLUE "Updating $display_name..."
+	if eval "$update_command"; then
+		print_status $GREEN "✅ $display_name updated successfully"
+	else
+		print_status $RED "❌ Failed to update $display_name"
+		return 1
+	fi
+}
+
 # Function to check and update a CLI agent
 check_and_update() {
     local package_name=$1
@@ -152,14 +165,21 @@ print_status $BLUE "🔄 CLI Agent Updater"
 echo "===================="
 echo
 
-# List of CLI agents to check/update
+# CLI agents installed via npm.
 # Format: package_name display_name binary_name
-CLI_AGENTS=(
-    "@mariozechner/pi-coding-agent|Pi Coding Agent|pi"
+NPM_AGENTS=(
     "@openai/codex|OpenAI Codex CLI|codex"
     "@github/copilot|GitHub Copilot CLI|copilot"
 )
-# Note: Amp excluded - uses native installer
+
+# CLI agents with their own updater command.
+# Format: update_command display_name binary_name
+COMMAND_AGENTS=(
+    "pi update|Pi Coding Agent|pi"
+    "amp update|Amp CLI|amp"
+)
+# Note: Pi's npm package moved from @mariozechner/pi-coding-agent to @earendil-works/pi-coding-agent,
+# but existing installs should update themselves via `pi update`.
 # Note: OpenCode (opencode-ai) excluded - use `opencode upgrade` for updates
 # Note: Claude Code excluded - uses native installer, update via `claude update`
 
@@ -207,15 +227,28 @@ show_all_progress() {
 }
 
 # Phase 1: Check versions and display status
-print_status $BLUE "📋 Checking installed versions..."
+print_status $BLUE "📋 Checking installed versions and native updaters..."
 echo
-for agent in "${CLI_AGENTS[@]}"; do
+for agent in "${COMMAND_AGENTS[@]}"; do
+    IFS='|' read -r update_command display_name binary_name <<< "$agent"
+
+    if ! command -v "$binary_name" &> /dev/null; then
+		print_status $YELLOW "📦 $display_name not found; skipping $update_command"
+		continue
+    fi
+
+    printf "%-25s %-25s" "$display_name:" "$update_command"
+    print_status $YELLOW " (will run)"
+    agents_to_update+=("command|$update_command|$display_name|$binary_name")
+done
+
+for agent in "${NPM_AGENTS[@]}"; do
     IFS='|' read -r package_name display_name binary_name <<< "$agent"
 
     # Check if binary exists
     if ! command -v "$binary_name" &> /dev/null; then
         print_status $YELLOW "📦 $display_name not found"
-        agents_to_update+=("$package_name|$display_name|$binary_name")
+		agents_to_update+=("npm|$package_name|$display_name|$binary_name")
         continue
     fi
 
@@ -235,7 +268,7 @@ for agent in "${CLI_AGENTS[@]}"; do
     printf "%-25s %-12s %-12s" "$display_name:" "$installed_version" "$latest_version"
     if [ "$installed_version" != "$latest_version" ]; then
         print_status $YELLOW " (needs update)"
-        agents_to_update+=("$package_name|$display_name|$binary_name")
+		agents_to_update+=("npm|$package_name|$display_name|$binary_name")
     else
         print_status $GREEN " (up to date)"
     fi
@@ -252,7 +285,7 @@ print_status $BLUE "🔄 Updating ${#agents_to_update[@]} agent(s)..."
 echo
 
 for agent_info in "${agents_to_update[@]}"; do
-    IFS='|' read -r package_name display_name binary_name <<< "$agent_info"
+    IFS='|' read -r update_type update_target display_name binary_name <<< "$agent_info"
     agent_names+=("$display_name")
 
     # Create temp file to capture output
@@ -261,12 +294,26 @@ for agent_info in "${agents_to_update[@]}"; do
 
     # Start update in background, redirecting output to temp file
     (
-        if perform_install "$package_name" "$display_name" "@latest"; then
-            new_version=$(get_installed_version "$package_name")
-            echo "✅ $display_name updated to version $new_version"
-        else
-            echo "❌ Failed to update $display_name"
-        fi
+		case "$update_type" in
+			command)
+				if run_update_command "$update_target" "$display_name"; then
+					:
+				else
+					:
+				fi
+				;;
+			npm)
+				if perform_install "$update_target" "$display_name" "@latest"; then
+					new_version=$(get_installed_version "$update_target")
+					echo "✅ $display_name updated to version $new_version"
+				else
+					echo "❌ Failed to update $display_name"
+				fi
+				;;
+			*)
+				echo "❌ Unknown update type for $display_name: $update_type"
+				;;
+		esac
     ) > "$output_file" 2>&1 &
     update_pids+=($!)
 done
