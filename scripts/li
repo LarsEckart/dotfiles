@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Toggle the office Hue room.
+
+set -euo pipefail
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  cat <<'USAGE'
+Usage: li
+
+Toggle the office Hue room.
+
+Runs: huey group 85 --toggle
+USAGE
+  exit 0
+fi
+
+if [[ $# -ne 0 ]]; then
+  printf 'li: unexpected arguments: %s\n' "$*" >&2
+  printf 'Usage: li\n' >&2
+  exit 2
+fi
+
+exec huey group 85 --toggle
