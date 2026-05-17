@@ -10,6 +10,7 @@ tap "remotemobprogramming/brew"
 tap "anchore/grype"
 tap "rhysd/actionlint", "https://github.com/rhysd/actionlint"
 tap "tobi/try", "https://github.com/tobi/try"
+tap "darrylmorley/whatcable"
 
 # Fonts
 cask "font-ibm-plex-mono"
@@ -72,6 +73,7 @@ brew "swiftlint"
 brew "xcbeautify"
 
 # Utilities
+cask "whatcable"
 brew "htop"
 brew "telnet"
 brew "nmap"
