@@ -3,5 +3,4 @@
 
 set -euo pipefail
 
-exec copilot --allow-all-tools "$@"
-
+exec copilot --allow-all-tools --allow-all-paths "$@"

@@ -54,11 +54,6 @@
 	prune = true
 	pruneTags = true
 	all = true
-[filter "lfs"]
-	required = true
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
 [include]
 	path = ~/.dotfiles/git/.gitconfig-personal
 [includeIf "gitdir/i:~/work/"]

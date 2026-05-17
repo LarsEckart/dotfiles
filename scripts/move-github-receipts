@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+# Move downloaded GitHub receipt PDFs into the yearly expenses folder.
+
+set -euo pipefail
+
+source_dir="$HOME/Downloads"
+expenses_root="$HOME/Dropbox/Shared folders/Share Katrin/Passionate Programmer OÜ/Expenses"
+dry_run=false
+copy_only=false
+
+usage() {
+  cat <<'EOF'
+Usage: move-github-receipts [options]
+
+Find GitHub receipt PDFs in Downloads and move them into the matching yearly
+expenses folder, for example:
+
+  ~/Downloads/github-LarsEckart-receipt-2026-05-06.pdf
+  -> ~/Dropbox/Shared folders/Share Katrin/Passionate Programmer OÜ/Expenses/2026/
+
+Options:
+  -n, --dry-run              Show what would happen without moving files
+      --copy                 Copy instead of move
+      --source DIR           Directory to scan (default: ~/Downloads)
+      --expenses-root DIR    Expenses root containing year folders
+  -h, --help                 Show this help
+EOF
+}
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -n|--dry-run)
+      dry_run=true
+      shift
+      ;;
+    --copy)
+      copy_only=true
+      shift
+      ;;
+    --source)
+      if [ "$#" -lt 2 ]; then
+        echo "Missing value for --source" >&2
+        exit 2
+      fi
+      source_dir="$2"
+      shift 2
+      ;;
+    --expenses-root)
+      if [ "$#" -lt 2 ]; then
+        echo "Missing value for --expenses-root" >&2
+        exit 2
+      fi
+      expenses_root="$2"
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 2
+      ;;
+  esac
+done
+
+if [ ! -d "$source_dir" ]; then
+  echo "Source directory not found: $source_dir" >&2
+  exit 1
+fi
+
+moved_count=0
+copied_count=0
+skipped_count=0
+found_count=0
+
+while IFS= read -r -d '' receipt; do
+  found_count=$((found_count + 1))
+  filename="$(basename "$receipt")"
+
+  if [[ "$filename" =~ receipt-([0-9]{4})-[0-9]{2}-[0-9]{2}\.pdf$ ]]; then
+    year="${BASH_REMATCH[1]}"
+  else
+    echo "Skipping unexpected receipt filename: $filename" >&2
+    skipped_count=$((skipped_count + 1))
+    continue
+  fi
+
+  destination_dir="$expenses_root/$year"
+  destination="$destination_dir/$filename"
+
+  if [ -e "$destination" ]; then
+    if cmp -s "$receipt" "$destination"; then
+      if [ "$copy_only" = true ]; then
+        echo "Already copied: $destination"
+      elif [ "$dry_run" = true ]; then
+        echo "Would remove duplicate already in expenses: $receipt"
+      else
+        rm "$receipt"
+        echo "Removed duplicate already in expenses: $receipt"
+      fi
+    else
+      echo "Skipping because destination already exists and differs: $destination" >&2
+    fi
+    skipped_count=$((skipped_count + 1))
+    continue
+  fi
+
+  if [ "$dry_run" = true ]; then
+    action="Move"
+    if [ "$copy_only" = true ]; then
+      action="Copy"
+    fi
+    echo "Would $action: $receipt -> $destination"
+    continue
+  fi
+
+  mkdir -p "$destination_dir"
+
+  if [ "$copy_only" = true ]; then
+    cp "$receipt" "$destination"
+    copied_count=$((copied_count + 1))
+    echo "Copied: $receipt -> $destination"
+  else
+    mv "$receipt" "$destination"
+    moved_count=$((moved_count + 1))
+    echo "Moved: $receipt -> $destination"
+  fi
+done < <(find "$source_dir" -maxdepth 1 -type f -iname 'github-*-receipt-[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9].pdf' -print0)
+
+if [ "$found_count" -eq 0 ]; then
+  echo "No GitHub receipt PDFs found in $source_dir"
+  exit 0
+fi
+
+echo
+if [ "$copy_only" = true ]; then
+  echo "Done. Found: $found_count, copied: $copied_count, skipped: $skipped_count."
+else
+  echo "Done. Found: $found_count, moved: $moved_count, skipped: $skipped_count."
+fi
