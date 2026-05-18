@@ -1,0 +1,628 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#   "websocket-client>=1.8.0",
+# ]
+# ///
+"""Reserve Eden rooms in the Tartu office from a deterministic CLI.
+
+The script launches a dedicated Chrome profile with DevTools enabled, opens Eden,
+and runs Eden GraphQL requests inside that logged-in browser context. Credentials
+stay in Chrome; the script does not store tokens or passwords.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import shlex
+import subprocess
+import sys
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any
+from zoneinfo import ZoneInfo
+
+import websocket
+
+VERSION = "0.1.0"
+SECRETS_FILE = Path.home() / ".dotfiles" / "shell" / ".secrets"
+CHROME_BIN = Path(os.environ.get("CHROME_BIN", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"))
+STATE_DIR = Path.home() / ".cache" / "eden-reserve"
+CHROME_DATA_DIR = STATE_DIR / "chrome-data"
+DEFAULT_PORT = int(os.environ.get("EDEN_RESERVE_PORT", "9223"))
+TIME_PATTERN = re.compile(r"^(?:[01]\d|2[0-3]):[0-5]\d$")
+DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+DURATION_PATTERNS = (
+    re.compile(r"^(?P<minutes>\d+)\s*(?:m|min|mins|minute|minutes)$", re.IGNORECASE),
+    re.compile(r"^(?P<hours>\d+)\s*(?:h|hr|hrs|hour|hours)$", re.IGNORECASE),
+    re.compile(r"^(?P<hours>\d+)\s*h\s*(?P<minutes>\d+)\s*(?:m|min|mins)?$", re.IGNORECASE),
+    re.compile(r"^(?P<hours>\d+):(?P<minutes>[0-5]\d)$"),
+)
+
+
+@dataclass(frozen=True)
+class ReservationRequest:
+    room: str
+    date: str
+    start: str
+    duration_minutes: int
+    end: str
+    title: str
+
+
+class ValidationError(ValueError):
+    pass
+
+
+class EdenReserveError(RuntimeError):
+    pass
+
+
+def load_dotfile_secrets() -> None:
+    """Load reserve-specific env vars from ~/.dotfiles/shell/.secrets when needed.
+
+    Normal interactive shells already source this file via .zshenv. This parser is
+    intentionally narrow so the script also works from non-zsh launch contexts
+    without executing arbitrary shell code.
+    """
+    if not SECRETS_FILE.exists():
+        return
+
+    wanted_prefix = "EDEN_RESERVE_"
+    for raw_line in SECRETS_FILE.read_text().splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("export "):
+            line = line.removeprefix("export ").strip()
+        if "=" not in line:
+            continue
+        key, raw_value = line.split("=", maxsplit=1)
+        key = key.strip()
+        if not key.startswith(wanted_prefix) or key in os.environ:
+            continue
+        try:
+            value = shlex.split(raw_value, posix=True)[0]
+        except (IndexError, ValueError):
+            value = raw_value.strip().strip('"').strip("'")
+        os.environ[key] = value
+
+
+def required_env(name: str) -> str:
+    value = os.environ.get(name, "").strip()
+    if not value:
+        raise EdenReserveError(
+            f"Missing {name}. Add it to {SECRETS_FILE} or export it before running reserve."
+        )
+    return value
+
+
+load_dotfile_secrets()
+
+
+class CDPClient:
+    def __init__(self, websocket_url: str, timeout_seconds: float = 20.0) -> None:
+        self.ws = websocket.create_connection(websocket_url, timeout=timeout_seconds, suppress_origin=True)
+        self.next_id = 1
+
+    def close(self) -> None:
+        self.ws.close()
+
+    def send(self, method: str, params: dict[str, Any] | None = None, *, session_id: str | None = None) -> dict[str, Any]:
+        message_id = self.next_id
+        self.next_id += 1
+        message: dict[str, Any] = {"id": message_id, "method": method}
+        if params is not None:
+            message["params"] = params
+        if session_id is not None:
+            message["sessionId"] = session_id
+
+        self.ws.send(json.dumps(message))
+        while True:
+            response = json.loads(self.ws.recv())
+            if response.get("id") != message_id:
+                continue
+            if "error" in response:
+                raise EdenReserveError(f"Chrome DevTools error in {method}: {response['error']}")
+            return response.get("result", {})
+
+    def evaluate(self, expression: str, *, session_id: str, timeout_ms: int = 45_000) -> Any:
+        result = self.send(
+            "Runtime.evaluate",
+            {
+                "expression": expression,
+                "awaitPromise": True,
+                "returnByValue": True,
+                "timeout": timeout_ms,
+            },
+            session_id=session_id,
+        )
+        if "exceptionDetails" in result:
+            details = result["exceptionDetails"]
+            text = details.get("text") or "JavaScript evaluation failed"
+            exception = details.get("exception", {})
+            description = exception.get("description") or exception.get("value")
+            raise EdenReserveError(f"{text}: {description}" if description else text)
+        remote_object = result.get("result", {})
+        if "value" in remote_object:
+            return remote_object["value"]
+        return remote_object.get("description")
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog="reserve",
+        description="Reserve an Eden room in the Tartu office using a logged-in Chrome session.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""Examples:
+  reserve
+  reserve --room Delaware --start 11:00 --duration 30min
+  reserve --room Delaware --start 11:00 --duration 1h --date 2026-05-18
+  reserve --room Delaware --start 11:00 --duration 30min --dry-run
+  reserve --room Delaware --start 11:00 --duration 30min --json --no-input
+
+Duration formats: 30min, 45m, 1h, 1h30m, 01:30.
+Times are interpreted as Europe/Tallinn / room-local time.
+First run may require signing into Eden in the opened Chrome window.
+""",
+    )
+    parser.add_argument("--version", action="version", version=f"reserve {VERSION}")
+    parser.add_argument("--room", "-r", help="Room search term, e.g. Delaware")
+    parser.add_argument("--start", "-s", help="Start time as HH:MM, e.g. 11:00")
+    parser.add_argument("--duration", "--length", "-l", help="Duration, e.g. 30min, 45m, 1h, 1h30m")
+    parser.add_argument("--date", default=today_tartu(), help="Date as YYYY-MM-DD; defaults to today in Tartu")
+    parser.add_argument("--title", default="Busy", help="Reservation title; defaults to Busy")
+    parser.add_argument("--dry-run", action="store_true", help="Check availability but do not create the reservation")
+    parser.add_argument("--json", action="store_true", help="Print machine-readable JSON")
+    parser.add_argument("--no-input", action="store_true", help="Never prompt; fail if required values are missing or invalid")
+    parser.add_argument("--keep-browser", action="store_true", help="Leave the Eden Chrome window open after the command finishes")
+    parser.add_argument("--port", type=int, default=DEFAULT_PORT, help=f"Chrome DevTools port; defaults to {DEFAULT_PORT}")
+    return parser.parse_args()
+
+
+def today_tartu() -> str:
+    return datetime.now(ZoneInfo("Europe/Tallinn")).strftime("%Y-%m-%d")
+
+
+def validate_room(room: str | None) -> str:
+    value = (room or "").strip()
+    if not value:
+        raise ValidationError("Room is required, e.g. Delaware")
+    return value
+
+
+def validate_date(date: str | None) -> str:
+    value = (date or "").strip()
+    if not DATE_PATTERN.fullmatch(value):
+        raise ValidationError("Date must be YYYY-MM-DD, e.g. 2026-05-18")
+    try:
+        datetime.strptime(value, "%Y-%m-%d")
+    except ValueError as exc:
+        raise ValidationError("Date must be a real calendar date, e.g. 2026-05-18") from exc
+    return value
+
+
+def validate_time(start: str | None) -> str:
+    value = (start or "").strip()
+    if not TIME_PATTERN.fullmatch(value):
+        raise ValidationError("Start time must be HH:MM in 24-hour time, e.g. 11:00")
+    return value
+
+
+def parse_duration(duration: str | None) -> int:
+    value = (duration or "").strip().replace(" ", "")
+    if not value:
+        raise ValidationError("Duration is required, e.g. 30min or 1h")
+
+    for pattern in DURATION_PATTERNS:
+        match = pattern.fullmatch(value)
+        if match is None:
+            continue
+        parts = match.groupdict(default="0")
+        total = int(parts.get("hours") or 0) * 60 + int(parts.get("minutes") or 0)
+        if total <= 0:
+            raise ValidationError("Duration must be greater than zero")
+        if total > 12 * 60:
+            raise ValidationError("Duration must be 12 hours or less")
+        return total
+
+    raise ValidationError("Duration must look like 30min, 45m, 1h, 1h30m, or 01:30")
+
+
+def compute_end(date: str, start: str, duration_minutes: int) -> str:
+    starts_at = datetime.strptime(f"{date} {start}", "%Y-%m-%d %H:%M")
+    ends_at = starts_at + timedelta(minutes=duration_minutes)
+    if ends_at.date() != starts_at.date():
+        raise ValidationError("Reservations crossing midnight are not supported")
+    return ends_at.strftime("%H:%M")
+
+
+def prompt_until_valid(label: str, current: str | None, validator) -> Any:
+    if current is not None:
+        return validator(current)
+
+    while True:
+        try:
+            return validator(input(label).strip())
+        except (EOFError, KeyboardInterrupt):
+            raise SystemExit("\nCancelled")
+        except ValidationError as exc:
+            print(f"Invalid input: {exc}", file=sys.stderr)
+
+
+def build_request(args: argparse.Namespace) -> ReservationRequest:
+    can_prompt = not args.no_input and sys.stdin.isatty()
+    if can_prompt:
+        room = prompt_until_valid("What room? ", args.room, validate_room)
+        date = validate_date(args.date)
+        start = prompt_until_valid("From when? ", args.start, validate_time)
+        duration_minutes = prompt_until_valid("How long? ", args.duration, parse_duration)
+    else:
+        room = validate_room(args.room)
+        date = validate_date(args.date)
+        start = validate_time(args.start)
+        duration_minutes = parse_duration(args.duration)
+
+    return ReservationRequest(
+        room=room,
+        date=date,
+        start=start,
+        duration_minutes=duration_minutes,
+        end=compute_end(date, start, duration_minutes),
+        title=args.title,
+    )
+
+
+def http_json(url: str, *, method: str = "GET", timeout: float = 2.0) -> dict[str, Any] | None:
+    request = urllib.request.Request(url, method=method)
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except (OSError, urllib.error.URLError, json.JSONDecodeError):
+        return None
+
+
+def ensure_chrome(port: int) -> str:
+    version_url = f"http://127.0.0.1:{port}/json/version"
+    existing = http_json(version_url)
+    if existing and existing.get("webSocketDebuggerUrl"):
+        return existing["webSocketDebuggerUrl"]
+
+    if not CHROME_BIN.exists():
+        raise EdenReserveError(f"Chrome not found at {CHROME_BIN}. Set CHROME_BIN to override.")
+
+    CHROME_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    command = [
+        str(CHROME_BIN),
+        f"--remote-debugging-port={port}",
+        f"--user-data-dir={CHROME_DATA_DIR}",
+        f"--remote-allow-origins=http://127.0.0.1:{port}",
+        "--profile-directory=Default",
+        "--disable-search-engine-choice-screen",
+        "--no-first-run",
+        "--disable-features=ProfilePicker",
+    ]
+    subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+
+    deadline = time.monotonic() + 12
+    while time.monotonic() < deadline:
+        version = http_json(version_url)
+        if version and version.get("webSocketDebuggerUrl"):
+            return version["webSocketDebuggerUrl"]
+        time.sleep(0.25)
+
+    raise EdenReserveError(f"Could not connect to Chrome on port {port}")
+
+
+def close_chrome(port: int) -> None:
+    version = http_json(f"http://127.0.0.1:{port}/json/version", timeout=1.0)
+    websocket_url = version.get("webSocketDebuggerUrl") if version else None
+    if not websocket_url:
+        return
+
+    try:
+        client = CDPClient(websocket_url, timeout_seconds=2.0)
+        try:
+            client.send("Browser.close")
+        finally:
+            client.close()
+    except Exception:
+        # Best-effort cleanup only; never mask the reservation result.
+        return
+
+
+
+def open_eden_session(port: int) -> tuple[CDPClient, str, str]:
+    websocket_url = ensure_chrome(port)
+    client = CDPClient(websocket_url)
+    target = client.send("Target.createTarget", {"url": required_env("EDEN_RESERVE_LANDING_URL")})
+    target_id = target["targetId"]
+    attached = client.send("Target.attachToTarget", {"targetId": target_id, "flatten": True})
+    session_id = attached["sessionId"]
+    client.send("Runtime.enable", session_id=session_id)
+
+    deadline = time.monotonic() + 20
+    while time.monotonic() < deadline:
+        try:
+            ready = client.evaluate(
+                "location.hostname.endsWith('eden.io') && document.readyState !== 'loading' && document.body?.innerText.includes('Reservations')",
+                session_id=session_id,
+                timeout_ms=2_000,
+            )
+            if ready:
+                return client, session_id, target_id
+        except EdenReserveError:
+            pass
+        time.sleep(0.25)
+
+    raise EdenReserveError("Eden did not finish loading. If Chrome opened a login page, sign in and retry.")
+
+
+def build_eden_js(action: str, request: ReservationRequest, *, confirm: bool) -> str:
+    payload = {
+        "action": action,
+        "room": request.room,
+        "date": request.date,
+        "start": request.start,
+        "end": request.end,
+        "confirm": confirm,
+        "title": request.title,
+        "floorId": required_env("EDEN_RESERVE_TARTU_6TH_FLOOR_ID"),
+        "endpoint": required_env("EDEN_RESERVE_GRAPHQL_ENDPOINT"),
+    }
+    return f"""
+(async () => {{
+  try {{
+    const payload = {json.dumps(payload)};
+
+    async function gql(operationName, query, variables) {{
+      const response = await fetch(payload.endpoint, {{
+        method: 'POST',
+        credentials: 'include',
+        headers: {{ 'content-type': 'application/json' }},
+        body: JSON.stringify({{ operationName, query, variables }})
+      }});
+      const text = await response.text();
+      let json;
+      try {{ json = JSON.parse(text); }} catch (_) {{ json = {{ raw: text }}; }}
+      if (!response.ok || json.errors) {{
+        throw new Error(JSON.stringify({{ status: response.status, response: json }}));
+      }}
+      return json;
+    }}
+
+    function toMinutes(hhmm) {{
+      const [h, m] = hhmm.split(':').map(Number);
+      return h * 60 + m;
+    }}
+
+    function localTime(iso) {{ return iso.slice(11, 16); }}
+
+    function overlaps(reservation) {{
+      const desiredStart = toMinutes(payload.start);
+      const desiredEnd = toMinutes(payload.end);
+      const reservationStart = toMinutes(localTime(reservation.start_at));
+      const reservationEnd = toMinutes(localTime(reservation.end_at));
+      return desiredStart < reservationEnd && desiredEnd > reservationStart;
+    }}
+
+    const meQuery = `query CurrentMe {{ me {{ id name email }} }}`;
+    const me = (await gql('CurrentMe', meQuery, {{}})).data.me;
+    if (!me?.id) {{
+      return JSON.stringify({{ ok: false, reason: 'not_logged_in' }});
+    }}
+
+    const roomsQuery = `query CustomerColaRoomReservationQuery($offset: Int,$limit: Int,$floorId: ID!,$customerId: ID!,$noRestrictions: Boolean!,$date: Date!,$search_string: String) {{
+      location: node(id: $floorId) {{
+        ... on Location {{
+          id
+          title
+          rooms: paginated_sublocations(offset: $offset limit: $limit search_string: $search_string type: "room" reservable: true date: $date customer_id: $customerId no_restrictions: $noRestrictions) {{
+            edges {{ node {{ id title cola_reservations(date: $date) {{ id start_at end_at title owner {{ id name email }} }} }} }}
+            pageInfo {{ total limit offset }}
+          }}
+        }}
+      }}
+    }}`;
+
+    const roomsResult = await gql('CustomerColaRoomReservationQuery', roomsQuery, {{
+      offset: 0,
+      limit: 50,
+      floorId: payload.floorId,
+      customerId: me.id,
+      noRestrictions: false,
+      date: payload.date,
+      search_string: payload.room,
+    }});
+
+    const rooms = roomsResult.data.location.rooms.edges.map(edge => edge.node);
+    const exactish = rooms.filter(room => room.title.toLowerCase().includes(payload.room.toLowerCase()));
+    if (exactish.length !== 1) {{
+      return JSON.stringify({{
+        ok: false,
+        action: payload.action,
+        reason: exactish.length === 0 ? 'room_not_found' : 'multiple_rooms_found',
+        matches: rooms.map(room => room.title),
+      }});
+    }}
+
+    const room = exactish[0];
+    const conflicts = room.cola_reservations.filter(overlaps);
+    const available = conflicts.length === 0;
+
+    if (payload.action === 'check') {{
+      return JSON.stringify({{ ok: true, action: 'check', available, room, conflicts }});
+    }}
+
+    if (!payload.confirm) {{
+      return JSON.stringify({{ ok: false, action: 'book', reason: 'missing_confirm', available, room, conflicts }});
+    }}
+
+    if (!available) {{
+      return JSON.stringify({{ ok: false, action: 'book', reason: 'room_busy', available, room, conflicts }});
+    }}
+
+    const mutation = `mutation CustomerColaReservationsBookRoomMutation($input: ColaReservations_CreateInput!) {{
+      cola_reservations_create(input: $input) {{
+        message
+        failure
+        errors
+        returns {{ reservation {{ id title start_at end_at location {{ id title }} owner {{ id name }} }} }}
+      }}
+    }}`;
+
+    const input = {{
+      location_id: room.id,
+      owner_id: me.id,
+      title: payload.title,
+      description: '',
+      notes_to_admin: '',
+      attendees: [{{ email: me.email, response_status: 'accepted' }}],
+      start_at_parts: {{ date: payload.date, time: payload.start }},
+      end_at_parts: {{ date: payload.date, time: payload.end }},
+    }};
+
+    const booked = await gql('CustomerColaReservationsBookRoomMutation', mutation, {{ input }});
+    return JSON.stringify({{ ok: true, action: 'book', available, room, reservation: booked.data.cola_reservations_create.returns.reservation }});
+  }} catch (error) {{
+    const message = String(error?.message || error);
+    if (message.includes('CustomerPublic_RootQuery') || message.includes("Field 'me'") || message.includes('Unauthorized')) {{
+      return JSON.stringify({{ ok: false, reason: 'not_logged_in', error: message }});
+    }}
+    return JSON.stringify({{ ok: false, reason: 'eden_request_failed', error: message }});
+  }}
+}})()
+"""
+
+
+def run_eden_action(action: str, request: ReservationRequest, *, confirm: bool, port: int) -> dict[str, Any]:
+    client, session_id, target_id = open_eden_session(port)
+    try:
+        raw = client.evaluate(build_eden_js(action, request, confirm=confirm), session_id=session_id)
+        if not isinstance(raw, str):
+            raise EdenReserveError(f"Unexpected Eden response: {raw!r}")
+        return json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise EdenReserveError(f"Could not parse Eden response: {raw}") from exc
+    finally:
+        try:
+            client.send("Target.closeTarget", {"targetId": target_id})
+        finally:
+            client.close()
+
+
+def conflict_summary(conflicts: list[dict[str, Any]]) -> list[str]:
+    summaries = []
+    for conflict in conflicts:
+        owner = (conflict.get("owner") or {}).get("name", "unknown owner")
+        summaries.append(f"{conflict.get('start_at', '')[11:16]}-{conflict.get('end_at', '')[11:16]} by {owner}")
+    return summaries
+
+
+def print_human_result(request: ReservationRequest, result: dict[str, Any], *, dry_run: bool) -> None:
+    room_title = (result.get("room") or {}).get("title", request.room)
+    if dry_run:
+        if result.get("available"):
+            print(f"Available: {room_title} on {request.date}, {request.start}-{request.end}")
+        else:
+            print(f"Busy: {room_title} on {request.date}, {request.start}-{request.end}")
+            for summary in conflict_summary(result.get("conflicts") or []):
+                print(f"  conflict: {summary}")
+        return
+
+    reservation = result.get("reservation") or {}
+    print(f"Reserved: {room_title} on {request.date}, {request.start}-{request.end}")
+    if reservation.get("id"):
+        print(f"Reservation ID: {reservation['id']}")
+
+
+def fail(message: str, *, json_output: bool, details: dict[str, Any] | None = None, exit_code: int = 1) -> None:
+    if json_output:
+        payload = {"ok": False, "error": message}
+        if details:
+            payload.update(details)
+        print(json.dumps(payload, indent=2, ensure_ascii=False))
+    else:
+        print(f"Error: {message}", file=sys.stderr)
+        if details and details.get("matches"):
+            print("Matches:", file=sys.stderr)
+            for match in details["matches"]:
+                print(f"  {match}", file=sys.stderr)
+        if details and details.get("conflicts"):
+            for summary in conflict_summary(details["conflicts"]):
+                print(f"  conflict: {summary}", file=sys.stderr)
+        if details and details.get("reason") == "not_logged_in":
+            print("Sign into Eden in the opened Chrome window, then run reserve again.", file=sys.stderr)
+        if details and details.get("reason") == "eden_request_failed":
+            print(details.get("error", ""), file=sys.stderr)
+    raise SystemExit(exit_code)
+
+
+def main() -> None:
+    args = parse_args()
+
+    try:
+        request = build_request(args)
+    except ValidationError as exc:
+        fail(str(exc), json_output=args.json, exit_code=2)
+
+    if not args.json:
+        action = "Checking" if args.dry_run else "Reserving"
+        print(f"{action} {request.room} on {request.date}, {request.start}-{request.end}...", file=sys.stderr, flush=True)
+
+    try:
+        check_result = run_eden_action("check", request, confirm=False, port=args.port)
+    except EdenReserveError as exc:
+        fail(str(exc), json_output=args.json, exit_code=1)
+
+    should_close_browser = not args.keep_browser
+
+    if not check_result.get("ok"):
+        if should_close_browser and check_result.get("reason") != "not_logged_in":
+            close_chrome(args.port)
+        fail(check_result.get("reason", "Could not check room"), json_output=args.json, details=check_result, exit_code=2)
+
+    if args.dry_run:
+        if args.json:
+            print(json.dumps({"ok": True, "dry_run": True, "request": request.__dict__, "check": check_result}, indent=2, ensure_ascii=False))
+        else:
+            print_human_result(request, check_result, dry_run=True)
+        if should_close_browser:
+            close_chrome(args.port)
+        raise SystemExit(0 if check_result.get("available") else 1)
+
+    if not check_result.get("available"):
+        if should_close_browser:
+            close_chrome(args.port)
+        fail("Room is not available", json_output=args.json, details=check_result, exit_code=1)
+
+    try:
+        book_result = run_eden_action("book", request, confirm=True, port=args.port)
+    except EdenReserveError as exc:
+        fail(str(exc), json_output=args.json, exit_code=1)
+
+    if not book_result.get("ok"):
+        if should_close_browser and book_result.get("reason") != "not_logged_in":
+            close_chrome(args.port)
+        fail(book_result.get("reason", "Could not book room"), json_output=args.json, details=book_result, exit_code=1)
+
+    if args.json:
+        print(json.dumps({"ok": True, "request": request.__dict__, "booking": book_result}, indent=2, ensure_ascii=False))
+    else:
+        print_human_result(request, book_result, dry_run=False)
+
+    if should_close_browser:
+        close_chrome(args.port)
+
+
+if __name__ == "__main__":
+    main()
