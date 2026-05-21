@@ -13,6 +13,7 @@ tap "tobi/try", "https://github.com/tobi/try"
 tap "modem-dev/tap"
 tap "steipete/tap"
 tap "darrylmorley/whatcable"
+tap "nkzw-tech/tap"
 
 # Fonts
 cask "font-ibm-plex-mono"
@@ -79,6 +80,7 @@ brew "hunk"
 # Utilities
 cask "codexbar"
 cask "whatcable"
+cask "codiff"
 
 brew "htop"
 brew "telnet"
