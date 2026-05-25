@@ -11,28 +11,65 @@ from typing import Sequence
 
 
 @dataclass(frozen=True)
+class LineStats:
+    added: int = 0
+    removed: int = 0
+    modified: int = 0
+
+    @property
+    def changed(self) -> int:
+        return self.added + self.removed + self.modified
+
+    @property
+    def net(self) -> int:
+        return self.added - self.removed
+
+
+@dataclass(frozen=True)
 class CommitSummary:
     hash: str
     time: str
     subject: str
-    added: int = 0
-    removed: int = 0
+    stats: LineStats = LineStats()
+
+    @property
+    def added(self) -> int:
+        return self.stats.added
+
+    @property
+    def removed(self) -> int:
+        return self.stats.removed
+
+    @property
+    def modified(self) -> int:
+        return self.stats.modified
 
     @property
     def changed(self) -> int:
-        return self.added + self.removed
+        return self.stats.changed
 
 
 @dataclass(frozen=True)
 class Totals:
     commits: int
     files_changed: int
-    added: int
-    removed: int
+    stats: LineStats
+
+    @property
+    def added(self) -> int:
+        return self.stats.added
+
+    @property
+    def removed(self) -> int:
+        return self.stats.removed
+
+    @property
+    def modified(self) -> int:
+        return self.stats.modified
 
     @property
     def net(self) -> int:
-        return self.added - self.removed
+        return self.stats.net
 
 
 def parse_args() -> argparse.Namespace:
@@ -132,50 +169,97 @@ def collect_commits(args: argparse.Namespace, author: str | None) -> list[Commit
     return commits
 
 
-def collect_stats(args: argparse.Namespace, author: str | None) -> tuple[Totals, dict[str, tuple[int, int]]]:
+def collect_stats(args: argparse.Namespace, author: str | None) -> tuple[Totals, dict[str, LineStats]]:
+    files_changed = collect_files_changed(args, author)
+    per_commit = collect_line_stats(args, author)
+    total_stats = LineStats(
+        added=sum(stats.added for stats in per_commit.values()),
+        removed=sum(stats.removed for stats in per_commit.values()),
+        modified=sum(stats.modified for stats in per_commit.values()),
+    )
+    totals = Totals(
+        commits=len(per_commit),
+        files_changed=files_changed,
+        stats=total_stats,
+    )
+    return totals, per_commit
+
+
+def collect_files_changed(args: argparse.Namespace, author: str | None) -> int:
     command = [
         *base_git_log_args(args, author),
-        "--date=format-local:%H:%M",
         "--pretty=format:COMMIT%x1f%h",
         "--numstat",
     ]
     output = run(command).stdout
 
     files_changed = 0
-    total_added = 0
-    total_removed = 0
-    current_hash: str | None = None
-    per_commit: dict[str, tuple[int, int]] = {}
-
     for line in output.splitlines():
-        if not line:
-            continue
-        if line.startswith("COMMIT\x1f"):
-            current_hash = line.split("\x1f", maxsplit=1)[1]
-            per_commit.setdefault(current_hash, (0, 0))
+        if not line or line.startswith("COMMIT\x1f"):
             continue
 
         parts = line.split("\t")
-        if len(parts) < 3:
+        if len(parts) >= 3:
+            files_changed += 1
+
+    return files_changed
+
+
+def collect_line_stats(args: argparse.Namespace, author: str | None) -> dict[str, LineStats]:
+    command = [
+        *base_git_log_args(args, author),
+        "--pretty=format:COMMIT%x1f%h",
+        "--patch",
+        "--unified=0",
+        "--no-ext-diff",
+    ]
+    output = run(command).stdout
+
+    current_hash: str | None = None
+    per_commit: dict[str, LineStats] = {}
+    hunk_added = 0
+    hunk_removed = 0
+
+    def flush_hunk() -> None:
+        nonlocal hunk_added, hunk_removed, current_hash
+        if current_hash is None or (hunk_added == 0 and hunk_removed == 0):
+            hunk_added = 0
+            hunk_removed = 0
+            return
+
+        modified = min(hunk_added, hunk_removed)
+        added = max(0, hunk_added - hunk_removed)
+        removed = max(0, hunk_removed - hunk_added)
+        existing = per_commit[current_hash]
+        per_commit[current_hash] = LineStats(
+            added=existing.added + added,
+            removed=existing.removed + removed,
+            modified=existing.modified + modified,
+        )
+        hunk_added = 0
+        hunk_removed = 0
+
+    for line in output.splitlines():
+        if line.startswith("COMMIT\x1f"):
+            flush_hunk()
+            current_hash = line.split("\x1f", maxsplit=1)[1]
+            per_commit.setdefault(current_hash, LineStats())
             continue
 
-        files_changed += 1
-        if parts[0].isdigit() and parts[1].isdigit():
-            added = int(parts[0])
-            removed = int(parts[1])
-            total_added += added
-            total_removed += removed
-            if current_hash is not None:
-                existing_added, existing_removed = per_commit[current_hash]
-                per_commit[current_hash] = (existing_added + added, existing_removed + removed)
+        if line.startswith("@@"):
+            flush_hunk()
+            continue
 
-    totals = Totals(
-        commits=len(per_commit),
-        files_changed=files_changed,
-        added=total_added,
-        removed=total_removed,
-    )
-    return totals, per_commit
+        if line.startswith("+++") or line.startswith("---"):
+            continue
+
+        if line.startswith("+"):
+            hunk_added += 1
+        elif line.startswith("-"):
+            hunk_removed += 1
+
+    flush_hunk()
+    return per_commit
 
 
 def is_dirty() -> bool:
@@ -188,7 +272,7 @@ def print_summary(
     author: str | None,
     commits: list[CommitSummary],
     totals: Totals,
-    per_commit: dict[str, tuple[int, int]],
+    per_commit: dict[str, LineStats],
 ) -> None:
     print(f"Repo: {repo_root}")
     print(f"Range: {args.since}" + (f" → {args.until}" if args.until else " → now"))
@@ -198,6 +282,7 @@ def print_summary(
     print(f"Commits: {totals.commits}")
     print(f"Lines added: {totals.added}")
     print(f"Lines removed: {totals.removed}")
+    print(f"Lines modified: {totals.modified}")
     print(f"Net: {totals.net:+d}")
     print(f"Files changed: {totals.files_changed}")
 
@@ -211,11 +296,11 @@ def print_summary(
     if args.top > 0 and commits:
         summaries = []
         commit_by_hash = {commit.hash: commit for commit in commits}
-        for short_hash, (added, removed) in per_commit.items():
+        for short_hash, stats in per_commit.items():
             commit = commit_by_hash.get(short_hash)
             if not commit:
                 continue
-            summaries.append(CommitSummary(short_hash, commit.time, commit.subject, added, removed))
+            summaries.append(CommitSummary(short_hash, commit.time, commit.subject, stats))
 
         largest = sorted(summaries, key=lambda commit: commit.changed, reverse=True)[: args.top]
         if largest:
@@ -223,7 +308,7 @@ def print_summary(
             print(f"Top {len(largest)} by changed lines:")
             for commit in largest:
                 print(
-                    f"  {commit.hash}  +{commit.added}/-{commit.removed}  "
+                    f"  {commit.hash}  +{commit.added}/-{commit.removed}/~{commit.modified}  "
                     f"{commit.time}  {commit.subject}"
                 )
 
