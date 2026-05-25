@@ -1,0 +1,245 @@
+#!/usr/bin/env python3
+"""Summarize today's git commits in the current repository."""
+
+from __future__ import annotations
+
+import argparse
+import subprocess
+import sys
+from dataclasses import dataclass
+from typing import Sequence
+
+
+@dataclass(frozen=True)
+class CommitSummary:
+    hash: str
+    time: str
+    subject: str
+    added: int = 0
+    removed: int = 0
+
+    @property
+    def changed(self) -> int:
+        return self.added + self.removed
+
+
+@dataclass(frozen=True)
+class Totals:
+    commits: int
+    files_changed: int
+    added: int
+    removed: int
+
+    @property
+    def net(self) -> int:
+        return self.added - self.removed
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Summarize today's git commits in the current repository.",
+    )
+    author_group = parser.add_mutually_exclusive_group()
+    author_group.add_argument(
+        "--all-authors",
+        action="store_true",
+        help="Include commits from all authors instead of the current git user email.",
+    )
+    author_group.add_argument(
+        "--author",
+        help="Pass a custom git log --author pattern.",
+    )
+    parser.add_argument(
+        "--since",
+        default="midnight",
+        help="Git-compatible start time (default: midnight).",
+    )
+    parser.add_argument(
+        "--until",
+        help="Git-compatible end time.",
+    )
+    parser.add_argument(
+        "--top",
+        type=int,
+        default=5,
+        help="Show the N largest commits by changed lines (default: 5, use 0 to hide).",
+    )
+    return parser.parse_args()
+
+
+def run(command: Sequence[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
+    try:
+        return subprocess.run(
+            command,
+            check=check,
+            capture_output=True,
+            text=True,
+        )
+    except FileNotFoundError:
+        print(f"Could not find {command[0]!r} in PATH", file=sys.stderr)
+        sys.exit(1)
+    except subprocess.CalledProcessError as error:
+        stderr = error.stderr.strip() or f"{command[0]} failed"
+        print(stderr, file=sys.stderr)
+        sys.exit(error.returncode)
+
+
+def ensure_git_repo() -> str:
+    result = run(["git", "rev-parse", "--show-toplevel"], check=False)
+    if result.returncode != 0:
+        print("today: not inside a git repository", file=sys.stderr)
+        sys.exit(1)
+    return result.stdout.strip()
+
+
+def current_author_pattern(args: argparse.Namespace) -> str | None:
+    if args.all_authors:
+        return None
+    if args.author:
+        return args.author
+
+    email = run(["git", "config", "user.email"], check=False).stdout.strip()
+    if email:
+        return email
+
+    name = run(["git", "config", "user.name"], check=False).stdout.strip()
+    return name or None
+
+
+def base_git_log_args(args: argparse.Namespace, author: str | None) -> list[str]:
+    command = ["git", "log", f"--since={args.since}"]
+    if args.until:
+        command.append(f"--until={args.until}")
+    if author:
+        command.append(f"--author={author}")
+    return command
+
+
+def collect_commits(args: argparse.Namespace, author: str | None) -> list[CommitSummary]:
+    command = [
+        *base_git_log_args(args, author),
+        "--reverse",
+        "--date=format-local:%H:%M",
+        "--pretty=format:%h%x1f%ad%x1f%s",
+    ]
+    output = run(command).stdout
+    commits: list[CommitSummary] = []
+    for line in output.splitlines():
+        if not line.strip():
+            continue
+        short_hash, committed_at, subject = line.split("\x1f", maxsplit=2)
+        commits.append(CommitSummary(short_hash, committed_at, subject))
+    return commits
+
+
+def collect_stats(args: argparse.Namespace, author: str | None) -> tuple[Totals, dict[str, tuple[int, int]]]:
+    command = [
+        *base_git_log_args(args, author),
+        "--date=format-local:%H:%M",
+        "--pretty=format:COMMIT%x1f%h",
+        "--numstat",
+    ]
+    output = run(command).stdout
+
+    files_changed = 0
+    total_added = 0
+    total_removed = 0
+    current_hash: str | None = None
+    per_commit: dict[str, tuple[int, int]] = {}
+
+    for line in output.splitlines():
+        if not line:
+            continue
+        if line.startswith("COMMIT\x1f"):
+            current_hash = line.split("\x1f", maxsplit=1)[1]
+            per_commit.setdefault(current_hash, (0, 0))
+            continue
+
+        parts = line.split("\t")
+        if len(parts) < 3:
+            continue
+
+        files_changed += 1
+        if parts[0].isdigit() and parts[1].isdigit():
+            added = int(parts[0])
+            removed = int(parts[1])
+            total_added += added
+            total_removed += removed
+            if current_hash is not None:
+                existing_added, existing_removed = per_commit[current_hash]
+                per_commit[current_hash] = (existing_added + added, existing_removed + removed)
+
+    totals = Totals(
+        commits=len(per_commit),
+        files_changed=files_changed,
+        added=total_added,
+        removed=total_removed,
+    )
+    return totals, per_commit
+
+
+def is_dirty() -> bool:
+    return bool(run(["git", "status", "--porcelain"], check=False).stdout.strip())
+
+
+def print_summary(
+    args: argparse.Namespace,
+    repo_root: str,
+    author: str | None,
+    commits: list[CommitSummary],
+    totals: Totals,
+    per_commit: dict[str, tuple[int, int]],
+) -> None:
+    print(f"Repo: {repo_root}")
+    print(f"Range: {args.since}" + (f" → {args.until}" if args.until else " → now"))
+    print(f"Author: {author or 'all authors'}")
+    print()
+
+    print(f"Commits: {totals.commits}")
+    print(f"Lines added: {totals.added}")
+    print(f"Lines removed: {totals.removed}")
+    print(f"Net: {totals.net:+d}")
+    print(f"Files changed: {totals.files_changed}")
+
+    if commits:
+        first = commits[0]
+        latest = commits[-1]
+        print()
+        print(f"First: {first.time} — {first.hash} {first.subject}")
+        print(f"Latest: {latest.time} — {latest.hash} {latest.subject}")
+
+    if args.top > 0 and commits:
+        summaries = []
+        commit_by_hash = {commit.hash: commit for commit in commits}
+        for short_hash, (added, removed) in per_commit.items():
+            commit = commit_by_hash.get(short_hash)
+            if not commit:
+                continue
+            summaries.append(CommitSummary(short_hash, commit.time, commit.subject, added, removed))
+
+        largest = sorted(summaries, key=lambda commit: commit.changed, reverse=True)[: args.top]
+        if largest:
+            print()
+            print(f"Top {len(largest)} by changed lines:")
+            for commit in largest:
+                print(
+                    f"  {commit.hash}  +{commit.added}/-{commit.removed}  "
+                    f"{commit.time}  {commit.subject}"
+                )
+
+    if is_dirty():
+        print()
+        print("Note: uncommitted working-tree changes are not included.")
+
+
+def main() -> None:
+    args = parse_args()
+    repo_root = ensure_git_repo()
+    author = current_author_pattern(args)
+    commits = collect_commits(args, author)
+    totals, per_commit = collect_stats(args, author)
+    print_summary(args, repo_root, author, commits, totals, per_commit)
+
+
+if __name__ == "__main__":
+    main()
