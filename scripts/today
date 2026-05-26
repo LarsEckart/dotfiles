@@ -193,16 +193,16 @@ def collect_files_changed(args: argparse.Namespace, author: str | None) -> int:
     ]
     output = run(command).stdout
 
-    files_changed = 0
+    changed_files: set[str] = set()
     for line in output.splitlines():
         if not line or line.startswith("COMMIT\x1f"):
             continue
 
         parts = line.split("\t")
         if len(parts) >= 3:
-            files_changed += 1
+            changed_files.add(parts[2])
 
-    return files_changed
+    return len(changed_files)
 
 
 def collect_line_stats(args: argparse.Namespace, author: str | None) -> dict[str, LineStats]:
