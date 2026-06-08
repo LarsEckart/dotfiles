@@ -19,3 +19,7 @@ update_from_upstream.sh
 run_meiner.sh
 .pi/turbocommit.json
 .fizzy.yaml
+
+
+# Pi
+*.pi/
