@@ -1,13 +1,21 @@
 #!/usr/bin/env bash
-# Scaffold Procfile development files and copy shoreman.sh.
+# Scaffold Pitchfork development daemon files.
 
 set -euo pipefail
 
-cp "$HOME/.dotfiles/templates/proc/Procfile.template" ./Procfile
-cp "$HOME/.dotfiles/templates/proc/.env.template" ./.env
-cp "$HOME/.dotfiles/templates/proc/Makefile.template" ./Makefile
-cp "$HOME/.dotfiles/scripts/shoreman.sh" .
+if [[ -e ./pitchfork.toml || -e ./Makefile ]]; then
+  echo "error: refusing to overwrite existing pitchfork.toml or Makefile" >&2
+  exit 1
+fi
 
-echo "Created Procfile, .env, Makefile, and copied shoreman.sh"
-echo "Run 'make dev' to start services, 'make stop' to stop, 'make logs' to view logs"
+cp "$HOME/.dotfiles/templates/proc/pitchfork.toml.template" ./pitchfork.toml
+cp "$HOME/.dotfiles/templates/proc/Makefile.template" ./Makefile
+
+if ! command -v pitchfork >/dev/null 2>&1; then
+  echo "warning: pitchfork is not installed yet" >&2
+  echo "install it with: brew bundle --file ~/.dotfiles/Brewfile" >&2
+fi
+
+echo "Created pitchfork.toml and Makefile"
+echo "Run 'make dev' to start services and follow logs, 'make stop' to stop, 'make logs' to view recent logs"
 

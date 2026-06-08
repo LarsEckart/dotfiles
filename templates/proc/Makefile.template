@@ -1,31 +1,46 @@
-.PHONY: dev dev-bg stop logs status
+.PHONY: dev dev-bg stop logs logs-tail status tui
 
+# Keep this in sync with the daemon names in pitchfork.toml.
+SERVICES ?= web frontend
+
+# Start services in the foreground and stop them when the log tail exits.
 dev:
-	@./shoreman.sh
+	@set -e; \
+	cleanup() { trap - INT TERM EXIT; pitchfork stop --local; }; \
+	trap cleanup INT TERM EXIT; \
+	pitchfork start --local; \
+	echo "Services are running under Pitchfork. Press Ctrl-C to stop them."; \
+	pitchfork logs $(SERVICES) --tail
 
+# Pitchfork daemons are already background processes; this starts them without
+# attaching to logs.
 dev-bg:
-	@nohup ./shoreman.sh > /dev/null 2>&1 &
-	@echo "Services started in background. Use 'make logs' to view last 100 log lines."
+	@pitchfork start --local
+	@echo "Services started. Use 'make logs' to view recent logs or 'make logs-tail' to follow."
 
 stop:
-	@if [ -f .shoreman.pid ]; then \
-		kill $$(cat .shoreman.pid) 2>/dev/null || true; \
-		rm -f .shoreman.pid; \
-		echo "Services stopped"; \
-	else \
-		echo "No services running"; \
-	fi
+	@pitchfork stop --local
 
 logs:
 	@if [ -n "$(SERVICE)" ]; then \
-		tail -100 ./dev.log | grep "\[$(SERVICE)\]" | perl -pe 's/\e\[[0-9;]*m(?:\e\[K)?//g'; \
+		pitchfork logs "$(SERVICE)" -n 100 --no-pager; \
 	else \
-		tail -100 ./dev.log | perl -pe 's/\e\[[0-9;]*m(?:\e\[K)?//g'; \
+		pitchfork logs $(SERVICES) -n 100 --no-pager; \
+	fi
+
+logs-tail:
+	@if [ -n "$(SERVICE)" ]; then \
+		pitchfork logs "$(SERVICE)" --tail; \
+	else \
+		pitchfork logs $(SERVICES) --tail; \
 	fi
 
 status:
-	@if [ -f .shoreman.pid ] && kill -0 $$(cat .shoreman.pid) 2>/dev/null; then \
-		echo "Services running (PID: $$(cat .shoreman.pid))"; \
+	@if [ -n "$(SERVICE)" ]; then \
+		pitchfork status "$(SERVICE)"; \
 	else \
-		echo "Services not running"; \
+		for service in $(SERVICES); do pitchfork status "$$service"; done; \
 	fi
+
+tui:
+	@pitchfork tui

@@ -14,7 +14,7 @@ Personal dotfiles repository for macOS, organized into logical folders:
 ├── ghostty/                 # Ghostty terminal config
 ├── speech/                  # ElevenLabs text-to-speech Python tool
 ├── tuple-triggers/          # Tuple collaboration utilities
-├── templates/proc/          # Process management templates (shoreman)
+├── templates/proc/          # Process management templates (Pitchfork)
 ├── Makefile                 # Installation automation
 └── README.md                # Symlink installation guide
 ```
@@ -42,7 +42,7 @@ Multi-identity git configuration:
 Utility scripts (added to PATH via `.zsh_exports`):
 - `mac-setup.sh` - macOS system defaults configuration
 - `curltime.sh` - HTTP timing diagnostics
-- `shoreman.sh` - Procfile process manager
+- `shoreman.sh` - Legacy Procfile process manager kept for existing projects
 - `bumbailiff` - TODO debt tracker
 - `notify.sh` / `claude-done.sh` - Notification helpers
 - `speak` - Text-to-speech wrapper
@@ -74,10 +74,9 @@ Python project for ElevenLabs text-to-speech:
 
 ### templates/proc/
 Process management templates for local development:
-- `Procfile.template` - Process definitions
-- `Makefile.template` - Make targets
-- `.env.template` - Environment variables
-- Used by `proc()` function to scaffold new projects
+- `pitchfork.toml.template` - Pitchfork daemon definitions
+- `Makefile.template` - Pitchfork make targets
+- Used by `proc` script to scaffold new projects
 
 ## Installation
 

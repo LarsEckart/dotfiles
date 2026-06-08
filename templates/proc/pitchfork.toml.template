@@ -1,0 +1,21 @@
+#:schema https://pitchfork.en.dev/schema.json
+
+# Pitchfork-managed development daemons.
+# Docs: https://pitchfork.en.dev
+#
+# The shell hook in ~/.dotfiles/shell/.zshrc will auto-start/stop daemons with
+# auto = ["start", "stop"] when entering/leaving this project directory.
+
+[daemons.web]
+run = "./gradlew :server:bootRun"
+dir = "backend"
+auto = ["start", "stop"]
+ready_delay = 3
+env = { NODE_ENV = "development", PORT = "5000" }
+
+[daemons.frontend]
+run = "npm start"
+dir = ".frontend"
+auto = ["start", "stop"]
+ready_delay = 3
+env = { NODE_ENV = "development" }

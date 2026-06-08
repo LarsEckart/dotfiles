@@ -15,6 +15,10 @@ copilot-instructions.md
 # Local upstream sync script
 update_from_upstream.sh
 
+# Pitchfork local daemon overrides
+pitchfork.local.toml
+.config/pitchfork.local.toml
+
 # Local files for meiner
 run_meiner.sh
 .pi/turbocommit.json

@@ -90,6 +90,12 @@ eval "$(/opt/homebrew/bin/try init)"
 
 eval "$(mise activate zsh)"
 
+# Pitchfork auto-starts/stops project daemons that opt in with
+# auto = ["start", "stop"] in pitchfork.toml.
+if command -v pitchfork >/dev/null 2>&1; then
+    eval "$(pitchfork activate zsh)"
+fi
+
 eval "$(starship init zsh)"
 
 # bun completions
