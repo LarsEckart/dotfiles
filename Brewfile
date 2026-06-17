@@ -81,7 +81,7 @@ brew "hunk"
 # Utilities
 cask "codexbar"
 cask "whatcable"
-cask "codiff"
+cask "nkzw-tech/tap/codiff"
 
 brew "htop"
 brew "telnet"
