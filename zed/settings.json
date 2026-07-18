@@ -21,6 +21,11 @@
   },
   "use_system_window_tabs": true,
   "format_on_save": "off",
+  "languages": {
+    "Java": {
+      "enable_language_server": false
+    }
+  },
   "git": {
     "blame": {
       "show_avatar": false
