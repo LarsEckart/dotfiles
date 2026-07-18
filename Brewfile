@@ -31,6 +31,7 @@ brew "vim"
 brew "openssh"
 brew "openssl"
 brew "make"
+brew "just"
 brew "nano"
 brew "perl"
 brew "ripgrep"
@@ -46,7 +47,6 @@ brew "fzf"
 brew "tmux"
 
 # Dev tools
-brew "heroku"
 brew "gradle"
 brew "gng"
 brew "maven"
@@ -77,11 +77,18 @@ brew "swift-format"
 brew "swiftlint"
 brew "xcbeautify"
 brew "hunk"
+brew "1password-cli"
+brew "cloudflared"
+brew "hcloud"
+brew "libpq"
+brew link --force libpq
 
 # Utilities
+cask "docker"
 cask "codexbar"
 cask "whatcable"
 cask "nkzw-tech/tap/codiff"
+
 
 brew "htop"
 brew "telnet"
