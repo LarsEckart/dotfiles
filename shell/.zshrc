@@ -21,12 +21,13 @@ setopt CORRECT                # Autocorrect typos in path names when using cd
 setopt AUTO_CD                # Auto cd when entering just a path
 setopt EXTENDED_GLOB          # Extended globbing (equivalent to bash globstar)
 
-# Enable zsh completion system with caching
+# Enable zsh completion system with caching. When the dump file is fresh,
+# `compinit -C` trusts the cache and skips the slower full security audit.
 autoload -Uz compinit
-if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
-    compinit
-else
+if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qNmh-24) ]]; then
     compinit -C
+else
+    compinit
 fi
 
 # Case insensitive completion
@@ -36,8 +37,9 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 # Add tab completion for SSH hostnames based on ~/.ssh/config, ignoring wildcards
 [ -e "$HOME/.ssh/config" ] && _ssh_config=($(cat ~/.ssh/config | sed -ne 's/Host[=\t ]//p' | grep -v '[?*]')) && zstyle ':completion:*:*:ssh:*:hosts' hosts $_ssh_config
 
-# Add rbenv to PATH (lazy loaded)
-export PATH="$HOME/.rbenv/bin:$PATH"
+# Keep rbenv lazy-loaded, while exporting its shims so child processes such as
+# Bash deployment scripts use the Ruby version selected by rbenv.
+export PATH="$HOME/.rbenv/bin:$HOME/.rbenv/shims:$PATH"
 rbenv() {
     unset -f rbenv
     eval "$(rbenv init - zsh)"
@@ -93,7 +95,15 @@ eval "$(mise activate zsh)"
 # Pitchfork auto-starts/stops project daemons that opt in with
 # auto = ["start", "stop"] in pitchfork.toml.
 if command -v pitchfork >/dev/null 2>&1; then
-    eval "$(pitchfork activate zsh)"
+    # `pitchfork activate zsh` also runs `pitchfork cd` immediately, which is
+    # wasted for normal terminals that start in $HOME. Install only the chpwd
+    # hook so the first actual `cd` into/out of a project does the work.
+    __pitchfork() {
+        command pitchfork cd --shell-pid $$
+    }
+    if (( ${chpwd_functions[(Ie)__pitchfork]} == 0 )); then
+        chpwd_functions+=(__pitchfork)
+    fi
 fi
 
 eval "$(starship init zsh)"
