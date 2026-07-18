@@ -89,20 +89,6 @@ export PATH="$PATH:$(go env GOPATH)/bin"
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 
 
-# 1. Enable telemetry
-export CLAUDE_CODE_ENABLE_TELEMETRY=1
-
-# 2. Choose exporters (both are optional - configure only what you need)
-export OTEL_METRICS_EXPORTER=otlp       # Options: otlp, prometheus, console
-export OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
-export OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io
-
-export OTEL_EXPORTER_OTLP_HEADERS="x-honeycomb-team=3JfMoOMfaKAy0QfNLIETJF,x-honeycomb-dataset=claude-code"
-export OTEL_SERVICE_NAME="claude-code"
-
-export OTEL_METRIC_EXPORT_INTERVAL=60000  # 60 seconds (default: 60000ms)
-export OTEL_LOGS_EXPORT_INTERVAL=5000     # 5 seconds (default: 5000ms)
-
 
 ## Dotfiles scripts
 export PATH="$PATH:$HOME/.dotfiles/scripts"
