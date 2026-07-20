@@ -4,9 +4,7 @@
 
 # Taps
 # Custom taps used by a handful of formulas below.
-tap "heroku/brew"
 tap "gdubw/gng"
-tap "remotemobprogramming/brew"
 tap "anchore/grype"
 tap "rhysd/actionlint", "https://github.com/rhysd/actionlint"
 tap "tobi/try", "https://github.com/tobi/try"
@@ -19,7 +17,6 @@ tap "nkzw-tech/tap"
 cask "font-ibm-plex-mono"
 
 # Android tooling
-cask "temurin@21"
 cask "android-commandlinetools"
 cask "android-platform-tools"
 
@@ -82,6 +79,7 @@ brew "cloudflared"
 brew "hcloud"
 brew "libpq"
 brew link --force libpq
+brew "spacer"
 
 # Utilities
 cask "docker"
