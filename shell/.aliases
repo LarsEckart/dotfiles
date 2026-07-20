@@ -42,3 +42,4 @@ alias mv='mv -i'
 # git aliases
 alias gss='git status -s'
 alias gc='git clone'
+alias gi="git init && git commit --allow-empty -m 'Initial commit'"
