@@ -3,4 +3,4 @@
 
 set -euo pipefail
 
-exec summarize --model openai/gpt-5.5 --length medium --plain --stream off "$@"
+exec summarize --model openai/gpt-5.4-mini --length medium --plain --stream off "$@"
