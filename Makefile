@@ -90,5 +90,6 @@ install-scripts-bin:
 	@echo "Installing scripts to /usr/local/bin..."
 	@chmod +x ~/.dotfiles/scripts/*
 	@sudo ln -sf ~/.dotfiles/scripts/bumbailiff /usr/local/bin/bumbailiff
+	@sudo ln -sf ~/.dotfiles/scripts/chars /usr/local/bin/chars
 	@sudo ln -sf ~/.dotfiles/scripts/curltime.sh /usr/local/bin/curltime
 	@sudo ln -sf ~/.dotfiles/scripts/next-version.sh /usr/local/bin/next-version
