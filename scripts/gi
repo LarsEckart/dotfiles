@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Initialize a git repository, make an empty initial commit, then create and
+# commit a starter .gitignore as a second commit.
+
+set -euo pipefail
+
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+DEFAULT_IGNORE="$SCRIPT_DIR/../git/.gitignore_default"
+
+git init
+git commit --allow-empty -m "Initial commit"
+
+if [[ ! -f .gitignore ]]; then
+  if [[ -f "$DEFAULT_IGNORE" ]]; then
+    cp "$DEFAULT_IGNORE" .gitignore
+  else
+    cat > .gitignore <<'EOF'
+# macOS
+.DS_Store
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+
+# Dependencies / build output
+node_modules/
+dist/
+build/
+
+# Logs
+*.log
+EOF
+  fi
+fi
+
+git add .gitignore
+git commit -m "Add .gitignore" || echo "No changes to .gitignore; skipping second commit"

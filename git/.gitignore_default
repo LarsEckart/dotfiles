@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+
+# Dependencies / build output
+node_modules/
+dist/
+build/
+
+# Logs
+*.log
