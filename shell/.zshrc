@@ -34,8 +34,25 @@ fi
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 
 
-# Add tab completion for SSH hostnames based on ~/.ssh/config, ignoring wildcards
-[ -e "$HOME/.ssh/config" ] && _ssh_config=($(cat ~/.ssh/config | sed -ne 's/Host[=\t ]//p' | grep -v '[?*]')) && zstyle ':completion:*:*:ssh:*:hosts' hosts $_ssh_config
+# Add tab completion for SSH hostnames based on ~/.ssh/config, ignoring wildcards.
+# Use Zsh builtins so opening a shell does not start cat, sed, and grep.
+if [[ -r $HOME/.ssh/config ]]; then
+    _ssh_config=()
+    while IFS= read -r _ssh_config_line; do
+        case $_ssh_config_line in
+            'Host '*) _ssh_config_line=${_ssh_config_line#'Host '} ;;
+            $'Host\t'*) _ssh_config_line=${_ssh_config_line#$'Host\t'} ;;
+            Host=*) _ssh_config_line=${_ssh_config_line#Host=} ;;
+            *) continue ;;
+        esac
+
+        [[ $_ssh_config_line == *\?* || $_ssh_config_line == *\** ]] && continue
+        read -rA _ssh_config_line_hosts <<< "$_ssh_config_line"
+        _ssh_config+=("${_ssh_config_line_hosts[@]}")
+    done < "$HOME/.ssh/config"
+    zstyle ':completion:*:*:ssh:*:hosts' hosts "${_ssh_config[@]}"
+    unset _ssh_config_line _ssh_config_line_hosts
+fi
 
 # Keep rbenv lazy-loaded, while exporting its shims so child processes such as
 # Bash deployment scripts use the Ruby version selected by rbenv.
@@ -87,8 +104,18 @@ ng() {
 # opencode
 export PATH=/Users/lars/.opencode/bin:$PATH
 
-# try - experiment manager (location set via TRY_PATH in .zsh_exports)
-eval "$(/opt/homebrew/bin/try init)"
+# try - experiment manager (location set via TRY_PATH in .zsh_exports).
+# `try init` only prints this function, so keep it here and avoid a Ruby process
+# every time a terminal opens.
+try() {
+    local out
+    out=$(/usr/bin/env ruby '/opt/homebrew/bin/try' exec --path "$TRY_PATH" "$@" 2>/dev/tty)
+    if [[ $? -eq 0 ]]; then
+        eval "$out"
+    else
+        print -r -- "$out"
+    fi
+}
 
 eval "$(mise activate zsh)"
 
