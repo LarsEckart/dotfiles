@@ -176,6 +176,7 @@ NPM_AGENTS=(
 # Format: update_command display_name binary_name
 COMMAND_AGENTS=(
     "pi update|Pi Coding Agent|pi"
+    "pi update --extensions|Pi Extensions|pi"
     "amp update|Amp CLI|amp"
 )
 # Note: Pi's npm package moved from @mariozechner/pi-coding-agent to @earendil-works/pi-coding-agent,
