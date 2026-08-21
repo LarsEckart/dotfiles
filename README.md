@@ -77,6 +77,7 @@ Setup for multiple git identities is also described [here](https://garrit.xyz/po
 
 * `gi` — initialize a git repo, make an empty initial commit, then add a starter `.gitignore`
 * `chars` — list files under a path sorted by character count
+* `commit "scope of changes"` — ask Pi to safely inspect and commit the described changes, then exit
 * `proc` — scaffold Pitchfork-managed development daemons (`pitchfork.toml` + Makefile)
 * `git-pace` — monthly commit activity as a left-to-right sparkline
 * `merged-pr-pace` — average monthly merged PRs per engineer from GitHub

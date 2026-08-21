@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Ask Pi to inspect and commit the changes in the current repository.
+
+set -euo pipefail
+
+commit_prompt=/Users/lars/GitHub/agent-stuff/prompts/commit.md
+
+if [[ ! -r "$commit_prompt" ]]; then
+  printf 'commit: cannot read %s\n' "$commit_prompt" >&2
+  exit 1
+fi
+
+prompt='Commit the changes'
+
+if (( $# > 0 )); then
+  prompt+=$'\n\n'
+  prompt+="$*"
+fi
+
+prompt+=$'\n\n'
+prompt+="$(<"$commit_prompt")"
+
+exec pi --print --no-session \
+  --model openai-codex/gpt-5.6-luna \
+  --thinking high \
+  "$prompt"
