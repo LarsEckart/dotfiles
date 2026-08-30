@@ -1,0 +1,21 @@
+onboarding = false
+
+# Use Ghostty's ANSI palette so the two interfaces share a theme.
+[theme]
+name = "terminal"
+
+[ui]
+# Make multi-agent panes and the agent queue easier to scan.
+show_agent_labels_on_pane_borders = true
+status_indicators = "symbols"
+agent_panel_sort = "priority"
+window_title = "{workspace}: {tab}"
+
+# Ask Ghostty to notify when a background agent finishes or needs input.
+[ui.toast]
+delivery = "terminal"
+delay_seconds = 1
+
+# Experimental: render terminal images through the Kitty graphics protocol.
+[experimental]
+kitty_graphics = true

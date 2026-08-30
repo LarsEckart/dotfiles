@@ -50,6 +50,10 @@ ln -s ~/.dotfiles/zed/themes/macOS\ Classic.json ~/.config/zed/themes/macOS\ Cla
 mkdir -p ~/.config/ghostty
 ln -s ~/.dotfiles/ghostty/ghostty.conf ~/.config/ghostty/config
 
+# Herdr configuration
+mkdir -p ~/.config/herdr
+ln -s ~/.dotfiles/herdr/config.toml ~/.config/herdr/config.toml
+
 # tmux configuration
 mkdir -p ~/.config/tmux
 ln -s ~/.dotfiles/tmux/tmux.conf ~/.config/tmux/tmux.conf

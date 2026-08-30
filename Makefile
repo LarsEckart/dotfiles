@@ -1,8 +1,8 @@
-.PHONY: install install-zsh install-zed install-ghostty install-tmux install-starship install-githooks install-misc install-scripts-bin backup-existing restore-backup clean uninstall setup-macos brew-install brew-update
+.PHONY: install install-zsh install-zed install-ghostty install-herdr install-tmux install-starship install-githooks install-misc install-scripts-bin backup-existing restore-backup clean uninstall setup-macos brew-install brew-update
 DOTFILES_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 BREWFILE ?= $(DOTFILES_DIR)/Brewfile
 
-install: install-zsh install-zed install-ghostty install-tmux install-starship install-githooks install-misc
+install: install-zsh install-zed install-ghostty install-herdr install-tmux install-starship install-githooks install-misc
 
 backup-existing:
 	@echo "Creating backups of existing dotfiles..."
@@ -31,6 +31,11 @@ install-ghostty:
 	@echo "Installing Ghostty configuration..."
 	@mkdir -p ~/.config/ghostty
 	@ln -sf ~/.dotfiles/ghostty/ghostty.conf ~/.config/ghostty/config
+
+install-herdr:
+	@echo "Installing Herdr configuration..."
+	@mkdir -p ~/.config/herdr
+	@ln -sf ~/.dotfiles/herdr/config.toml ~/.config/herdr/config.toml
 
 install-tmux:
 	@echo "Installing tmux configuration..."
@@ -65,6 +70,7 @@ clean:
 	@rm -f ~/.vimrc ~/.hushlogin
 	@rm -f ~/.config/zed/settings.json ~/.config/zed/themes/Casablanca.json ~/.config/zed/themes/NeoSolarized.json ~/.config/zed/themes/Github\ Theme.json ~/.config/zed/themes/macOS\ Classic.json
 	@rm -f ~/.config/ghostty/config
+	@rm -f ~/.config/herdr/config.toml
 	@rm -f ~/.config/tmux/tmux.conf
 	@rm -f ~/.config/starship.toml
 	@echo "Use 'make restore-backup' to restore original files"
