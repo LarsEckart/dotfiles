@@ -85,7 +85,7 @@ Setup for multiple git identities is also described [here](https://garrit.xyz/po
 * `proc` — scaffold Pitchfork-managed development daemons (`pitchfork.toml` + Makefile)
 * `git-pace` — monthly commit activity as a left-to-right sparkline
 * `merged-pr-pace` — average monthly merged PRs per engineer from GitHub
-* `git-pull-all` — run `git pull` across every repo one level below the current directory
+* `pull-all` — safely fast-forward each clean Git repo one level below the current directory
 * `move-github-receipts` — move downloaded GitHub receipt PDFs into yearly expenses folders
 * `reserve` — reserve Eden meeting rooms from the terminal; Eden URLs/location IDs are read from `EDEN_RESERVE_*` variables in `shell/.secrets`
 

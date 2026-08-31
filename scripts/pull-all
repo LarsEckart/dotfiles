@@ -1,0 +1,302 @@
+#!/usr/bin/env bash
+
+# Pull each direct child repository in parallel without changing local work.
+
+set -u
+
+print_worker_result() {
+  local result_dir=$1
+  local id=$2
+  local status=$3
+  local reason=$4
+  local name=$5
+  local result_file="$result_dir/$id.result"
+
+  {
+    printf '%s\n' "$status"
+    printf '%s\n' "$reason"
+  } > "$result_file.tmp"
+  mv "$result_file.tmp" "$result_file"
+
+  case "$status" in
+    updated) printf '[UPDATED] %s\n' "$name" ;;
+    current) printf '[CURRENT] %s\n' "$name" ;;
+    skipped) printf '[SKIPPED] %s - %s\n' "$name" "$reason" ;;
+    failed)  printf '[FAILED]  %s - %s\n' "$name" "$reason" ;;
+  esac
+}
+
+run_worker() {
+  local result_dir=$1
+  local id=$2
+  local repo=$3
+  local name=${repo##*/}
+  local log_file="$result_dir/$id.log"
+  local changes branch upstream before after rc
+
+  : > "$log_file"
+
+  changes=$(git -C "$repo" status --porcelain --untracked-files=normal 2> "$log_file")
+  rc=$?
+  if (( rc != 0 )); then
+    print_worker_result "$result_dir" "$id" failed "could not check repository" "$name"
+    return 0
+  fi
+  if [[ -n "$changes" ]]; then
+    rm -f "$log_file"
+    print_worker_result "$result_dir" "$id" skipped "local changes" "$name"
+    return 0
+  fi
+
+  branch=$(git -C "$repo" symbolic-ref --quiet --short HEAD 2> "$log_file")
+  rc=$?
+  if (( rc == 1 )); then
+    rm -f "$log_file"
+    print_worker_result "$result_dir" "$id" skipped "detached HEAD" "$name"
+    return 0
+  elif (( rc != 0 )); then
+    print_worker_result "$result_dir" "$id" failed "could not read current branch" "$name"
+    return 0
+  fi
+
+  upstream=$(git -C "$repo" rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2> "$log_file")
+  rc=$?
+  if (( rc != 0 )); then
+    rm -f "$log_file"
+    print_worker_result "$result_dir" "$id" skipped "no upstream for $branch" "$name"
+    return 0
+  fi
+
+  before=$(git -C "$repo" rev-parse HEAD 2> "$log_file")
+  rc=$?
+  if (( rc != 0 )); then
+    print_worker_result "$result_dir" "$id" failed "could not read HEAD" "$name"
+    return 0
+  fi
+
+  GIT_TERMINAL_PROMPT=0 \
+  GCM_INTERACTIVE=Never \
+  GIT_SSH_COMMAND="${GIT_SSH_COMMAND:-ssh} -o BatchMode=yes" \
+    git -C "$repo" -c credential.interactive=never -c submodule.recurse=false \
+      pull --quiet --ff-only --recurse-submodules=no > "$log_file" 2>&1
+  rc=$?
+  if (( rc != 0 )); then
+    print_worker_result "$result_dir" "$id" failed "git pull failed ($upstream)" "$name"
+    return 0
+  fi
+
+  after=$(git -C "$repo" rev-parse HEAD 2> "$log_file")
+  rc=$?
+  if (( rc != 0 )); then
+    print_worker_result "$result_dir" "$id" failed "pull finished but HEAD could not be read" "$name"
+    return 0
+  fi
+
+  rm -f "$log_file"
+  if [[ "$before" == "$after" ]]; then
+    print_worker_result "$result_dir" "$id" current "already up to date" "$name"
+  else
+    print_worker_result "$result_dir" "$id" updated "$before -> $after" "$name"
+  fi
+}
+
+if [[ ${1:-} == "--__worker" ]]; then
+  if (( $# != 4 )); then
+    exit 2
+  fi
+  run_worker "$2" "$3" "$4"
+  exit 0
+fi
+
+usage() {
+  cat <<'EOF'
+Usage: pull-all [-j JOBS] [-h]
+
+Pull the checked-out branch in each direct child Git repository.
+Repositories with local changes, detached HEADs, or no upstream are skipped.
+
+Options:
+  -j JOBS  Maximum concurrent pulls (default: logical CPU count)
+  -h       Show this help
+EOF
+}
+
+detect_jobs() {
+  local detected
+
+  detected=$(getconf _NPROCESSORS_ONLN 2>/dev/null || true)
+  if [[ "$detected" =~ ^[1-9][0-9]*$ ]]; then
+    printf '%s\n' "$detected"
+    return
+  fi
+
+  detected=$(sysctl -n hw.logicalcpu 2>/dev/null || true)
+  if [[ "$detected" =~ ^[1-9][0-9]*$ ]]; then
+    printf '%s\n' "$detected"
+    return
+  fi
+
+  printf '1\n'
+}
+
+jobs=$(detect_jobs)
+while getopts ":j:h" option; do
+  case "$option" in
+    j)
+      if [[ ! "$OPTARG" =~ ^[1-9][0-9]*$ ]]; then
+        printf 'Error: JOBS must be a positive whole number.\n' >&2
+        usage >&2
+        exit 2
+      fi
+      jobs=$OPTARG
+      ;;
+    h)
+      usage
+      exit 0
+      ;;
+    :)
+      printf 'Error: -%s needs a value.\n' "$OPTARG" >&2
+      usage >&2
+      exit 2
+      ;;
+    \?)
+      printf 'Error: unknown option -%s.\n' "$OPTARG" >&2
+      usage >&2
+      exit 2
+      ;;
+  esac
+done
+shift $((OPTIND - 1))
+if (( $# != 0 )); then
+  printf 'Error: unexpected argument: %s\n' "$1" >&2
+  usage >&2
+  exit 2
+fi
+
+script_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)
+script_path="$script_dir/$(basename -- "$0")"
+root_dir=$PWD
+result_dir=$(mktemp -d "${TMPDIR:-/tmp}/pull-all.XXXXXX") || exit 1
+trap 'rm -rf "$result_dir"' EXIT HUP INT TERM
+
+declare -a repos
+repo_count=0
+while IFS= read -r -d '' git_marker; do
+  repos[repo_count]=${git_marker%/.git}
+  ((repo_count += 1))
+done < <(find "$root_dir" -mindepth 2 -maxdepth 2 -name .git -print0)
+
+if (( repo_count == 0 )); then
+  printf 'No child repositories found in %s.\n' "$root_dir"
+  exit 0
+fi
+
+if (( jobs > repo_count )); then
+  jobs=$repo_count
+fi
+
+start_seconds=$SECONDS
+task_file="$result_dir/tasks"
+: > "$task_file"
+for ((i = 0; i < repo_count; i += 1)); do
+  printf '%s\0%s\0' "$i" "${repos[i]}" >> "$task_file"
+done
+
+printf 'Pulling %d repositories with up to %d concurrent jobs...\n' "$repo_count" "$jobs"
+xargs -0 -n 2 -P "$jobs" "$script_path" --__worker "$result_dir" < "$task_file"
+xargs_rc=$?
+
+updated_count=0
+current_count=0
+skipped_count=0
+failed_count=0
+declare -a skipped_ids
+declare -a failed_ids
+
+for ((i = 0; i < repo_count; i += 1)); do
+  result_file="$result_dir/$i.result"
+  status=""
+  reason=""
+  if [[ -f "$result_file" ]]; then
+    {
+      IFS= read -r status || true
+      IFS= read -r reason || true
+    } < "$result_file"
+  else
+    status=failed
+    reason="worker did not return a result"
+    printf '%s\n' "$reason" > "$result_dir/$i.log"
+  fi
+
+  case "$status" in
+    updated) ((updated_count += 1)) ;;
+    current) ((current_count += 1)) ;;
+    skipped)
+      skipped_ids[skipped_count]=$i
+      ((skipped_count += 1))
+      ;;
+    failed)
+      failed_ids[failed_count]=$i
+      ((failed_count += 1))
+      ;;
+    *)
+      printf 'Unknown worker result: %s\n' "$status" > "$result_dir/$i.log"
+      failed_ids[failed_count]=$i
+      ((failed_count += 1))
+      ;;
+  esac
+done
+
+elapsed=$((SECONDS - start_seconds))
+printf '\nSummary: %d repositories, %d updated, %d current, %d skipped, %d failed; %d jobs; %ds\n' \
+  "$repo_count" "$updated_count" "$current_count" "$skipped_count" "$failed_count" "$jobs" "$elapsed"
+
+if (( skipped_count > 0 )); then
+  printf '\nSkipped repositories:\n'
+  for ((i = 0; i < skipped_count; i += 1)); do
+    id=${skipped_ids[i]}
+    {
+      IFS= read -r status || true
+      IFS= read -r reason || true
+    } < "$result_dir/$id.result"
+    printf '  - %s: %s\n' "${repos[id]##*/}" "$reason"
+  done
+fi
+
+if (( failed_count > 0 )); then
+  printf '\nFailed repositories:\n'
+  for ((i = 0; i < failed_count; i += 1)); do
+    id=${failed_ids[i]}
+    result_file="$result_dir/$id.result"
+    reason="worker failed"
+    if [[ -f "$result_file" ]]; then
+      {
+        IFS= read -r status || true
+        IFS= read -r reason || true
+      } < "$result_file"
+    fi
+    printf '  - %s: %s\n' "${repos[id]##*/}" "$reason"
+  done
+
+  printf '\nFailure details:\n'
+  for ((i = 0; i < failed_count; i += 1)); do
+    id=${failed_ids[i]}
+    log_file="$result_dir/$id.log"
+    printf '\n--- %s ---\n' "${repos[id]##*/}"
+    if [[ -s "$log_file" ]]; then
+      cat "$log_file"
+      printf '\n'
+    else
+      printf '(no error output)\n'
+    fi
+  done
+fi
+
+if (( xargs_rc != 0 && failed_count == 0 )); then
+  printf '\nThe parallel runner failed with exit code %d.\n' "$xargs_rc" >&2
+  exit 1
+fi
+if (( failed_count > 0 )); then
+  exit 1
+fi
+exit 0
