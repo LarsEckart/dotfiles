@@ -19,3 +19,7 @@ delay_seconds = 1
 # Experimental: render terminal images through the Kitty graphics protocol.
 [experimental]
 kitty_graphics = true
+# Persist full pane screen history across sessions so you can scroll back and
+# revisit past work even after Herdr restarts. Output is saved to
+# session-history.json and may contain secrets.
+pane_history = true
