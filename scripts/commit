@@ -21,6 +21,7 @@ prompt+=$'\n\n'
 prompt+="$(<"$commit_prompt")"
 
 exec pi --print --no-session \
-  --model openai-codex/gpt-5.6-luna \
+  --provider radius \
+  --model cheap \
   --thinking high \
   "$prompt"
