@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Rebases the current branch onto the latest origin/master or origin/main.
+
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "Not inside a Git repository." >&2
+  exit 1
+fi
+
+# Bail if another Git operation is already holding the repo lock.
+lock_file=$(git rev-parse --git-path index.lock)
+if [[ -f "$lock_file" ]]; then
+  echo "Git lock file already exists: ${lock_file}" >&2
+  if command -v lsof >/dev/null 2>&1; then
+    holder=$(lsof -t "$lock_file" 2>/dev/null || true)
+    if [[ -n "$holder" ]]; then
+      echo "Held by process PID(s): ${holder}" >&2
+    else
+      echo "No running process is holding it; the lock may be stale." >&2
+    fi
+  fi
+  echo "Wait for the other Git process to finish, or remove the lock file if you are sure it is stale." >&2
+  exit 1
+fi
+
+# Bail if a rebase/cherry-pick is already in progress.
+for state_dir in rebase-merge rebase-apply sequencer; do
+  if [[ -d "$(git rev-parse --git-path "${state_dir}")" ]]; then
+    echo "Another rebase or sequencer operation is already in progress. Finish or abort it first." >&2
+    exit 1
+  fi
+done
+
+# Block if there are uncommitted changes.
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  echo "Working tree has uncommitted changes. Commit or stash them first." >&2
+  exit 1
+fi
+
+current_branch=$(git branch --show-current)
+if [[ -z "$current_branch" ]]; then
+  echo "You are in a detached HEAD state. Checkout a branch first." >&2
+  exit 1
+fi
+
+# Try origin/HEAD first, then fall back to main/master.
+main_branch=$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null || true)
+main_branch=${main_branch#origin/}
+
+if [[ -z "$main_branch" ]]; then
+  for candidate in main master; do
+    if git show-ref --verify --quiet "refs/remotes/origin/${candidate}"; then
+      main_branch=$candidate
+      break
+    fi
+  done
+fi
+
+if [[ -z "$main_branch" ]]; then
+  echo "Could not find origin/master or origin/main." >&2
+  exit 1
+fi
+
+echo "Rebasing '${current_branch}' onto 'origin/${main_branch}'..."
+git fetch origin "${main_branch}"
+git rebase "origin/${main_branch}"
