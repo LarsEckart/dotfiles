@@ -7,6 +7,11 @@ set -euo pipefail
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 DEFAULT_IGNORE="$SCRIPT_DIR/../git/.gitignore_default"
 
+if git rev-parse --git-dir >/dev/null 2>&1; then
+  echo "Already a git repository; aborting" >&2
+  exit 1
+fi
+
 git init
 git commit --allow-empty -m "Initial commit"
 
