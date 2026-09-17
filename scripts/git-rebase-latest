@@ -62,6 +62,16 @@ if [[ -z "$main_branch" ]]; then
   exit 1
 fi
 
-echo "Rebasing '${current_branch}' onto 'origin/${main_branch}'..."
+echo "Updating local '${main_branch}' from origin..."
 git fetch origin "${main_branch}"
+
+if git show-ref --verify --quiet "refs/heads/${main_branch}"; then
+  git checkout "${main_branch}"
+  git merge --ff-only "origin/${main_branch}"
+  git checkout "${current_branch}"
+else
+  echo "No local '${main_branch}' branch found; skipping local update." >&2
+fi
+
+echo "Rebasing '${current_branch}' onto 'origin/${main_branch}'..."
 git rebase "origin/${main_branch}"
