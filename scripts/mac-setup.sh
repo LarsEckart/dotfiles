@@ -16,6 +16,9 @@ defaults write com.apple.finder ShowHardDrivesOnDesktop         -bool false
 defaults write com.apple.finder ShowMountedServersOnDesktop     -bool false
 defaults write com.apple.finder ShowRemovableMediaOnDesktop     -bool false
 
+# Show files and folders from the Desktop folder on the actual desktop
+defaults write com.apple.finder CreateDesktop -bool true
+
 # Visibility of hidden files
 defaults write com.apple.finder AppleShowAllFiles -bool true
 
