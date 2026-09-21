@@ -104,8 +104,8 @@ defaults write NSGlobalDomain AppleWindowTabbingMode -string 'always'
 # Maximize (zoom)
 defaults write NSGlobalDomain AppleActionOnDoubleClick -string "Maximize"
 
-# Minimize to application
-defaults write com.apple.dock minimize-to-application -bool true
+# Minimize to application (off -> windows land as separate Dock thumbnails)
+defaults write com.apple.dock minimize-to-application -bool false
 
 # Animate opening applications
 defaults write com.apple.dock launchanim -bool false
