@@ -8,6 +8,7 @@ alias j22='export JAVA_HOME=$(/usr/libexec/java_home -v 22); java -version'
 alias j23='export JAVA_HOME=$(/usr/libexec/java_home -v 23); java -version'
 alias j24='export JAVA_HOME=$(/usr/libexec/java_home -v 24); java -version'
 alias j25='export JAVA_HOME=$(/usr/libexec/java_home -v 25); java -version'
+alias j27='export JAVA_HOME=$(/usr/libexec/java_home -v 27); java -version'
 alias graal="export JAVA_HOME=/Library/Java/JavaVirtualMachines/graalvm-jdk-21.0.2+13.1/Contents/Home"
 
 # bat instead of cat

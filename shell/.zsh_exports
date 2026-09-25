@@ -57,7 +57,7 @@ export GPG_TTY="$TTY";
 
 # Java 26. Update this path when changing the installed JDK; resolving it with
 # `java_home` on every shell startup is slower than this stable JDK location.
-export JAVA_HOME="/Library/Java/JavaVirtualMachines/zulu-26.jdk/Contents/Home"
+export JAVA_HOME="/Library/Java/JavaVirtualMachines/zulu-27.jdk/Contents/Home"
 
 export PATH=${PATH}:${JAVA_HOME}/bin
 
