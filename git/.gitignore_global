@@ -27,3 +27,4 @@ run_meiner.sh
 
 # Pi
 *.pi/
+.mcp.json
