@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import argparse
+import math
+import shutil
 import subprocess
 import sys
 from collections import Counter
@@ -38,6 +40,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--until",
         help="Pass a git-compatible --until value, like '2026-01-01'.",
+    )
+    parser.add_argument(
+        "--width",
+        type=int,
+        help="Max chart width in characters (default: terminal width).",
     )
     parser.add_argument(
         "--counts",
@@ -104,6 +111,41 @@ def spark_char(count: int, max_count: int) -> str:
     return SPARK_CHARS[max(1, scaled)]
 
 
+def pick_bucket_size(month_count: int, width: int) -> int:
+    """Return how many months one chart character should cover.
+
+    Sizes divide 12 so every January starts a fresh bucket, which keeps the
+    year ticks honest. Long histories fall back to multiples of a year.
+    """
+    for size in (1, 2, 3, 4, 6, 12):
+        # +1 because aligning to the calendar can add one partial bucket.
+        if math.ceil(month_count / size) + 1 <= width:
+            return size
+    return 12 * math.ceil(month_count / 12 / max(1, width - 1))
+
+
+def bucket_months(
+    months: list[YearMonth], counts: list[int], size: int
+) -> tuple[list[YearMonth], list[int]]:
+    """Sum monthly counts into calendar-aligned buckets of `size` months.
+
+    Each bucket is labelled by its first month.
+    """
+    starts: list[YearMonth] = []
+    sums: list[int] = []
+    for month, count in zip(months, counts):
+        if size <= 12:
+            start = YearMonth(month.year, (month.month - 1) // size * size + 1)
+        else:
+            years = size // 12
+            start = YearMonth(month.year - (month.year - months[0].year) % years, 1)
+        if not starts or starts[-1] != start:
+            starts.append(start)
+            sums.append(0)
+        sums[-1] += count
+    return starts, sums
+
+
 def build_year_guides(months: list[YearMonth]) -> tuple[str, str]:
     tick_line = [" "] * len(months)
     label_line = [" "] * len(months)
@@ -116,7 +158,8 @@ def build_year_guides(months: list[YearMonth]) -> tuple[str, str]:
         tick_line[index] = "|"
         label = str(ym.year)
         start = max(index, last_label_end + 2)
-        if start >= len(label_line):
+        # Skip a label that would drift away from its tick or run off the edge.
+        if start > index + 1 or start + len(label) > len(label_line):
             continue
 
         for offset, char in enumerate(label):
@@ -148,11 +191,18 @@ def main() -> None:
     peak_month = months[counts.index(max_count)]
     average = total_commits / len(months)
     scope = "current branch" if args.current_branch else "all refs"
-    sparkline = "".join(spark_char(count, max_count) for count in counts)
-    tick_line, label_line = build_year_guides(months)
+
+    width = args.width or shutil.get_terminal_size().columns
+    bucket_size = pick_bucket_size(len(months), width)
+    chart_months, chart_counts = bucket_months(months, counts, bucket_size)
+    chart_max = max(chart_counts)
+    sparkline = "".join(spark_char(count, chart_max) for count in chart_counts)
+    tick_line, label_line = build_year_guides(chart_months)
 
     print(f"Monthly commits ({scope})")
     print(f"{first_month} → {last_month}  total={total_commits}  peak={max_count} in {peak_month}  avg={average:.1f}/month")
+    if bucket_size > 1:
+        print(f"1 char = {bucket_size} months (terminal too narrow for 1 char per month)")
     print()
     print(sparkline)
     if tick_line:
