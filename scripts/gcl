@@ -1,12 +1,33 @@
 #!/usr/bin/env bash
-# Delete local git branches that are already merged.
+# Delete local git branches whose remote branch is gone.
+#
+# GitHub deletes the remote branch after a PR merge. Because PRs are often
+# squash-merged, git can't see these branches as "merged" (their commits never
+# land on master), so `git branch --merged` misses them. Instead we look for
+# branches whose upstream is marked [gone] and force-delete them.
+#
+# Usage: gcl [-n]    -n = dry run, only list what would be deleted
 
 set -euo pipefail
 
-git branch --merged \
-  | grep -E -v '(^\*|master|main|develop)' \
-  | awk '{print $1}' \
-  | while read -r branch; do
-      [[ -n "$branch" ]] && git branch -d "$branch"
-    done
+dry_run=false
+[[ "${1:-}" == "-n" ]] && dry_run=true
 
+# Update remote refs and mark upstreams that no longer exist as [gone].
+git fetch --prune --quiet
+
+current=$(git branch --show-current)
+
+git for-each-ref --format='%(refname:short) %(upstream:track)' refs/heads \
+  | awk '$2 == "[gone]" { print $1 }' \
+  | while read -r branch; do
+      if [[ "$branch" == "$current" ]]; then
+        echo "skip $branch (checked out)"
+      elif $dry_run; then
+        echo "would delete $branch"
+      else
+        # -D because squash-merged branches look unmerged to git.
+        # git prints the commit hash, so you can restore with: git branch <name> <hash>
+        git branch -D "$branch"
+      fi
+    done
