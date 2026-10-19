@@ -10,7 +10,8 @@ export PATH="$HOME/bin:$HOME/go/bin:$PATH";
 # * ~/.path can be used to extend `$PATH`.
 # * ~/.extra can be used for other settings you don't want to commit.
 # Note: .secrets is sourced in .zshenv for GUI app access
-for file in ~/.dotfiles/shell/.{aliases,zsh_exports,zsh_functions}; do
+# ~/.extra loads first so it can set values the shared files read, like JAVA_VERSION.
+for file in ~/.extra ~/.dotfiles/shell/.{aliases,zsh_exports,zsh_functions}; do
 	[ -r "$file" ] && [ -f "$file" ] && source "$file";
 done;
 unset file;
