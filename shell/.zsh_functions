@@ -268,4 +268,4 @@ print -P "💵  ${color}${total_days} TODO-days accumulated. Max allowance is ${
 # exit ${status}
 }
 
-# moved to scripts/: proc issue google speak wtf
+# moved to scripts/: issue google speak wtf

@@ -14,7 +14,6 @@ Personal dotfiles repository for macOS, organized into logical folders:
 ├── ghostty/                 # Ghostty terminal config
 ├── speech/                  # ElevenLabs text-to-speech Python tool
 ├── tuple-triggers/          # Tuple collaboration utilities
-├── templates/proc/          # Process management templates (Pitchfork)
 ├── Makefile                 # Installation automation
 └── README.md                # Symlink installation guide
 ```
@@ -72,12 +71,6 @@ Python project for ElevenLabs text-to-speech:
 - Uses `uv` for dependency management
 - Called via `speak "text"` function in shell
 
-### templates/proc/
-Process management templates for local development:
-- `pitchfork.toml.template` - Pitchfork daemon definitions
-- `Makefile.template` - Pitchfork make targets
-- Used by `proc` script to scaffold new projects
-
 ## Installation
 
 Use the Makefile for installation:
@@ -130,7 +123,6 @@ copi  # Copilot (all tools)
 - `churn` - Git file change frequency analysis
 - `extract <file>` - Extract any archive format
 - `speak "text"` - Text-to-speech via ElevenLabs
-- `proc` - Scaffold process management files
 - `gcl` - Clean merged branches
 
 ## Telemetry

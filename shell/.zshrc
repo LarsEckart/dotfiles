@@ -119,20 +119,6 @@ try() {
 
 eval "$(mise activate zsh)"
 
-# Pitchfork auto-starts/stops project daemons that opt in with
-# auto = ["start", "stop"] in pitchfork.toml.
-if command -v pitchfork >/dev/null 2>&1; then
-    # `pitchfork activate zsh` also runs `pitchfork cd` immediately, which is
-    # wasted for normal terminals that start in $HOME. Install only the chpwd
-    # hook so the first actual `cd` into/out of a project does the work.
-    __pitchfork() {
-        command pitchfork cd --shell-pid $$
-    }
-    if (( ${chpwd_functions[(Ie)__pitchfork]} == 0 )); then
-        chpwd_functions+=(__pitchfork)
-    fi
-fi
-
 eval "$(starship init zsh)"
 
 # bun completions
