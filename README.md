@@ -83,6 +83,7 @@ Setup for multiple git identities is also described [here](https://garrit.xyz/po
 * `chars` — list files under a path sorted by character count
 * `commit "scope of changes"` — ask Pi to safely inspect and commit the described changes, then exit
 * `git-pace` — monthly commit activity as a left-to-right sparkline
+* `who-reviews [base]` — suggest reviewers by blaming the lines your current diff changes, or your last commit if nothing is uncommitted (`who-reviews main` for the whole branch)
 * `merged-pr-pace` — average monthly merged PRs per engineer from GitHub
 * `pull-all` — safely fast-forward each clean Git repo one level below the current directory
 * `move-github-receipts` — move downloaded GitHub receipt PDFs into yearly expenses folders

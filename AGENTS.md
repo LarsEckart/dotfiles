@@ -48,6 +48,7 @@ Utility scripts (added to PATH via `.zsh_exports`):
 - `browser` / `browser.swift` - Default browser switcher
 - `update_cli_agents.sh` - AI CLI tools updater
 - `next-version.sh` - Semantic versioning helper
+- `who-reviews` - Suggest reviewers from git blame of changed lines
 - `git-sync-upstream.sh` - Fork sync helper
 - `bash-to-history.sh` - History migration
 

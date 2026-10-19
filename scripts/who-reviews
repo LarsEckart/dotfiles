@@ -1,0 +1,206 @@
+#!/usr/bin/env python3
+"""Suggest reviewers: find who last touched the lines your current diff changes.
+
+How it works:
+  1. Take the diff of your working tree (staged + unstaged) against a base commit.
+     With no uncommitted changes, review your last commit instead.
+  2. For each changed hunk, look at the *old* lines (before your change).
+     For pure insertions there are no old lines, so use the lines right
+     around the insertion point instead.
+  3. Run `git blame` on those old lines at the base commit.
+  4. Rank authors by how many of those lines they last touched.
+
+New files have no history, so they don't count.
+"""
+
+from __future__ import annotations
+
+import argparse
+import os
+import re
+import subprocess
+import sys
+from collections import defaultdict
+from dataclasses import dataclass, field
+from datetime import datetime
+
+HUNK_RE = re.compile(r"^@@ -(\d+)(?:,(\d+))? \+")
+
+
+@dataclass
+class Author:
+    name: str
+    email: str
+    lines: int = 0
+    last_time: int = 0
+    files: dict[str, int] = field(default_factory=lambda: defaultdict(int))
+
+
+def git(*args: str) -> str:
+    result = subprocess.run(["git", *args], capture_output=True, text=True)
+    if result.returncode != 0:
+        sys.exit(f"git {' '.join(args)} failed:\n{result.stderr.strip()}")
+    return result.stdout
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Find who last touched the lines in your current git diff.",
+    )
+    parser.add_argument(
+        "base",
+        nargs="?",
+        help="Compare against the merge-base with this ref, e.g. `main` to cover "
+        "your whole branch. Default: HEAD (only uncommitted changes), or the "
+        "last commit if nothing is uncommitted.",
+    )
+    parser.add_argument(
+        "--include-me",
+        action="store_true",
+        help="Keep yourself in the list (hidden by default).",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="List the files each person touched.",
+    )
+    return parser.parse_args()
+
+
+def changed_ranges(base: str) -> tuple[dict[str, list[tuple[int, int]]], list[str]]:
+    """Return {old_path: [(start, end), ...]} for the base side of the diff, plus new files."""
+    diff = git(
+        "-c", "core.quotePath=false",
+        "diff", "-U0", "--no-color", "--no-ext-diff",
+        "--src-prefix=a/", "--dst-prefix=b/",
+        base,
+    )
+    ranges: dict[str, list[tuple[int, int]]] = defaultdict(list)
+    new_files: list[str] = []
+    path: str | None = None
+    in_header = False
+
+    for line in diff.splitlines():
+        if line.startswith("diff --git "):
+            in_header, path = True, None
+            continue
+        # Only read "--- " in the header; a removed line like "-- foo" also starts with "--- ".
+        if in_header and line.startswith("--- "):
+            name = line[4:].rstrip("\t")
+            path = None if name == "/dev/null" else name.removeprefix("a/")
+            continue
+        if in_header and line.startswith("+++ ") and path is None:
+            new_files.append(line[4:].rstrip("\t").removeprefix("b/"))
+            continue
+        match = HUNK_RE.match(line)
+        if match:
+            in_header = False
+            if path is None:
+                continue
+            start = int(match.group(1))
+            count = int(match.group(2)) if match.group(2) is not None else 1
+            if count > 0:
+                ranges[path].append((start, start + count - 1))
+            else:
+                # Pure insertion after old line `start`: blame its neighbours.
+                ranges[path].append((max(start, 1), start + 1))
+
+    return ranges, new_files
+
+
+def line_count(base: str, path: str) -> int:
+    content = git("cat-file", "-p", f"{base}:{path}")
+    return len(content.splitlines())
+
+
+def blame(base: str, path: str, spans: list[tuple[int, int]], authors: dict[str, Author]) -> None:
+    total = line_count(base, path)
+    args: list[str] = []
+    for start, end in spans:
+        end = min(end, total)
+        if start <= end:
+            args += ["-L", f"{start},{end}"]
+    if not args:
+        return
+
+    output = git("blame", "-w", "--line-porcelain", *args, base, "--", path)
+    name = email = ""
+    time = 0
+    for line in output.splitlines():
+        if line.startswith("author "):
+            name = line[len("author "):]
+        elif line.startswith("author-mail "):
+            email = line[len("author-mail "):].strip("<>").lower()
+        elif line.startswith("author-time "):
+            time = int(line.split()[1])
+        elif line.startswith("\t"):
+            # A tab marks the end of one blamed line's block.
+            author = authors.setdefault(email, Author(name=name, email=email))
+            author.lines += 1
+            author.files[path] += 1
+            if time > author.last_time:
+                author.last_time, author.name = time, name
+
+
+def pick_base(ref: str | None) -> tuple[str, str]:
+    """Return (base commit, label for the output)."""
+    if ref:
+        return git("merge-base", ref, "HEAD").strip(), f"merge-base with {ref}"
+
+    # `git diff --quiet` exits 1 when there are changes (untracked files don't count).
+    dirty = subprocess.run(["git", "diff", "--quiet", "HEAD"]).returncode != 0
+    if dirty:
+        return git("rev-parse", "HEAD").strip(), "HEAD, uncommitted changes"
+
+    # Clean tree: diffing the parent against the working tree gives exactly the last commit.
+    parent = subprocess.run(
+        ["git", "rev-parse", "--verify", "--quiet", "HEAD~1"],
+        capture_output=True, text=True,
+    ).stdout.strip()
+    if not parent:
+        sys.exit("No uncommitted changes, and the last commit is the first one: nothing to blame.")
+    subject = git("log", "-1", "--format=%h %s").strip()
+    return parent, f"no uncommitted changes, so last commit: {subject}"
+
+
+def main() -> None:
+    args = parse_args()
+    git("rev-parse", "--git-dir")
+    root = git("rev-parse", "--show-toplevel").strip()
+    os.chdir(root)
+
+    base, label = pick_base(args.base)
+    ranges, new_files = changed_ranges(base)
+
+    authors: dict[str, Author] = {}
+    for path, spans in ranges.items():
+        blame(base, path, spans, authors)
+
+    me = git("config", "user.email").strip().lower() if not args.include_me else ""
+    my_lines = authors.pop(me).lines if me in authors else 0
+
+    short = git("rev-parse", "--short", base).strip()
+    print(f"Blamed {len(ranges)} changed file(s) at {short} ({label}).")
+    if new_files:
+        print(f"Skipped {len(new_files)} new file(s) with no history.")
+    if my_lines:
+        print(f"Hid {my_lines} line(s) you last touched (use --include-me to show).")
+    print()
+
+    if not authors:
+        print("Nobody else to ask.")
+        return
+
+    ranked = sorted(authors.values(), key=lambda a: (-a.lines, -a.last_time))
+    width = len(str(ranked[0].lines))
+    for a in ranked:
+        date = datetime.fromtimestamp(a.last_time).strftime("%Y-%m-%d")
+        print(f"  {a.lines:>{width}} lines  {len(a.files):>2} files  last {date}  {a.name} <{a.email}>")
+        if args.verbose:
+            for path, count in sorted(a.files.items(), key=lambda kv: -kv[1]):
+                print(f"  {'':>{width}}        {count:>4}  {path}")
+
+
+if __name__ == "__main__":
+    main()
