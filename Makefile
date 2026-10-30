@@ -1,8 +1,8 @@
-.PHONY: install install-zsh install-zed install-ghostty install-herdr install-tmux install-starship install-githooks install-misc install-scripts-bin backup-existing restore-backup clean uninstall setup-macos brew-install brew-update
+.PHONY: install install-gradle install-zsh install-zed install-ghostty install-herdr install-tmux install-starship install-githooks install-misc install-scripts-bin backup-existing restore-backup clean uninstall setup-macos brew-install brew-update
 DOTFILES_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 BREWFILE ?= $(DOTFILES_DIR)/Brewfile
 
-install: install-zsh install-zed install-ghostty install-herdr install-tmux install-starship install-githooks install-misc
+install: install-gradle install-zsh install-zed install-ghostty install-herdr install-tmux install-starship install-githooks install-misc
 
 backup-existing:
 	@echo "Creating backups of existing dotfiles..."
@@ -47,6 +47,11 @@ install-starship:
 	@mkdir -p ~/.config
 	@ln -sf ~/.dotfiles/starship/starship.toml ~/.config/starship.toml
 
+install-gradle:
+	@echo "Installing Gradle configuration..."
+	@mkdir -p ~/.gradle
+	@ln -sf ~/.dotfiles/gradle/gradle.properties ~/.gradle/gradle.properties
+
 install-githooks:
 	@echo "Installing global git hooks..."
 	@chmod +x ~/.dotfiles/githooks/*
@@ -73,6 +78,7 @@ clean:
 	@rm -f ~/.config/herdr/config.toml
 	@rm -f ~/.config/tmux/tmux.conf
 	@rm -f ~/.config/starship.toml
+	@rm -f ~/.gradle/gradle.properties
 	@echo "Use 'make restore-backup' to restore original files"
 
 uninstall: clean restore-backup
