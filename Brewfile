@@ -12,6 +12,7 @@ tap "modem-dev/tap"
 tap "steipete/tap"
 tap "darrylmorley/whatcable"
 tap "nkzw-tech/tap"
+tap "anomalyco/tap"
 
 # Fonts
 cask "font-ibm-plex-mono"
@@ -82,6 +83,7 @@ brew "spacer"
 
 # Utilities
 cask "docker"
+cask "anomalyco/tap/hex"
 cask "codexbar"
 cask "whatcable"
 cask "nkzw-tech/tap/codiff"
