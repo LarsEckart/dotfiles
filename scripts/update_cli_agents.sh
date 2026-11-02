@@ -175,8 +175,7 @@ NPM_AGENTS=(
 # CLI agents with their own updater command.
 # Format: update_command display_name binary_name
 COMMAND_AGENTS=(
-    "pi update|Pi Coding Agent|pi"
-    "pi update --extensions|Pi Extensions|pi"
+    "pi update --all|Pi Coding Agent + Extensions|pi"
     "amp update|Amp CLI|amp"
 )
 # Note: Pi's npm package moved from @mariozechner/pi-coding-agent to @earendil-works/pi-coding-agent,
@@ -297,11 +296,7 @@ for agent_info in "${agents_to_update[@]}"; do
     (
 		case "$update_type" in
 			command)
-				if run_update_command "$update_target" "$display_name"; then
-					:
-				else
-					:
-				fi
+				run_update_command "$update_target" "$display_name" || exit 1
 				;;
 			npm)
 				if perform_install "$update_target" "$display_name" "@latest"; then
@@ -309,10 +304,12 @@ for agent_info in "${agents_to_update[@]}"; do
 					echo "✅ $display_name updated to version $new_version"
 				else
 					echo "❌ Failed to update $display_name"
+					exit 1
 				fi
 				;;
 			*)
 				echo "❌ Unknown update type for $display_name: $update_type"
+				exit 1
 				;;
 		esac
     ) > "$output_file" 2>&1 &
@@ -322,13 +319,23 @@ done
 # Show progress spinner while jobs are running
 show_all_progress
 
-# Wait for all background processes to finish
-wait
+# Check each job so a failed update makes the script fail too.
+updates_failed=0
+for pid in "${update_pids[@]}"; do
+    if ! wait "$pid"; then
+        updates_failed=1
+    fi
+done
 
 # Display results from each job
 for output_file in "${output_files[@]}"; do
     cat "$output_file"
     rm -f "$output_file"
 done
+
+if [ "$updates_failed" -ne 0 ]; then
+    print_status $RED "❌ Some CLI agent updates failed. See output above."
+    exit 1
+fi
 
 print_status $GREEN "🎉 CLI agent updates complete!"
